@@ -207,12 +207,6 @@ export const adminProfileMenu = [
         href: "/admin/notifications",
         icon: Bell,
       },
-      {
-        id: 4,
-        title: "Appearance",
-        action: "theme",
-        icon: SunMoon,
-      },
     ],
   },
 

@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { ChevronDown } from "lucide-react";
@@ -12,8 +13,11 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { adminProfileMenu } from "@/common";
+import { useRouter } from "next/navigation";
 
 const AvatarUser = () => {
+  const router = useRouter();
+
   return (
     <div className="flex items-center gap-3 bg-secondary/5 hover:bg-secondary/10 pr-1 cursor-pointer rounded-full">
       <Avatar>
