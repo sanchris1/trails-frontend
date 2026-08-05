@@ -10,7 +10,7 @@ import {
 
 const AdminNavbar = () => {
   return (
-    <div className="flex items-center justify-between border  p-2">
+    <div className="flex items-center justify-between border  p-2 sticky top-0">
       <div className="w-1/2 flex items-center justify-start gap-6">
         <InputGroup>
           <InputGroupInput placeholder="Search..." />

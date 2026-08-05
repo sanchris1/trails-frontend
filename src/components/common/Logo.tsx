@@ -1,0 +1,12 @@
+import Link from "next/link";
+import React from "react";
+
+const Logo = () => {
+  return (
+    <Link href={"/"} className="text-[16px] font-semibold text-primary ">
+      Trails an<span className="text-accent">d Memoirs</span>
+    </Link>
+  );
+};
+
+export default Logo;
