@@ -3,6 +3,8 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "react-hot-toast";
+import QueryProvider from "@/providers/query-provider";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const poppins = Poppins({
   variable: "--font-geist-sans",
@@ -27,15 +29,17 @@ export default function RootLayout({
       className={`${poppins.className}  h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Toaster />
-          {children}
-        </ThemeProvider>
+        <QueryProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Toaster />
+            <TooltipProvider>{children}</TooltipProvider>
+          </ThemeProvider>
+        </QueryProvider>
       </body>
     </html>
   );

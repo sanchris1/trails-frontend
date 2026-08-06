@@ -21,8 +21,6 @@ const AdminLayout = async ({
     redirect("/");
   }
 
-  console.log(role);
-  console.log(session);
   return (
     <div className="flex h-screen bg-background">
       <AdminSidebar />

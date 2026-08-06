@@ -32,14 +32,14 @@ const AvatarUser = () => {
             </Button>
           }
         />
-        <DropdownMenuContent className="w-48 items-start space-y-1">
+        <DropdownMenuContent className="w-48 items-start space-y-2">
           {adminProfileMenu.map((men) => (
             <DropdownMenuGroup key={men.id}>
               <DropdownMenuLabel>{men.title}</DropdownMenuLabel>
               {men.items.map((item) => (
                 <DropdownMenuItem
                   key={item.id}
-                  className="flex items-center justify-between"
+                  className="flex items-center justify-between "
                 >
                   {item.title}{" "}
                   <DropdownMenuShortcut className="">
