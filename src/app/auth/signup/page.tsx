@@ -73,7 +73,6 @@ const Signup = () => {
   }
 
   const handleSubmit = async () => {
-    console.log("I am being clicked");
     await authClient.signUp.email(
       {
         email: values.email,
@@ -85,8 +84,7 @@ const Signup = () => {
           setLoading(true);
         },
 
-        onSuccess: (yeah) => {
-          console.log(yeah);
+        onSuccess: () => {
           setLoading(false);
           toast.success("user created successfully");
         },

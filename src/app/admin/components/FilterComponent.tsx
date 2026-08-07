@@ -27,9 +27,18 @@ const fields = [
   {
     key: "category",
     options: [
-      { label: "Select Category", value: "" },
-      { label: "Mountain Treks", value: "mountain-treks" },
-      // ...
+      { label: "Hiking", value: "hiking" },
+      { label: "Camping", value: "camping" },
+      { label: "Backpacking", value: "backpacking" },
+      { label: "Trail Running", value: "trail-running" },
+      { label: "Rock Climbing", value: "rock-climbing" },
+      { label: "Mountain Biking", value: "mountain-biking" },
+      { label: "Wildlife Watching", value: "wildlife-watching" },
+      { label: "Nature Walks", value: "nature-walks" },
+      { label: "Waterfalls", value: "waterfalls" },
+      { label: "Mountain Peaks", value: "mountain-peaks" },
+      { label: "Forest Trails", value: "forest-trails" },
+      { label: "Scenic Views", value: "scenic-views" },
     ],
   },
   {

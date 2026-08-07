@@ -13,7 +13,6 @@ export async function getSession() {
     },
     cache: "no-store",
   });
-  console.log(result);
   if (!result.ok) return null;
   return result.json();
 }

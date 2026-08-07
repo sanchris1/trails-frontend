@@ -17,8 +17,6 @@ const AdventuresPage = () => {
     queryFn: () => fetchAllAdventures(query),
   });
 
-  console.log(data?.data);
-
   return (
     <div className="">
       {" "}

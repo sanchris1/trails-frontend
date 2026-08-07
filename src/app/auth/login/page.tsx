@@ -65,7 +65,6 @@ const LoginPage = () => {
   }
 
   const handleSubmit = async () => {
-    console.log("I am being clicked");
     await authClient.signIn.email(
       {
         email: values.email,

@@ -27,9 +27,9 @@ const AvatarUser = () => {
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
-            <Button variant={"ghost"}>
+            <span>
               <ChevronDown />
-            </Button>
+            </span>
           }
         />
         <DropdownMenuContent className="w-48 items-start space-y-2">

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { Adventure } from "@/types/t.types";
@@ -26,7 +27,7 @@ import {
 } from "../ui/alert-dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteAdventure } from "@/hooks/adventures/deleteAdventure";
-import axios from "axios";
+import toast from "react-hot-toast";
 
 interface AdventureExpeditionCardProps {
   isAdmin: boolean;
@@ -48,17 +49,14 @@ const AdventureExpeditionCard = ({
         queryKey: ["adventures"],
       });
     },
-    onError: (error) => {
-      if (axios.isAxiosError(error)) {
-        console.log(error.response?.status);
-        console.log(error.response?.data);
-      }
+    onError: (error: any) => {
+      toast.error(error.message);
     },
   });
 
   return (
-    <Card className="w-full pt-0">
-      <div className="w-full overflow-hidden relative h-64 ">
+    <Card className=" pt-0 flex h-full flex-col">
+      <div className="aspect-4/3 overflow-hidden relative ">
         <Image
           src={adventure.coverImage}
           alt={adventure.title}
@@ -73,24 +71,24 @@ const AdventureExpeditionCard = ({
           {!isAdventure && !isAdmin && <Button>fav</Button>}
         </div>
       </div>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-2 flex flex-1 flex-col">
         <CardHeader className="space-y-2">
-          <h4 className="text-[14px] font-semibold text-accent">
+          <h4 className="text-[14px] font-semibold text-accent line-clamp-2">
             {adventure.title}
           </h4>
-          <span className="flex items-start text-xs text-secondary font-medium gap-3">
+          <span className="flex items-start text-xs text-secondary font-medium gap-3 line-clamp-2">
             <MapPin size={20} /> <span className="">{adventure.location}</span>
           </span>
         </CardHeader>
         <Separator />
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between ">
           <div className="">
             <span className="text-[10px] text-secondary font-medium">
               Duration
             </span>
             <div className="flex items-center gap-1.5 text-foreground text-[13px] font-semibold">
               <Hourglass className="size-3" />{" "}
-              <span className="">{adventure.duration} Hrs</span>
+              <span className="">{adventure.duration} Day(s)</span>
             </div>
           </div>
           <div className="">
@@ -113,10 +111,10 @@ const AdventureExpeditionCard = ({
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex items-center justify-between">
+      <CardFooter className="flex items-center justify-between mt-auto">
         <div className="">
           <span className="">Price</span>
-          <p className="">KSH: {adventure.defaultPrice}</p>
+          <p className="">KSH: {adventure.defaultPrice.toLocaleString()}</p>
         </div>
         {!isAdmin ||
           (!isAdventure && <Button className="bg-accent">Book now</Button>)}
