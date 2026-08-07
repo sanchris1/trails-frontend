@@ -27,6 +27,7 @@ const fields = [
   {
     key: "category",
     options: [
+      { label: "Select Category", value: "" },
       { label: "Hiking", value: "hiking" },
       { label: "Camping", value: "camping" },
       { label: "Backpacking", value: "backpacking" },

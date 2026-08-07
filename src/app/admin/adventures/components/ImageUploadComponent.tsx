@@ -17,7 +17,11 @@ const ImageUploadComponent = () => {
 
   const uploadedImage = form.watch("coverImage");
 
-  const [preview, setPreview] = useState<string | null>(uploadedImage || null);
+  const [localPreview, setLocalPreview] = useState<string | null>(
+    uploadedImage || null,
+  );
+
+  const preview = localPreview || uploadedImage;
 
   const handleSelectImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -26,7 +30,7 @@ const ImageUploadComponent = () => {
 
     const previewUrl = URL.createObjectURL(file);
 
-    setPreview(previewUrl);
+    setLocalPreview(previewUrl);
 
     // Upload image here
     const result = await uploadImage(file);
@@ -106,7 +110,7 @@ const ImageUploadComponent = () => {
               type="button"
               variant="destructive"
               onClick={() => {
-                setPreview(null);
+                setLocalPreview(null);
 
                 form.setValue("coverImage", "");
                 form.setValue("coverImagePublicId", "");

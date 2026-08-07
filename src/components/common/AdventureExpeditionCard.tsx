@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
@@ -28,6 +30,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteAdventure } from "@/hooks/adventures/deleteAdventure";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 interface AdventureExpeditionCardProps {
   isAdmin: boolean;
@@ -53,6 +56,8 @@ const AdventureExpeditionCard = ({
       toast.error(error.message);
     },
   });
+
+  const router = useRouter();
 
   return (
     <Card className=" pt-0 flex h-full flex-col">
@@ -135,7 +140,12 @@ const AdventureExpeditionCard = ({
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button variant={"outline"}>
+                <Button
+                  variant={"outline"}
+                  onClick={() =>
+                    router.push(`/admin/adventures/${adventure.id}/edit`)
+                  }
+                >
                   <Edit2 />
                 </Button>
               }

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -13,6 +14,9 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { useFetchAdventureDetails } from "@/hooks/adventures/fetchAdventureQuery";
+import { useEffect } from "react";
+import { editAdventure } from "@/hooks/adventures/editAdventure";
 
 interface AdventureFormProps {
   mode: "edit" | "new";
@@ -35,7 +39,7 @@ export const defaultAdventureValues: AdventureFormValues = {
   isActive: true,
 };
 
-const AdventureForm = ({ mode }: AdventureFormProps) => {
+const AdventureForm = ({ mode, adventureId }: AdventureFormProps) => {
   const form = useForm<AdventureFormValues>({
     resolver: zodResolver(adventureSchema),
     defaultValues: defaultAdventureValues,
@@ -62,14 +66,48 @@ const AdventureForm = ({ mode }: AdventureFormProps) => {
     },
   });
 
+  const editAdventureMutation = useMutation({
+    mutationFn: editAdventure,
+
+    onSuccess: (data: any) => {
+      toast.success(data.message);
+
+      queryClient.invalidateQueries({
+        queryKey: ["adventures"],
+      });
+
+      router.push("/admin/adventures");
+    },
+
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  const data = useFetchAdventureDetails(mode, adventureId!);
+
+  useEffect(() => {
+    if (!data?.data) return;
+
+    form.reset(data.data);
+  }, [data?.data?.id]);
+
   return (
     <FormProvider {...form}>
       <form
         className="my-4 space-y-6"
         onSubmit={form.handleSubmit(
           (values) => {
-            console.log(values);
-            createAdventureMutation.mutate(values);
+            if (mode === "new") {
+              createAdventureMutation.mutate(values);
+            } else if (mode === "edit") {
+              if (!adventureId) return;
+
+              editAdventureMutation.mutate({
+                adventureId,
+                values,
+              });
+            }
           },
           (error) => {
             console.log(error);
@@ -85,14 +123,26 @@ const AdventureForm = ({ mode }: AdventureFormProps) => {
           <Button
             variant={"default"}
             type="submit"
-            disabled={createAdventureMutation.isPending}
+            disabled={
+              mode === "new"
+                ? createAdventureMutation.isPending
+                : editAdventureMutation.isPending
+            }
           >
-            {createAdventureMutation.isPending ? (
+            {mode === "new" ? (
+              createAdventureMutation.isPending ? (
+                <>
+                  <Spinner /> <span>Creating...</span>
+                </>
+              ) : (
+                "Create adventure"
+              )
+            ) : editAdventureMutation.isPending ? (
               <>
-                <Spinner /> <span>Creating</span>
+                <Spinner /> <span>Editing...</span>
               </>
             ) : (
-              "Create adventure"
+              "Edit Adventure"
             )}
           </Button>
         </div>
