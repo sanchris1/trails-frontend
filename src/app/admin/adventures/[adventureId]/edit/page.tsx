@@ -6,7 +6,6 @@ const EditAdventure = async ({
   params: Promise<{ adventureId: string }>;
 }) => {
   const { adventureId } = await params;
-  console.log(adventureId);
 
   return (
     <div className="">

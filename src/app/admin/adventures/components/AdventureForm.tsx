@@ -84,7 +84,7 @@ const AdventureForm = ({ mode, adventureId }: AdventureFormProps) => {
     },
   });
 
-  const data = useFetchAdventureDetails(mode, adventureId!);
+  const data = useFetchAdventureDetails(adventureId!);
 
   useEffect(() => {
     if (!data?.data) return;

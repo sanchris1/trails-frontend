@@ -69,7 +69,7 @@ const AdventureExpeditionCard = ({
           className=""
         />
         <div className="absolute  top-2 left-0 right-0 mx-2 flex items-center justify-between">
-          <span className="bg-secondary/40 py-1 text-xs font-semibold  px-3 rounded-xl text-foreground">
+          <span className="bg-secondary/50 backdrop-blur-3xl py-1 text-xs font-semibold  px-3 rounded-xl text-white">
             {upperCaseFirstLetter(adventure.difficulty)}
           </span>
 
@@ -128,7 +128,12 @@ const AdventureExpeditionCard = ({
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button variant={"outline"}>
+                <Button
+                  variant={"outline"}
+                  onClick={() =>
+                    router.push(`/admin/adventures/${adventure.id}`)
+                  }
+                >
                   <Eye />
                 </Button>
               }
