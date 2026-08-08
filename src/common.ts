@@ -338,3 +338,10 @@ export const difficulties = [
   { label: "Hard", value: "hard" },
   { label: "Extreme", value: "extreme" },
 ];
+
+export const expeditionStatuses = [
+  { value: "scheduled", label: "Scheduled" },
+  { value: "ongoing", label: "Ongoing" },
+  { value: "completed", label: "Completed" },
+  { value: "cancelled", label: "Cancelled" },
+] as const;

@@ -72,3 +72,58 @@ export const adventureSchema = z.object({
 });
 
 export type AdventureFormValues = z.infer<typeof adventureSchema>;
+
+export const expeditionSchema = z
+  .object({
+    adventureId: z.string().uuid("Invalid adventure ID"),
+
+    departureDate: z.string().min(1, "Departure date is required"),
+
+    departureTime: z.string().min(1, "Departure time is required"),
+
+    returnDate: z.string().min(1, "Return date is required"),
+
+    returnTime: z.string().optional().or(z.literal("")),
+
+    meetingPoint: z
+      .string()
+      .trim()
+      .min(3, "Meeting point must be at least 3 characters"),
+
+    guide: z.string().trim().min(2, "Guide name is required"),
+
+    guideContact: z
+      .string()
+      .trim()
+      .min(7, "Please provide a valid guide contact"),
+
+    expeditionStatus: z.enum([
+      "scheduled",
+      "ongoing",
+      "completed",
+      "cancelled",
+    ]),
+  })
+  .refine(
+    (data) => {
+      return new Date(data.returnDate) >= new Date(data.departureDate);
+    },
+    {
+      message: "Return date cannot be before departure date",
+      path: ["returnDate"],
+    },
+  );
+
+export type ExpeditionFormValues = z.infer<typeof expeditionSchema>;
+
+export const defaultExpeditionValues: ExpeditionFormValues = {
+  adventureId: "",
+  departureDate: "",
+  departureTime: "",
+  returnDate: "",
+  returnTime: "",
+  meetingPoint: "",
+  guide: "",
+  guideContact: "",
+  expeditionStatus: "scheduled",
+};

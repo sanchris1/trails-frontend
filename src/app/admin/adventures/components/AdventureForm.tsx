@@ -88,8 +88,23 @@ const AdventureForm = ({ mode, adventureId }: AdventureFormProps) => {
 
   useEffect(() => {
     if (!data?.data) return;
+    const adventure = data.data;
 
-    form.reset(data.data);
+    form.reset({
+      title: adventure.title ?? "",
+      category: adventure.category ?? "",
+      shortDescription: adventure.shortDescription ?? "",
+      description: adventure.description ?? "",
+      location: adventure.location ?? "",
+      difficulty: adventure.difficulty ?? "",
+      duration: Number(adventure.duration) || 0,
+      elevationGain: adventure.elevationGain ?? null,
+      defaultCapacity: adventure.defaultCapacity ?? 1,
+      defaultPrice: adventure.defaultPrice ?? 0,
+      coverImage: adventure.coverImage ?? "",
+      coverImagePublicId: adventure.coverImagePublicId ?? "",
+      isActive: adventure.isActive ?? true,
+    });
   }, [data?.data?.id]);
 
   return (

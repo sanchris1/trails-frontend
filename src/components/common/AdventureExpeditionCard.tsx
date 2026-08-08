@@ -12,6 +12,7 @@ import {
   Hourglass,
   MapPin,
   Mountain,
+  Plus,
   Trash2,
   Users,
 } from "lucide-react";
@@ -123,7 +124,23 @@ const AdventureExpeditionCard = ({
         </div>
         {!isAdmin ||
           (!isAdventure && <Button className="bg-accent">Book now</Button>)}
-
+        {isAdmin && (
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant={"outline"}
+                  onClick={() =>
+                    router.push(`/admin/expeditions/${adventure.id}/new`)
+                  }
+                >
+                  <Plus />
+                </Button>
+              }
+            />
+            <TooltipContent>Create Expedition</TooltipContent>
+          </Tooltip>
+        )}
         {isAdmin && (
           <Tooltip>
             <TooltipTrigger
