@@ -5,14 +5,22 @@ import { useFetchAdventureDetails } from "@/hooks/adventures/fetchAdventureQuery
 import BackButton from "./BackButton";
 import { Button } from "../ui/button";
 import {
+  BookCheck,
+  CalendarCheck,
+  Calendars,
   ChartBar,
+  ChevronsLeftRightEllipsis,
   CircleDollarSign,
+  ClipboardClock,
   Clock,
+  Contact,
   Edit,
   MapPin,
   Mountain,
+  TimerReset,
   Trash,
   TrendingUp,
+  User,
   Users2,
   WavesArrowUp,
 } from "lucide-react";
@@ -22,25 +30,34 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { deleteAdventure } from "@/hooks/adventures/deleteAdventure";
 import { useRouter } from "next/navigation";
+import { Expedition } from "@/types/t.types";
+import {
+  getBetterDateFormat,
+  getBetterTimeFormat,
+} from "@/hooks/getBetterTimeFormat";
+import { deleteExpedition } from "@/hooks/expedition/deleteExpedition";
 
 interface AdventureExpeditionDetailsPageProps {
   isAdventure: boolean;
   isAdmin: boolean;
   id: string;
+  expedition: Expedition;
 }
 
 const AdventureExpeditionDetailsPage = ({
   id: adventureId,
   isAdmin,
   isAdventure,
+  expedition,
 }: AdventureExpeditionDetailsPageProps) => {
   const { data } = useFetchAdventureDetails(adventureId);
+  console.log(data);
 
   const router = useRouter();
 
   const queryClient = useQueryClient();
 
-  const deleteMutation = useMutation({
+  const deleteAdventureMutation = useMutation({
     mutationFn: deleteAdventure,
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -52,9 +69,36 @@ const AdventureExpeditionDetailsPage = ({
       toast.error(error.message);
     },
   });
+
+  const deleteExpeditionMutation = useMutation({
+    mutationFn: (expeditionId: string) => deleteExpedition(expeditionId),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["expeditions"],
+      });
+    },
+  });
+
   if (!data) {
     return;
   }
+  const capacity = data.defaultCapacity;
+  const slotsLeft = expedition?.slotsLeft ?? 0;
+
+  const availabilityPercentage = slotsLeft / capacity;
+
+  const availabilityClass =
+    availabilityPercentage < 0.3
+      ? "text-red-500 bg-destructive"
+      : availabilityPercentage < 0.6
+        ? "text-yellow-500 bg-secondary/50"
+        : "text-green-500 bg-white/80";
+
+  if (deleteExpeditionMutation.isSuccess) {
+    router.push("/admin/expeditions");
+  }
+
   return (
     <div className="space-y-5 max-w-7xl mx-auto">
       <div className="flex items-center justify-between ">
@@ -79,18 +123,24 @@ const AdventureExpeditionDetailsPage = ({
         {isAdmin && (
           <div className="flex items-center gap-5">
             <Button
-              onClick={() => deleteMutation.mutate(data.id)}
+              onClick={() => {
+                if (isAdventure) {
+                  deleteAdventureMutation.mutate(data.id);
+                } else if (expedition?.id) {
+                  deleteExpeditionMutation.mutate(expedition.id);
+                }
+              }}
               variant={"destructive"}
               className={"text-[16px] font-semibold flex items-center gap-3"}
             >
-              <Trash /> Delete Adventure
+              <Trash /> Delete {isAdventure ? "Adventure" : "Expedition"}
             </Button>
             <Button
               onClick={() => router.push(`/admin/adventures/${data.id}/edit`)}
               variant={"secondary"}
               className={"text-[16px] font-semibold flex items-center gap-3"}
             >
-              <Edit /> Edit Adventure
+              <Edit /> Edit {isAdventure ? "Adventure" : "Expedition"}
             </Button>
           </div>
         )}
@@ -120,7 +170,14 @@ const AdventureExpeditionDetailsPage = ({
             <span className="text-white flex items-center gap-2 bg-foreground/10 backdrop-blur-3xl px-3 py-2 rounded-2xl text-sm font-semibold tracking-wider">
               <MapPin className="size-5" />
               <span>{data.location}</span>
-            </span>
+            </span>{" "}
+            {!isAdventure && (
+              <span
+                className={`${availabilityClass} text-xs font-semibold px-3 py-1 rounded-full border`}
+              >
+                {expedition?.slotsLeft}/{data.defaultCapacity}
+              </span>
+            )}
           </div>
           <h4 className="text-accent font-semibold text-[15px]">
             {data.location}
@@ -130,7 +187,7 @@ const AdventureExpeditionDetailsPage = ({
           </p>
         </div>
       </div>
-      <div className="flex items-center justify-between flex-nowrap gap-5">
+      <div className="flex items-center justify-between flex-wrap gap-5">
         <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
           <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
             <CircleDollarSign />
@@ -176,7 +233,103 @@ const AdventureExpeditionDetailsPage = ({
           </div>
         </div>
       </div>
-      <div className="max-w-3xl space-y-3">
+      {!isAdventure && (
+        <div className="flex items-center justify-between flex-wrap gap-5">
+          <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
+            <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
+              <Calendars />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm ">Departure date</span>
+              <span className="text-sm font-semibold text-secondary">
+                {getBetterDateFormat(expedition?.departureDate)}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
+            <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
+              <ClipboardClock />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm ">Departure time</span>
+              <span className="text-sm font-semibold text-secondary">
+                {getBetterTimeFormat(expedition.departureTime)}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
+            <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
+              <CalendarCheck />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm ">Return date</span>
+              <span className="text-sm font-semibold text-secondary">
+                {getBetterDateFormat(expedition.returnDate)}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
+            <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
+              <TimerReset />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm ">Return time</span>
+              <span className="text-sm font-semibold text-secondary">
+                {getBetterTimeFormat(expedition.returnTime!)}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+      {!isAdventure && (
+        <div className="flex items-center justify-between flex-wrap gap-5">
+          <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
+            <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
+              <User />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm ">In-charge name</span>
+              <span className="text-sm font-semibold text-secondary">
+                {expedition?.guide}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
+            <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
+              <Contact />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm ">In-Charge Contact</span>
+              <span className="text-sm font-semibold text-secondary">
+                {expedition.guideContact}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
+            <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
+              <BookCheck />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm ">Booked Participants</span>
+              <span className="text-sm font-semibold text-secondary">
+                {expedition.bookedParticipants} people
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
+            <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
+              <ChevronsLeftRightEllipsis />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm ">Slots left</span>
+              <span className="text-sm font-semibold text-secondary">
+                {expedition.slotsLeft} slots
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="max-w-5xl space-y-3">
         <div className="flex items-center gap-2">
           <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
             <ChartBar />

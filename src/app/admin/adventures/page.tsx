@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchAllAdventures } from "@/hooks/adventures/fetchAdventures";
 import { useRouter, useSearchParams } from "next/navigation";
 import AdventureExpeditionCard from "@/components/common/AdventureExpeditionCard";
+import FetchingProductsPage from "@/components/common/FetchingProductsPage";
 
 const AdventuresPage = () => {
   const searchParams = useSearchParams();
@@ -19,7 +20,6 @@ const AdventuresPage = () => {
 
   return (
     <div className="">
-      {" "}
       <div className="flex items-center justify-between">
         <div className="">
           <h3 className="text-4xl font-medium text-foreground">Adventures</h3>
@@ -36,7 +36,7 @@ const AdventuresPage = () => {
       </div>
       <FilterComponent />
       {isLoading ? (
-        <div>Loading...</div>
+        <FetchingProductsPage />
       ) : data?.data.length === 0 ? (
         <div>No data found please clear the search filters</div>
       ) : (

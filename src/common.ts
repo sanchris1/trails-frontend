@@ -345,3 +345,30 @@ export const expeditionStatuses = [
   { value: "completed", label: "Completed" },
   { value: "cancelled", label: "Cancelled" },
 ] as const;
+
+export const expeditionSortOptions = [
+  {
+    value: "departure_asc",
+    label: "Departure: Soonest first",
+  },
+  {
+    value: "departure_desc",
+    label: "Departure: Latest first",
+  },
+  {
+    value: "created_desc",
+    label: "Recently created",
+  },
+  {
+    value: "created_asc",
+    label: "Oldest created",
+  },
+  {
+    value: "title_asc",
+    label: "Adventure: A–Z",
+  },
+  {
+    value: "title_desc",
+    label: "Adventure: Z–A",
+  },
+];

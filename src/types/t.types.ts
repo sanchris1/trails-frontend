@@ -127,3 +127,29 @@ export const defaultExpeditionValues: ExpeditionFormValues = {
   guideContact: "",
   expeditionStatus: "scheduled",
 };
+
+export interface Expedition {
+  id: string;
+  adventureId: string;
+
+  departureDate: string;
+  departureTime: string;
+
+  returnDate: string;
+  returnTime: string | null;
+
+  meetingPoint: string;
+
+  guide: string;
+  guideContact: string;
+
+  expeditionStatus: "scheduled" | "ongoing" | "cancelled" | "completed";
+
+  bookedParticipants: number;
+  slotsLeft: number;
+
+  createdAt: string;
+  updatedAt: string;
+
+  adventure: Adventure;
+}
