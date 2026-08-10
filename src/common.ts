@@ -73,13 +73,6 @@ export const sidebarItems: SidebarItem[] = [
     icon: Image,
     section: "Adventure Management",
   },
-  {
-    id: 5,
-    title: "Categories",
-    href: "/admin/categories",
-    icon: Tag,
-    section: "Adventure Management",
-  },
 
   // Bookings
   {

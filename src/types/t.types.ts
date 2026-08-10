@@ -153,3 +153,14 @@ export interface Expedition {
 
   adventure: Adventure;
 }
+
+export interface CreateGalleryImage {
+  expeditionId: string;
+  imageUrl: string;
+  imagePublicId: string;
+  caption: string;
+}
+
+export type CreateGalleryImagesPayload = {
+  images: CreateGalleryImage[];
+};

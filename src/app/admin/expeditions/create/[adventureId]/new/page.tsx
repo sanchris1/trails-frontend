@@ -9,7 +9,7 @@ const CreateNewExpeditionPage = async ({
 
   return (
     <div className="">
-      <ExpeditionForm adventureId={adventureId} />
+      <ExpeditionForm mode="new" adventureId={adventureId} />
     </div>
   );
 };
