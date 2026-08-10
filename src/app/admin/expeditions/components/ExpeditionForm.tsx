@@ -8,7 +8,11 @@ import AdventurePreview from "./AdventurePreview";
 import BackButton from "@/components/common/BackButton";
 import SchedulesAndLogisticsComponent from "./SchedulesAndLogisticsComponent";
 import { FormProvider, useForm } from "react-hook-form";
-import { ExpeditionFormValues, expeditionSchema } from "@/types/t.types";
+import {
+  Expedition,
+  ExpeditionFormValues,
+  expeditionSchema,
+} from "@/types/t.types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FetchingProductsPage from "@/components/common/FetchingProductsPage";
 import GuideInformationComponent from "./GuideInformationComponent";
@@ -19,6 +23,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Spinner } from "@/components/ui/spinner";
+import { editExpedition } from "@/hooks/expedition/editExpedition";
 
 export const defaultExpeditionValues: ExpeditionFormValues = {
   adventureId: "",
@@ -32,7 +37,17 @@ export const defaultExpeditionValues: ExpeditionFormValues = {
   expeditionStatus: "scheduled",
 };
 
-const ExpeditionForm = ({ adventureId }: { adventureId: string }) => {
+const ExpeditionForm = ({
+  adventureId,
+  expedition,
+  mode,
+}: {
+  adventureId: string;
+  expedition?: Expedition;
+  mode: "edit" | "new";
+}) => {
+  console.log(adventureId);
+
   const { data, isFetching } = useFetchAdventureDetails(adventureId);
   const router = useRouter();
 
@@ -61,9 +76,45 @@ const ExpeditionForm = ({ adventureId }: { adventureId: string }) => {
     },
   });
 
+  const editExpeditionMutation = useMutation({
+    mutationFn: editExpedition,
+
+    onSuccess: (data: any) => {
+      toast.success(data?.success || "Successfully updated the expedition");
+      queryClient.invalidateQueries({ queryKey: ["expeditions"] });
+      queryClient.invalidateQueries({ queryKey: ["adventures"] });
+      router.push("/admin/expeditions");
+    },
+
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
   const handleSubmitExpedition = (values: ExpeditionFormValues) => {
-    createNewExpeditionMutation.mutate(values);
+    if (mode === "new") {
+      createNewExpeditionMutation.mutate(values);
+    } else {
+      if (!expedition) return;
+      editExpeditionMutation.mutate({ expeditionId: expedition?.id, values });
+    }
   };
+
+  useEffect(() => {
+    if (!expedition) return;
+
+    form.reset({
+      adventureId: expedition.adventureId,
+      departureDate: expedition.departureDate,
+      departureTime: expedition.departureTime,
+      expeditionStatus: expedition.expeditionStatus,
+      guide: expedition.guide,
+      guideContact: expedition.guideContact,
+      meetingPoint: expedition.meetingPoint,
+      returnDate: expedition.returnDate,
+      returnTime: expedition.returnTime ?? "",
+    });
+  }, [expedition, form]);
 
   if (isFetching) return <FetchingProductsPage />;
 
@@ -117,7 +168,7 @@ const ExpeditionForm = ({ adventureId }: { adventureId: string }) => {
             </form>
           </FormProvider>
         </main>
-        <aside className="bg-primary rounded-2xl p-3">Expedition summary</aside>
+        {/* <aside className="bg-primary rounded-2xl p-3">Expedition summary</aside> */}
       </div>
     </div>
   );

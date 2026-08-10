@@ -199,7 +199,11 @@ const AdventureExpeditionCard = ({
                 <Button
                   variant={"outline"}
                   onClick={() =>
-                    router.push(`/admin/adventures/${adventure.id}/edit`)
+                    router.push(
+                      isAdventure
+                        ? `/admin/adventures/${adventure.id}/edit`
+                        : `/admin/expeditions/${expedition?.id}/edit`,
+                    )
                   }
                 >
                   <Edit2 />

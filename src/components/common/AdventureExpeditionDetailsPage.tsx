@@ -41,7 +41,7 @@ interface AdventureExpeditionDetailsPageProps {
   isAdventure: boolean;
   isAdmin: boolean;
   id: string;
-  expedition: Expedition;
+  expedition?: Expedition;
 }
 
 const AdventureExpeditionDetailsPage = ({
@@ -79,8 +79,11 @@ const AdventureExpeditionDetailsPage = ({
       });
     },
   });
-
+  const currentExpedition = !isAdventure ? expedition : undefined;
   if (!data) {
+    return;
+  }
+  if (!isAdventure && !currentExpedition) {
     return;
   }
   const capacity = data.defaultCapacity;
@@ -136,7 +139,13 @@ const AdventureExpeditionDetailsPage = ({
               <Trash /> Delete {isAdventure ? "Adventure" : "Expedition"}
             </Button>
             <Button
-              onClick={() => router.push(`/admin/adventures/${data.id}/edit`)}
+              onClick={() =>
+                router.push(
+                  isAdventure
+                    ? `/admin/adventures/${data.id}/edit`
+                    : `/admin/expeditions/${expedition?.id}/edit`,
+                )
+              }
               variant={"secondary"}
               className={"text-[16px] font-semibold flex items-center gap-3"}
             >
@@ -233,19 +242,21 @@ const AdventureExpeditionDetailsPage = ({
           </div>
         </div>
       </div>
-      {!isAdventure && (
+      {!isAdventure && expedition && (
         <div className="flex items-center justify-between flex-wrap gap-5">
-          <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
-            <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
-              <Calendars />
+          {currentExpedition?.departureDate && (
+            <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
+              <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
+                <Calendars />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm ">Departure date</span>
+                <span className="text-sm font-semibold text-secondary">
+                  {getBetterDateFormat(currentExpedition?.departureDate)}
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm ">Departure date</span>
-              <span className="text-sm font-semibold text-secondary">
-                {getBetterDateFormat(expedition?.departureDate)}
-              </span>
-            </div>
-          </div>
+          )}
           <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
             <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
               <ClipboardClock />
@@ -268,20 +279,22 @@ const AdventureExpeditionDetailsPage = ({
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
-            <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
-              <TimerReset />
+          {expedition?.returnTime && (
+            <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
+              <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
+                <TimerReset />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm ">Return time</span>
+                <span className="text-sm font-semibold text-secondary">
+                  {getBetterTimeFormat(expedition?.returnTime)}
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm ">Return time</span>
-              <span className="text-sm font-semibold text-secondary">
-                {getBetterTimeFormat(expedition.returnTime!)}
-              </span>
-            </div>
-          </div>
+          )}
         </div>
       )}
-      {!isAdventure && (
+      {!isAdventure && expedition && (
         <div className="flex items-center justify-between flex-wrap gap-5">
           <div className="flex items-center gap-4 bg-secondary/10 border py-3  px-6 rounded-2xl">
             <div className="p-2 flex items-center justify-center bg-secondary/50 rounded-lg">
@@ -301,7 +314,7 @@ const AdventureExpeditionDetailsPage = ({
             <div className="flex flex-col">
               <span className="text-sm ">In-Charge Contact</span>
               <span className="text-sm font-semibold text-secondary">
-                {expedition.guideContact}
+                {expedition?.guideContact}
               </span>
             </div>
           </div>
