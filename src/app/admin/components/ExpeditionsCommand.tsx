@@ -32,8 +32,6 @@ const ExpeditionsCommand = ({
     (exp: Expedition) => exp.departureDate < today && exp.returnDate <= today,
   );
 
-  console.log(expeditionToAddGalleries);
-
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
       <Command>
@@ -51,14 +49,15 @@ const ExpeditionsCommand = ({
             <CommandEmpty>No expeditions found</CommandEmpty>
           )}
           <CommandGroup heading="Expeditions"></CommandGroup>
-          {expeditionToAddGalleries.map((item: Expedition) => (
-            <ExpeditionsCommandItem
-              key={item.id}
-              expedition={item}
-              setId={setExpeditionId}
-              setOpen={setOpen}
-            />
-          ))}
+          {expeditionToAddGalleries &&
+            expeditionToAddGalleries.map((item: Expedition) => (
+              <ExpeditionsCommandItem
+                key={item.id}
+                expedition={item}
+                setId={setExpeditionId}
+                setOpen={setOpen}
+              />
+            ))}
         </CommandList>
       </Command>
     </CommandDialog>

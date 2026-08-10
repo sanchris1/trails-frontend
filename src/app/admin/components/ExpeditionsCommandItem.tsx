@@ -27,13 +27,13 @@ const ExpeditionsCommandItem = ({
           className="rounded-sm object-cover "
         />
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-0.5">
         <span className="text-wrap text-end text-secondary">
           {expedition.adventure.title}
         </span>
         <Separator />
-        <span className="text-wrap text-end text-secondary">
-          {expedition.departureDate}
+        <span className="text-wrap text-end  text-muted-foreground">
+          Departure Date: {expedition.departureDate}
         </span>
       </div>
     </div>
