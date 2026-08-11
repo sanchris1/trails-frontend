@@ -3,7 +3,6 @@ import {
   Map,
   Mountain,
   Image,
-  Tag,
   CalendarCheck,
   Users,
   CreditCard,
@@ -365,3 +364,35 @@ export const expeditionSortOptions = [
     label: "Adventure: Z–A",
   },
 ];
+export const userNavItems = [
+  {
+    id: "home",
+    label: "Home",
+    href: "/",
+  },
+  {
+    id: "adventures",
+    label: "Adventures",
+    href: "/adventures",
+  },
+  {
+    id: "expeditions",
+    label: "Expeditions",
+    href: "/expeditions",
+  },
+  {
+    id: "gallery",
+    label: "Gallery",
+    href: "/gallery",
+  },
+  {
+    id: "merchandise",
+    label: "Merchandise",
+    href: "/merchandise",
+  },
+  {
+    id: "about",
+    label: "About",
+    href: "/about",
+  },
+] as const;

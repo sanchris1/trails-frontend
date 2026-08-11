@@ -101,7 +101,7 @@ const LoginPage = () => {
           </p>
         </div>
       </div>
-      <div className="flex items-center justify-center w-full lg:w-1/2 ">
+      <div className="flex items-center justify-center w-full lg:w-1/2  px-3 md:px-0">
         <Card className="w-full max-w-md">
           <CardHeader>
             <Logo />
