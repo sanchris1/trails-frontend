@@ -9,7 +9,7 @@ const AboutSection = () => {
           {/* Main image */}
           <div className="absolute left-0 top-0 h-67.5 w-[58%] overflow-hidden rounded-[2rem] sm:h-80">
             <Image
-              src="/hero/trail-1.jpg"
+              src="/hero/trail-5.jpg"
               alt="Travelers exploring Kenya"
               fill
               className="object-cover"
@@ -19,7 +19,7 @@ const AboutSection = () => {
           {/* Top-right image */}
           <div className="absolute right-[5%] top-[8%] z-10 h-37.5 w-[38%] overflow-hidden rounded-[1.75rem] border-4 border-background sm:h-47.5">
             <Image
-              src="/hero/trail-2.jpg"
+              src="/hero/trail-6.jpg"
               alt="Beautiful destination in Kenya"
               fill
               className="object-cover"
@@ -29,7 +29,7 @@ const AboutSection = () => {
           {/* Bottom image */}
           <div className="absolute bottom-0 left-[25%] z-20 h-47.5 w-[48%] overflow-hidden rounded-[2rem] border-4 border-background sm:h-57.5">
             <Image
-              src="/hero/trail-3.jpg"
+              src="/hero/trail-8.jpg"
               alt="Hot air balloons over Kenya"
               fill
               className="object-cover"

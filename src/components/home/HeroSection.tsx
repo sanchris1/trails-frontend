@@ -133,7 +133,7 @@ const HeroSection = () => {
           {/* Image 4 */}
           <div className="hero-float absolute bottom-0 right-[3%] z-20 h-47.5 w-[42%] overflow-hidden rounded-[2rem] shadow-xl [animation-delay:3s]">
             <Image
-              src="/hero/trail-1.jpg"
+              src="/hero/trail-4.jpg"
               alt="Travelers enjoying a Kenyan outdoor expedition"
               fill
               sizes="(max-width: 1024px) 0px, 230px"
