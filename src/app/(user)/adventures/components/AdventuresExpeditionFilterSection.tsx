@@ -51,7 +51,7 @@ const AdventuresExpeditionFilterSection = () => {
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:flex lg:w-auto">
               {/* Location */}
               <Select>
-                <SelectTrigger className="h-11 w-full rounded-xl sm:w-[140px]">
+                <SelectTrigger className="h-11 w-full rounded-xl sm:w-35">
                   <SelectValue placeholder="Location" />
                 </SelectTrigger>
 
@@ -66,7 +66,7 @@ const AdventuresExpeditionFilterSection = () => {
 
               {/* Difficulty */}
               <Select>
-                <SelectTrigger className="h-11 w-full rounded-xl sm:w-[140px]">
+                <SelectTrigger className="h-11 w-full rounded-xl sm:w-35">
                   <SelectValue placeholder="Difficulty" />
                 </SelectTrigger>
 
@@ -79,7 +79,7 @@ const AdventuresExpeditionFilterSection = () => {
 
               {/* Duration */}
               <Select>
-                <SelectTrigger className="h-11 w-full rounded-xl sm:w-[140px]">
+                <SelectTrigger className="h-11 w-full rounded-xl sm:w-35">
                   <SelectValue placeholder="Duration" />
                 </SelectTrigger>
 

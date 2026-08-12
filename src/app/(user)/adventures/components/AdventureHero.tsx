@@ -4,7 +4,7 @@ import { ArrowRight, Compass } from "lucide-react";
 
 const AdventureHero = () => {
   return (
-    <section className="relative isolate min-h-[620px] overflow-hidden rounded-b-[2rem] sm:min-h-[680px] lg:min-h-[720px]">
+    <section className="relative isolate min-h-155 overflow-hidden rounded-b-[2rem] sm:min-h-170 lg:min-h-180">
       {/* Background image */}
       <Image
         src="/adventures/adventure-hero.jpg"
@@ -27,7 +27,7 @@ const AdventureHero = () => {
       <div className="absolute inset-x-0 bottom-0 h-56 bg-linear-to-t from-background via-background/80 to-transparent" />
 
       {/* Content */}
-      <div className="relative z-10 flex min-h-[620px] items-center justify-center px-5 py-24 sm:min-h-[680px] sm:px-8 lg:min-h-[720px]">
+      <div className="relative z-10 flex min-h-155 items-center justify-center px-5 py-24 sm:min-h-170 sm:px-8 lg:min-h-180">
         <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
           {/* Eyebrow */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white backdrop-blur-md">

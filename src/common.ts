@@ -386,9 +386,9 @@ export const userNavItems = [
     href: "/gallery",
   },
   {
-    id: "merchandise",
-    label: "Merchandise",
-    href: "/merchandise",
+    id: "shop",
+    label: "Shop",
+    href: "/shop",
   },
   {
     id: "about",
