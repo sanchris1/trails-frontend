@@ -37,7 +37,7 @@ import { deleteExpedition } from "@/hooks/expedition/deleteExpedition";
 interface AdventureExpeditionCardProps {
   isAdmin: boolean;
   adventure: Adventure;
-  expedition: Expedition;
+  expedition?: Expedition;
   isAdventure: boolean;
 }
 
@@ -147,19 +147,20 @@ const AdventureExpeditionCard = ({
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex items-center justify-between mt-auto">
-        <div className="">
+      <CardFooter className="mt-auto flex items-center justify-between">
+        <div>
           <span className="text-secondary">Price</span>
           <p className="font-semibold">
             KSH: {adventure.defaultPrice.toLocaleString()}
           </p>
         </div>
+
         {isAdmin && isAdventure && (
           <Tooltip>
             <TooltipTrigger
               render={
                 <Button
-                  variant={"outline"}
+                  variant="outline"
                   onClick={() =>
                     router.push(`/admin/expeditions/create/${adventure.id}/new`)
                   }
@@ -171,12 +172,13 @@ const AdventureExpeditionCard = ({
             <TooltipContent>Create Expedition</TooltipContent>
           </Tooltip>
         )}
+
         {isAdmin && (
           <Tooltip>
             <TooltipTrigger
               render={
                 <Button
-                  variant={"outline"}
+                  variant="outline"
                   onClick={() =>
                     router.push(
                       isAdventure
@@ -192,12 +194,13 @@ const AdventureExpeditionCard = ({
             <TooltipContent>View Details</TooltipContent>
           </Tooltip>
         )}
+
         {isAdmin && (
           <Tooltip>
             <TooltipTrigger
               render={
                 <Button
-                  variant={"outline"}
+                  variant="outline"
                   onClick={() =>
                     router.push(
                       isAdventure
@@ -215,33 +218,40 @@ const AdventureExpeditionCard = ({
             </TooltipContent>
           </Tooltip>
         )}
+
         {isAdmin && (
           <AlertDialog>
             <AlertDialogTrigger
               render={
-                <Button variant={"destructive"}>
+                <Button variant="destructive">
                   <Trash2 />
                 </Button>
               }
             />
             <AlertDialogContent>
               <AlertDialogTitle>
-                Are you sure you want to delete the Adventure?
+                Are you sure you want to delete the{" "}
+                {isAdventure ? "Adventure" : "Expedition"}?
               </AlertDialogTitle>
               <AlertDialogDescription>
-                This action will delete the Adventure please cancel if not sure.
+                This action cannot be undone. Please cancel if you are not sure.
               </AlertDialogDescription>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
-                  variant={"destructive"}
-                  onClick={
-                    isAdventure
-                      ? () => deleteAdventureMutation.mutate(adventure.id)
-                      : () => deleteExpeditionMutation.mutate(expedition?.id)
-                  }
+                  variant="destructive"
+                  onClick={() => {
+                    if (isAdventure) {
+                      deleteAdventureMutation.mutate(adventure.id);
+                    } else if (expedition?.id) {
+                      deleteExpeditionMutation.mutate(expedition.id);
+                    }
+                  }}
                 >
-                  {deleteAdventureMutation.isPending ? "Deleting..." : "Delete"}
+                  {deleteAdventureMutation.isPending ||
+                  deleteExpeditionMutation.isPending
+                    ? "Deleting..."
+                    : "Delete"}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
