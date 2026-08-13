@@ -23,6 +23,7 @@ import {
   Compass,
   CalendarDays,
   Backpack,
+  ShoppingBag,
 } from "lucide-react";
 
 export interface SidebarItem {
@@ -396,3 +397,30 @@ export const userNavItems = [
     href: "/about",
   },
 ] as const;
+
+export const profileMenuItems = [
+  {
+    id: "profile",
+    label: "My Profile",
+    href: "/profile",
+    icon: User,
+  },
+  {
+    id: "adventures",
+    label: "My Adventures",
+    href: "/profile/adventures",
+    icon: Compass,
+  },
+  {
+    id: "orders",
+    label: "My Orders",
+    href: "/profile/orders",
+    icon: ShoppingBag,
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    href: "/profile/settings",
+    icon: Settings,
+  },
+];

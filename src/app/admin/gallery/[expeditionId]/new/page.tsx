@@ -43,7 +43,10 @@ const AddExpeditionImages = () => {
       });
       router.push("/admin/gallery");
     },
-    onError: () => {
+    onError: (err) => {
+      if (axios.isAxiosError(err)) {
+        console.log(err.response?.data);
+      }
       toast.error("Error uploading images");
     },
   });
@@ -115,6 +118,8 @@ const AddExpeditionImages = () => {
         }),
       );
 
+      console.log("Uploaded images", uploadedImages);
+
       const imagesArray: CreateGalleryImage[] = uploadedImages.map((img) => ({
         expeditionId,
         imageUrl: img.uploaded.secure_url,
@@ -129,6 +134,7 @@ const AddExpeditionImages = () => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data.message);
+        console.log("Error", error);
       }
     } finally {
       setIsUploading(false);

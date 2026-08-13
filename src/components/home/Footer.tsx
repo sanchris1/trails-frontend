@@ -1,6 +1,7 @@
 import { Mail } from "lucide-react";
 import Link from "next/link";
 import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa6";
+import Logo from "../common/Logo";
 
 const footerLinks = {
   explore: [
@@ -65,9 +66,7 @@ const Footer = () => {
         <div className="flex flex-col gap-8 border-b py-10 md:flex-row md:items-center md:justify-between">
           {/* Logo / description */}
           <div className="max-w-sm">
-            <Link href="/" className="text-xl font-bold tracking-tight">
-              Trails & Memoirs
-            </Link>
+            <Logo />
 
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
               Discover Kenya through unforgettable adventures, breathtaking
