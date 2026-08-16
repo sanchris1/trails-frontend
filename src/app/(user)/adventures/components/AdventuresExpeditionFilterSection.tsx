@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,8 +9,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, SlidersHorizontal } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const AdventuresExpeditionFilterSection = () => {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const updateFilterOptions = (key: string, value: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   return (
     <section className="bg-background py-12 sm:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -38,6 +55,12 @@ const AdventuresExpeditionFilterSection = () => {
               />
 
               <Input
+                defaultValue={searchParams.get("search") ?? ""}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    updateFilterOptions("search", e.currentTarget.value);
+                  }
+                }}
                 placeholder="Search adventures..."
                 className="
               h-11 w-full
@@ -50,7 +73,12 @@ const AdventuresExpeditionFilterSection = () => {
             {/* Filters */}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:flex lg:w-auto">
               {/* Location */}
-              <Select>
+              <Select
+                value={searchParams.get("location") ?? ""}
+                onValueChange={(value) =>
+                  updateFilterOptions("location", value)
+                }
+              >
                 <SelectTrigger className="h-11 w-full rounded-xl sm:w-35">
                   <SelectValue placeholder="Location" />
                 </SelectTrigger>
@@ -65,7 +93,12 @@ const AdventuresExpeditionFilterSection = () => {
               </Select>
 
               {/* Difficulty */}
-              <Select>
+              <Select
+                value={searchParams.get("difficulty") ?? ""}
+                onValueChange={(value) =>
+                  updateFilterOptions("difficulty", value)
+                }
+              >
                 <SelectTrigger className="h-11 w-full rounded-xl sm:w-35">
                   <SelectValue placeholder="Difficulty" />
                 </SelectTrigger>
@@ -74,20 +107,6 @@ const AdventuresExpeditionFilterSection = () => {
                   <SelectItem value="easy">Easy</SelectItem>
                   <SelectItem value="moderate">Moderate</SelectItem>
                   <SelectItem value="hard">Hard</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {/* Duration */}
-              <Select>
-                <SelectTrigger className="h-11 w-full rounded-xl sm:w-35">
-                  <SelectValue placeholder="Duration" />
-                </SelectTrigger>
-
-                <SelectContent>
-                  <SelectItem value="1">1 Day</SelectItem>
-                  <SelectItem value="2-3">2–3 Days</SelectItem>
-                  <SelectItem value="4-7">4–7 Days</SelectItem>
-                  <SelectItem value="7+">7+ Days</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -112,6 +131,7 @@ const AdventuresExpeditionFilterSection = () => {
           {/* Clear filters */}
           <div className="mt-3 flex justify-end">
             <button
+              onClick={() => router.push(pathname)}
               type="button"
               className="
             text-[11px]

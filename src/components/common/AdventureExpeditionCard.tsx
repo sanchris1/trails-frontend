@@ -257,6 +257,12 @@ const AdventureExpeditionCard = ({
             </AlertDialogContent>
           </AlertDialog>
         )}
+
+        {!isAdmin && (
+          <Button className={"bg-accent"} onClick={() => router.push(`/`)}>
+            View Details
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

@@ -2,12 +2,26 @@ import AdventureHero from "./components/AdventureHero";
 import AdventuresExpeditionFilterSection from "./components/AdventuresExpeditionFilterSection";
 import AdventureResults from "./components/AdventuresSection";
 
-const AdventuresPage = () => {
+type Props = {
+  searchParams: Promise<Record<string, string | string[] | null | undefined>>;
+};
+
+const AdventuresPage = async ({ searchParams }: Props) => {
+  const params = await searchParams;
+
+  const query = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (typeof value === "string" && value) {
+      query.set(key, value);
+    }
+  });
+
   return (
     <div>
       <AdventureHero />
       <AdventuresExpeditionFilterSection />
-      <AdventureResults />
+      <AdventureResults query={query.toString()} />
     </div>
   );
 };
