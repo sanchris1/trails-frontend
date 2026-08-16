@@ -2,7 +2,7 @@ import AdventureHero from "./components/AdventureHero";
 import AdventuresExpeditionFilterSection from "./components/AdventuresExpeditionFilterSection";
 import AdventureResults from "./components/AdventuresSection";
 
-type Props = {
+export type Props = {
   searchParams: Promise<Record<string, string | string[] | null | undefined>>;
 };
 
