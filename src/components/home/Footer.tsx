@@ -17,6 +17,10 @@ const footerLinks = {
       label: "Gallery",
       href: "/gallery",
     },
+    {
+      label: "Shop",
+      href: "/shop",
+    },
   ],
 
   company: [

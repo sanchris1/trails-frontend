@@ -1,12 +1,12 @@
-import { getSession } from "@/hooks/getSession";
 import AdminNavbar from "./components/AdminNavbar";
 import AdminSidebar from "./components/AdminSidebar";
 import { redirect } from "next/navigation";
+import { requireSession } from "@/hooks/requireSession";
 
 const AdminLayout = async ({
   children,
 }: Readonly<{ children: React.ReactNode }>) => {
-  const session = await getSession();
+  const session = await requireSession("/admin");
 
   if (!session) {
     redirect("/auth/login");

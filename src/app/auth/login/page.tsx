@@ -13,7 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { signupWithGoogle } from "@/hooks/signupWithGoogle";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type FormValues = {
   email: string;
@@ -28,6 +28,9 @@ const LoginPage = () => {
 
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const callbackURL = searchParams.get("callbackURL") ?? "/expeditions";
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -66,7 +69,7 @@ const LoginPage = () => {
         onSuccess: () => {
           setLoading(false);
           toast.success("Welcome back!");
-          router.push("/expeditions");
+          router.push(callbackURL);
           setValues({ email: "", password: "" });
         },
       },
@@ -76,9 +79,6 @@ const LoginPage = () => {
   return (
     <main className="min-h-screen bg-background">
       <div className="grid min-h-screen lg:grid-cols-2">
-        {/* ===================================================== */}
-        {/* LEFT — BRAND / IMAGE */}
-        {/* ===================================================== */}
 
         <section className="relative hidden min-h-screen overflow-hidden lg:flex">
           <Image
@@ -141,9 +141,6 @@ const LoginPage = () => {
           </div>
         </section>
 
-        {/* ===================================================== */}
-        {/* RIGHT — LOGIN */}
-        {/* ===================================================== */}
 
         <section className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-8 lg:px-12 xl:px-20">
           <div className="w-full max-w-md">

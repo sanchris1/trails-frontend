@@ -48,7 +48,7 @@ const NavbarClient = ({ session }: { session: Session }) => {
       fetchOptions: {
         onSuccess: () => {
           toast.success("User signed out successfully");
-          router.replace("/");
+          router.push("/");
           router.refresh();
         },
         onError: (err) => {
