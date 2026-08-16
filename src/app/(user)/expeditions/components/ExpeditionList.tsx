@@ -17,9 +17,11 @@ const ExpeditionsList = ({ query }: { query: string }) => {
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="font-serif text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-            12 Upcoming Expeditions
-          </h2>
+          {!isLoading && (
+            <h2 className="font-serif text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              {data?.data.length} Upcoming Expeditions
+            </h2>
+          )}
 
           {/* Sort */}
           <button className="flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
