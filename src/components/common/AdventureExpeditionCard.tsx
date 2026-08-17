@@ -257,7 +257,13 @@ const AdventureExpeditionCard = ({
             </AlertDialogContent>
           </AlertDialog>
         )}
-        {!isAdmin && !isAdventure && <Button>Join</Button>}
+        {!isAdmin && !isAdventure && (
+          <Button
+            onClick={() => router.push(`/booking/${expedition?.id}/book`)}
+          >
+            Join
+          </Button>
+        )}
 
         {!isAdmin && (
           <Button

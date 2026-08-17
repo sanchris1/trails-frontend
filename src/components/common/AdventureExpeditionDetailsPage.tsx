@@ -239,7 +239,7 @@ const AdventureExpeditionDetailsPage = ({
 
       {/* Hero */}
       <section className="relative isolate overflow-hidden rounded-2xl border bg-muted shadow-sm">
-        <div className="relative aspect-[4/3] min-h-[360px] w-full sm:aspect-[16/8] lg:aspect-[16/7]">
+        <div className="relative aspect-4/3 min-h-90 w-full sm:aspect-16/8 lg:aspect-16/7">
           <Image
             src={data.coverImage}
             alt={data.title}
@@ -249,7 +249,7 @@ const AdventureExpeditionDetailsPage = ({
             className="object-cover"
           />
 
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/5" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/45 to-black/5" />
 
           <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8 lg:p-10">
             <div className="max-w-4xl space-y-4">

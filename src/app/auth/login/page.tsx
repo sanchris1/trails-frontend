@@ -30,7 +30,9 @@ const LoginPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const callbackURL = searchParams.get("callbackURL") ?? "/expeditions";
+  console.log("callbackUrl:", searchParams.get("callbackUrl"));
+
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/expeditions";
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -67,9 +69,11 @@ const LoginPage = () => {
         },
 
         onSuccess: () => {
+          console.log("LOGIN SUCCESS");
+          console.log("REDIRECTING TO:", callbackUrl);
           setLoading(false);
           toast.success("Welcome back!");
-          router.push(callbackURL);
+          router.replace(callbackUrl);
           setValues({ email: "", password: "" });
         },
       },
@@ -79,7 +83,6 @@ const LoginPage = () => {
   return (
     <main className="min-h-screen bg-background">
       <div className="grid min-h-screen lg:grid-cols-2">
-
         <section className="relative hidden min-h-screen overflow-hidden lg:flex">
           <Image
             src="/hero/trail-1.jpg"
@@ -140,7 +143,6 @@ const LoginPage = () => {
             </div>
           </div>
         </section>
-
 
         <section className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-8 lg:px-12 xl:px-20">
           <div className="w-full max-w-md">
