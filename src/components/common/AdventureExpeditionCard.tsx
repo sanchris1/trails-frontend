@@ -260,7 +260,16 @@ const AdventureExpeditionCard = ({
         {!isAdmin && !isAdventure && <Button>Join</Button>}
 
         {!isAdmin && (
-          <Button className={"bg-accent"} onClick={() => router.push(`/`)}>
+          <Button
+            className="bg-accent cursor-pointer"
+            onClick={() =>
+              router.push(
+                isAdventure
+                  ? `/adventures/${adventure.id}`
+                  : `/expeditions/${expedition?.id}`,
+              )
+            }
+          >
             Details
           </Button>
         )}

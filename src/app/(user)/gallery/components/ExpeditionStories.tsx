@@ -1,4 +1,3 @@
-// components/ExpeditionStories.tsx
 import Image from "next/image";
 import { ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,49 +7,6 @@ type GalleryImage = {
   imageUrl: string;
   caption?: string;
 };
-
-const GALLERY_IMAGES: GalleryImage[] = [
-  {
-    id: "1",
-    imageUrl: "/hero/trail-1.jpg",
-    caption: "First light on the escarpment",
-  },
-  {
-    id: "2",
-    imageUrl: "/hero/trail-2.jpg",
-    caption: "Crossing the dry riverbed",
-  },
-  {
-    id: "3",
-    imageUrl: "/hero/trail-4.jpg",
-    caption: "A quiet moment between the hills",
-  },
-  {
-    id: "4",
-    imageUrl: "/hero/trail-4.jpg",
-    caption: "Dust and golden hour",
-  },
-  {
-    id: "5",
-    imageUrl: "/hero/trail-5.jpg",
-    caption: "Looking back at the valley",
-  },
-  {
-    id: "6",
-    imageUrl: "/hero/trail-6.jpg",
-    caption: "The trail continues",
-  },
-  {
-    id: "7",
-    imageUrl: "/hero/trail-7.jpg",
-    caption: "Camp under open skies",
-  },
-  {
-    id: "8",
-    imageUrl: "/hero/trail-4.jpg",
-    caption: "Last light on the ridge",
-  },
-];
 
 type GalleryImageProps = {
   image: GalleryImage;
@@ -182,11 +138,15 @@ const RightFeaturePattern = ({
   );
 };
 
-export default function ExpeditionStories() {
+export default function ExpeditionStories({
+  images,
+}: {
+  images: GalleryImage[];
+}) {
   const groups: GalleryImage[][] = [];
 
-  for (let i = 0; i < GALLERY_IMAGES.length; i += 4) {
-    groups.push(GALLERY_IMAGES.slice(i, i + 4));
+  for (let i = 0; i < images.length; i += 4) {
+    groups.push(images.slice(i, i + 4));
   }
 
   return (
@@ -202,7 +162,7 @@ export default function ExpeditionStories() {
           <span className="text-muted-foreground">•</span>
           <span>Northern Route</span>
           <span className="text-muted-foreground">•</span>
-          <span>{GALLERY_IMAGES.length} Photos</span>
+          <span>{images.length} Photos</span>
         </div>
       </header>
 

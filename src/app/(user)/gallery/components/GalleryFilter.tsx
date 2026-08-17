@@ -18,7 +18,7 @@ const ExpeditionGalleryFilters = () => {
         {/* Controls */}
         <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:items-center">
           {/* Search */}
-          <div className="relative w-full sm:min-w-[220px] sm:max-w-[280px]">
+          <div className="relative w-full sm:min-w-55 sm:max-w-70">
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
 
             <Input
@@ -30,7 +30,7 @@ const ExpeditionGalleryFilters = () => {
           {/* Expedition filter */}
           <Button
             variant="outline"
-            className="h-10 w-full justify-between rounded-full bg-background px-4 text-xs font-normal sm:w-[150px]"
+            className="h-10 w-full justify-between rounded-full bg-background px-4 text-xs font-normal sm:w-37.5"
           >
             <span>All Expeditions</span>
             <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
