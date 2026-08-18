@@ -145,8 +145,8 @@ export default function ExpeditionStories({
 }) {
   const groups: GalleryImage[][] = [];
 
-  for (let i = 0; i < images.length; i += 4) {
-    groups.push(images.slice(i, i + 4));
+  for (let i = 0; i < images?.length; i += 4) {
+    groups.push(images?.slice(i, i + 4));
   }
 
   return (
@@ -162,7 +162,7 @@ export default function ExpeditionStories({
           <span className="text-muted-foreground">•</span>
           <span>Northern Route</span>
           <span className="text-muted-foreground">•</span>
-          <span>{images.length} Photos</span>
+          <span>{images?.length} Photos</span>
         </div>
       </header>
 
