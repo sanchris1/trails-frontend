@@ -1,3 +1,5 @@
+import BookingPage from "../../components/Booking";
+
 const ExpeditionBookingPage = async ({
   params,
 }: {
@@ -5,7 +7,11 @@ const ExpeditionBookingPage = async ({
 }) => {
   const { expeditionId } = await params;
 
-  return <div>ExpeditionBookingPage</div>;
+  return (
+    <div>
+      <BookingPage />
+    </div>
+  );
 };
 
 export default ExpeditionBookingPage;
