@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   description: "The mountains are calling and i must go...",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

@@ -15,7 +15,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
-import { Session } from "./Navbar";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import {
@@ -29,7 +28,8 @@ import {
 import { useTheme } from "next-themes";
 import { handleLogout } from "@/hooks/handleLogout";
 
-const NavbarClient = ({ session }: { session: Session }) => {
+const NavbarClient = () => {
+  const { data: session } = authClient.useSession();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -166,7 +166,7 @@ const NavbarClient = ({ session }: { session: Session }) => {
                 >
                   Logout
                 </Button>
-                {session?.user?.role === "admin" && (
+                {session?.user.role === "admin" && (
                   <Button
                     variant={"destructive"}
                     className={"w-full"}

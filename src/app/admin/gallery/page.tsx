@@ -18,8 +18,6 @@ const GalleryPage = () => {
 
   const { data } = useFetchGalleryImages();
 
-  console.log("Gallery images", data);
-
   const images = data?.images;
 
   useEffect(() => {

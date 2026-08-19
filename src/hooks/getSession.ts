@@ -1,18 +1,23 @@
 import { headers } from "next/headers";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL;
-
 export async function getSession() {
-  const headersList = await headers();
+  const h = await headers();
+  const rawCookie = h.get("cookie") || "";
 
-  const cookie = headersList.get("cookie") ?? "";
-
-  const result = await fetch(`${BACKEND_URL}/auth/get-session`, {
-    headers: {
-      cookie,
+  // Make sure your NEXT_PUBLIC_API_URL exactly matches env.betterAuthUrl
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/auth/get-session`,
+    {
+      method: "GET",
+      headers: {
+        // Lowercase cookie works universally in node environments
+        cookie: rawCookie,
+        Accept: "application/json",
+      },
+      cache: "no-store", // Prevents Next.js from caching a 'null' response forever
     },
-    cache: "no-store",
-  });
-  if (!result.ok) return null;
-  return result.json();
+  );
+
+  if (!res.ok) return null;
+  return res.json();
 }

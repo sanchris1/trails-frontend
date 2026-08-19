@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
@@ -29,8 +30,6 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  console.log("callbackUrl:", searchParams.get("callbackUrl"));
 
   const callbackUrl = searchParams.get("callbackUrl") ?? "/expeditions";
 
@@ -68,9 +67,9 @@ const LoginPage = () => {
           );
         },
 
-        onSuccess: () => {
-          console.log("LOGIN SUCCESS");
-          console.log("REDIRECTING TO:", callbackUrl);
+        onSuccess: (data: any) => {
+          console.log("Data after login:", data);
+
           setLoading(false);
           toast.success("Welcome back!");
           router.replace(callbackUrl);

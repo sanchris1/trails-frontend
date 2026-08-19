@@ -15,12 +15,6 @@ export function proxy(request: NextRequest) {
 
   const session = request.cookies.get("better-auth.session_token");
 
-  console.log("PROXY:", {
-    pathname,
-    hasSession: !!session,
-    cookies: request.cookies.getAll().map((cookie) => cookie.name),
-  });
-
   if (session) {
     return NextResponse.next();
   }
