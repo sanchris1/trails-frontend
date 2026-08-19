@@ -27,6 +27,7 @@ import {
 } from "../ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import { handleLogout } from "@/hooks/handleLogout";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 const NavbarClient = () => {
   const { data: session } = authClient.useSession();
@@ -137,46 +138,61 @@ const NavbarClient = () => {
           )}
 
           {session && (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button variant={"outline"}>
-                    <ChevronDown />
-                  </Button>
-                }
-              />
-              <DropdownMenuContent className={"w-64 space-y-2"} align="start">
-                <DropdownMenuGroup>
-                  <DropdownMenuLabel>My Profile</DropdownMenuLabel>
-                </DropdownMenuGroup>
-                {profileMenuItems.map((item) => (
-                  <DropdownMenuItem key={item.id} className={"text-sm w-full"}>
-                    <Link
-                      href={item.href}
-                      className="flex items-center gap-5 text-[13px]"
+            <div className="flex items-center gap-3 bg-secondary/10 rounded-full">
+              <Avatar>
+                <AvatarImage
+                  src={
+                    session?.user.image
+                      ? session?.user.image
+                      : "https://github.com/shadcn.png"
+                  }
+                />
+                <AvatarFallback>{session?.user.name}</AvatarFallback>
+              </Avatar>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button variant={"outline"}>
+                      <ChevronDown />
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent className={"w-64 space-y-2"} align="start">
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel>My Profile</DropdownMenuLabel>
+                  </DropdownMenuGroup>
+                  {profileMenuItems.map((item) => (
+                    <DropdownMenuItem
+                      key={item.id}
+                      className={"text-sm w-full"}
                     >
-                      <item.icon /> {item.label}
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
-                <Button
-                  variant="outline"
-                  onClick={handleLogout}
-                  className="rounded-xl w-full"
-                >
-                  Logout
-                </Button>
-                {session?.user.role === "admin" && (
+                      <Link
+                        href={item.href}
+                        className="flex items-center gap-5 text-[13px]"
+                      >
+                        <item.icon /> {item.label}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
                   <Button
-                    variant={"destructive"}
-                    className={"w-full"}
-                    onClick={() => router.replace("/admin")}
+                    variant="outline"
+                    onClick={handleLogout}
+                    className="rounded-xl w-full"
                   >
-                    Log to admin
+                    Logout
                   </Button>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  {session?.user.role === "admin" && (
+                    <Button
+                      variant={"destructive"}
+                      className={"w-full"}
+                      onClick={() => router.replace("/admin")}
+                    >
+                      Log to admin
+                    </Button>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           )}
         </div>
 

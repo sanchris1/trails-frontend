@@ -226,20 +226,6 @@ export const adminProfileMenu = [
       },
     ],
   },
-
-  {
-    id: "session",
-    title: "Session",
-    items: [
-      {
-        id: 8,
-        title: "Log Out",
-        action: "logout",
-        icon: LogOut,
-        destructive: true,
-      },
-    ],
-  },
 ];
 
 export const dashboardStats = [

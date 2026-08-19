@@ -14,6 +14,9 @@ const AdminLayout = async ({
 
   const role = session.user?.role;
 
+  console.log("Session", session);
+  console.log("Role", role);
+
   const isAdmin =
     role === "admin" || (Array.isArray(role) && role.includes("admin"));
 

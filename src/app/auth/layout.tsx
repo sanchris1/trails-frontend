@@ -9,6 +9,8 @@ const AuthLayout = async ({
 }) => {
   const session = await getSession();
 
+  console.log("Session auth layout:", session);
+
   if (session) {
     redirect("/expeditions");
   }
