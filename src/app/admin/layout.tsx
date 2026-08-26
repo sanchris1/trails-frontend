@@ -1,12 +1,12 @@
 import AdminNavbar from "./components/AdminNavbar";
 import AdminSidebar from "./components/AdminSidebar";
 import { redirect } from "next/navigation";
-import { requireSession } from "@/hooks/requireSession";
+import { getSession } from "@/hooks/getSession";
 
 const AdminLayout = async ({
   children,
 }: Readonly<{ children: React.ReactNode }>) => {
-  const session = await requireSession("/admin");
+  const session = await getSession();
 
   if (!session) {
     redirect("/auth/login");
@@ -14,11 +14,7 @@ const AdminLayout = async ({
 
   const role = session.user?.role;
 
-  console.log("Session", session);
-  console.log("Role", role);
-
-  const isAdmin =
-    role === "admin" || (Array.isArray(role) && role.includes("admin"));
+  const isAdmin = role === "admin";
 
   if (!isAdmin) {
     redirect("/");

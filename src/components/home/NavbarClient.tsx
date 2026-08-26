@@ -137,17 +137,18 @@ const NavbarClient = () => {
             </Button>
           )}
 
+          {/* the avatar badge */}
           {session && (
             <div className="flex items-center gap-3 bg-secondary/10 rounded-full">
               <Avatar>
                 <AvatarImage
                   src={
-                    session?.user.image
-                      ? session?.user.image
+                    session?.user?.image
+                      ? session?.user?.image
                       : "https://github.com/shadcn.png"
                   }
                 />
-                <AvatarFallback>{session?.user.name}</AvatarFallback>
+                <AvatarFallback>{session?.user?.name}</AvatarFallback>
               </Avatar>
               <DropdownMenu>
                 <DropdownMenuTrigger
@@ -199,6 +200,7 @@ const NavbarClient = () => {
         {/* Mobile menu */}
         <div className="lg:hidden">
           {" "}
+          {/* the toggle theme */}
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
@@ -223,6 +225,8 @@ const NavbarClient = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
+
+        {/* the sheet of the profile */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger
             render={
