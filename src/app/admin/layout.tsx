@@ -12,6 +12,8 @@ const AdminLayout = async ({
     redirect("/auth/login");
   }
 
+  console.log("Session in Admin", session);
+
   const role = session.user?.role;
 
   const isAdmin = role === "admin";
