@@ -4,6 +4,8 @@ export async function getSession() {
   const h = await headers();
   const rawCookie = h.get("cookie") || "";
 
+  console.log("NEXT COOKIE:", rawCookie);
+
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/me`, {
     method: "GET",
     headers: {
