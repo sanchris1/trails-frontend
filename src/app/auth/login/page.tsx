@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
@@ -67,9 +66,7 @@ const LoginPage = () => {
           );
         },
 
-        onSuccess: (data: any) => {
-          console.log("Data after login:", data);
-
+        onSuccess: () => {
           setLoading(false);
           toast.success("Welcome back!");
           router.replace(callbackUrl);
