@@ -12,13 +12,10 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { adminProfileMenu } from "@/common";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
 import Link from "next/link";
 import { useGetSession } from "@/hooks/auth/useGetSession.hook";
 
 const AvatarUser = () => {
-  const router = useRouter();
   const { data: session } = useGetSession();
 
   async function logoutUser() {}

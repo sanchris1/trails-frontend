@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
@@ -9,11 +10,12 @@ import toast from "react-hot-toast";
 import InputComponent from "@/components/common/InputComponent";
 import Logo from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+// import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
-import { signupWithGoogle } from "@/hooks/signupWithGoogle";
-import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { signupUser } from "@/hooks/auth/signupUser";
+import { tokenStore } from "@/lib/tokenStore";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type FormValues = {
   name: string;
@@ -27,9 +29,25 @@ const Signup = () => {
     email: "",
     password: "",
   });
-
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/expeditions";
+
+  const { mutate: signup, isPending: loading } = useMutation({
+    mutationFn: signupUser,
+    onError: (ctx: any) => {
+      console.log(ctx?.response.data.message);
+      toast.error(
+        ctx?.response.data.message || "Error logging in, Please try again.",
+      );
+    },
+    onSuccess: (data) => {
+      console.log("New data:", data);
+      tokenStore.set(data.accessToken);
+      toast.success(data?.message || "Login success");
+      router.push(callbackUrl);
+    },
+  });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -41,7 +59,9 @@ const Signup = () => {
   };
 
   const handleSubmit = async () => {
-    if (!values.name || !values.email || !values.password) {
+    const { name, email, password } = values;
+
+    if (!name || !email || !password) {
       toast.error("Please complete all fields");
       return;
     }
@@ -51,47 +71,12 @@ const Signup = () => {
       return;
     }
 
-    await authClient.signUp.email(
-      {
-        email: values.email,
-        name: values.name,
-        password: values.password,
-      },
-      {
-        onRequest: () => {
-          setLoading(true);
-        },
-
-        onSuccess: () => {
-          setLoading(false);
-          router.push("/expeditions");
-          toast.success("Welcome to Trails & Memoirs!");
-          setValues({
-            name: "",
-            email: "",
-            password: "",
-          });
-        },
-
-        onError: (ctx) => {
-          setLoading(false);
-
-          toast.error(
-            ctx.error?.message ||
-              "Unable to create your account. Please try again.",
-          );
-        },
-      },
-    );
+    signup({ name, email, password });
   };
 
   return (
     <main className="min-h-screen bg-background">
       <div className="grid min-h-screen lg:grid-cols-2">
-        {/* ================================================= */}
-        {/* LEFT — BRAND EXPERIENCE */}
-        {/* ================================================= */}
-
         <section className="relative hidden min-h-screen overflow-hidden lg:flex">
           <Image
             src="/hero/trail-2.jpg"
@@ -152,10 +137,6 @@ const Signup = () => {
             </div>
           </div>
         </section>
-
-        {/* ================================================= */}
-        {/* RIGHT — SIGNUP FORM */}
-        {/* ================================================= */}
 
         <section className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-8 lg:px-12 xl:px-20">
           <div className="w-full max-w-md">
@@ -234,7 +215,7 @@ const Signup = () => {
             </div>
 
             {/* Divider */}
-            <div className="my-7 flex items-center gap-4">
+            {/* <div className="my-7 flex items-center gap-4">
               <Separator className="flex-1" />
 
               <span className="shrink-0 text-xs text-muted-foreground">
@@ -244,39 +225,8 @@ const Signup = () => {
               <Separator className="flex-1" />
             </div>
 
-            {/* Google */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => signupWithGoogle()}
-              className="h-12 w-full rounded-xl border-border/80 bg-background font-medium transition-all hover:-translate-y-0.5 hover:bg-muted"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                className="mr-2 h-5 w-5"
-                aria-hidden="true"
-              >
-                <path
-                  fill="#4285F4"
-                  d="M21.35 12.27c0-.72-.06-1.41-.18-2.07H12v3.92h5.23a4.47 4.47 0 0 1-1.94 2.94v2.45h3.14c1.84-1.7 2.92-4.2 2.92-7.24Z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 21.8c2.63 0 4.84-.87 6.45-2.35l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.75 9.75 0 0 0 12 21.8Z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M6.54 13.89A5.86 5.86 0 0 1 6.23 12c0-.66.11-1.3.31-1.89V7.58H3.3A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.06 1.05 4.42l3.24-2.53Z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 6.08c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.83 3.18 14.63 2.2 12 2.2a9.75 9.75 0 0 0-8.7 5.38l3.24 2.53C7.31 7.8 9.46 6.08 12 6.08Z"
-                />
-              </svg>
-              Continue with Google
-            </Button>
+   */}
 
-            {/* Login */}
             <p className="mt-8 text-center text-sm text-muted-foreground">
               Already have an account?{" "}
               <Link

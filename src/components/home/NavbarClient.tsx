@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { profileMenuItems, userNavItems } from "@/common";
@@ -16,7 +15,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
-import toast from "react-hot-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +24,6 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useTheme } from "next-themes";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useGetSession } from "@/hooks/auth/useGetSession.hook";
 
 const NavbarClient = () => {
