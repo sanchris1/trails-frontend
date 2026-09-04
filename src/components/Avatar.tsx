@@ -12,30 +12,16 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { adminProfileMenu } from "@/common";
-import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { useGetSession } from "@/hooks/auth/useGetSession.hook";
 
 const AvatarUser = () => {
   const router = useRouter();
-  const { data: session } = authClient.useSession();
+  const { data: session } = useGetSession();
 
-  async function logoutUser() {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          toast.success("User signed out successfully");
-          router.push("/");
-          router.refresh();
-        },
-        onError: (err) => {
-          toast.error("Error signing out");
-          console.log(err);
-        },
-      },
-    });
-  }
+  async function logoutUser() {}
 
   return (
     <div className="flex items-center gap-3 bg-secondary/5 hover:bg-secondary/10 px-2 cursor-pointer rounded-full">

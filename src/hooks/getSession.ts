@@ -1,20 +1,14 @@
-import { headers } from "next/headers";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { api } from "@/lib/api";
 
 export async function getSession() {
-  const h = await headers();
-  const rawCookie = h.get("cookie") || "";
-
-  console.log("NEXT COOKIE:", rawCookie);
-
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/me`, {
-    method: "GET",
-    headers: {
-      cookie: rawCookie,
-      Accept: "application/json",
-    },
-    cache: "no-store",
-  });
-
-  if (!res.ok) return null;
-  return res.json();
+  try {
+    const { data } = await api.get("/auth/me");
+    return data;
+  } catch (error: any) {
+    if (error.response?.status === 401) {
+      return null;
+    }
+    throw error;
+  }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { profileMenuItems, userNavItems } from "@/common";
@@ -15,7 +16,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../ui/sheet";
-import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import {
   DropdownMenu,
@@ -26,11 +26,10 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useTheme } from "next-themes";
-import { handleLogout } from "@/hooks/handleLogout";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useGetSession } from "@/hooks/auth/useGetSession.hook";
 
 const NavbarClient = () => {
-  const { data: session } = authClient.useSession();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -44,23 +43,13 @@ const NavbarClient = () => {
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
-  async function logoutUser() {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          toast.success("User signed out successfully");
-          router.push("/");
-          router.refresh();
-        },
-        onError: (err) => {
-          toast.error("Error signing out");
-          console.log(err);
-        },
-      },
-    });
-  }
+  const { data: session } = useGetSession();
+
+  async function logoutUser() {}
 
   const { setTheme } = useTheme();
+
+  console.log("Session at the Navbar:", session);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl ">
@@ -140,7 +129,7 @@ const NavbarClient = () => {
           {/* the avatar badge */}
           {session && (
             <div className="flex items-center gap-3 bg-secondary/10 rounded-full">
-              <Avatar>
+              {/* <Avatar>
                 <AvatarImage
                   src={
                     session?.user?.image
@@ -149,7 +138,7 @@ const NavbarClient = () => {
                   }
                 />
                 <AvatarFallback>{session?.user?.name}</AvatarFallback>
-              </Avatar>
+              </Avatar> */}
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
@@ -177,7 +166,7 @@ const NavbarClient = () => {
                   ))}
                   <Button
                     variant="outline"
-                    onClick={handleLogout}
+                    // onClick={handleLogout}
                     className="rounded-xl w-full"
                   >
                     Logout

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
@@ -11,9 +12,10 @@ import Logo from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
-import { signupWithGoogle } from "@/hooks/signupWithGoogle";
-import { authClient } from "@/lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { loginUser } from "@/hooks/auth/loginUser";
+import { tokenStore } from "@/lib/tokenStore";
 
 type FormValues = {
   email: string;
@@ -26,11 +28,26 @@ const LoginPage = () => {
     password: "",
   });
 
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const callbackUrl = searchParams.get("callbackUrl") ?? "/expeditions";
+
+  const { mutate: login, isPending: loading } = useMutation({
+    mutationFn: loginUser,
+    onError: (ctx: any) => {
+      console.log(ctx?.response.data.message);
+      toast.error(
+        ctx?.response.data.message || "Error logging in, Please try again.",
+      );
+    },
+    onSuccess: (data) => {
+      console.log("New data:", data);
+      tokenStore.set(data.accessToken);
+      toast.success(data?.message || "Login success");
+      router.push(callbackUrl);
+    },
+  });
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -42,38 +59,14 @@ const LoginPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!values.email || !values.password) {
+    const { email, password } = values;
+
+    if (!email || !password) {
       toast.error("Please enter your email and password");
       return;
     }
 
-    await authClient.signIn.email(
-      {
-        email: values.email,
-        password: values.password,
-      },
-      {
-        onRequest: () => {
-          setLoading(true);
-        },
-
-        onError: (ctx) => {
-          setLoading(false);
-
-          toast.error(
-            ctx.error?.message ||
-              "Unable to sign in. Please check your credentials.",
-          );
-        },
-
-        onSuccess: () => {
-          setLoading(false);
-          toast.success("Welcome back!");
-          router.replace(callbackUrl);
-          setValues({ email: "", password: "" });
-        },
-      },
-    );
+    login({ email, password });
   };
 
   return (
@@ -221,38 +214,6 @@ const LoginPage = () => {
 
               <Separator className="flex-1" />
             </div>
-
-            {/* Google */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => signupWithGoogle()}
-              className="h-12 w-full rounded-xl border-border/80 bg-background font-medium transition-all hover:-translate-y-0.5 hover:bg-muted"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                className="mr-2 h-5 w-5"
-                aria-hidden="true"
-              >
-                <path
-                  fill="#4285F4"
-                  d="M21.35 12.27c0-.72-.06-1.41-.18-2.07H12v3.92h5.23a4.47 4.47 0 0 1-1.94 2.94v2.45h3.14c1.84-1.7 2.92-4.2 2.92-7.24Z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 21.8c2.63 0 4.84-.87 6.45-2.35l-3.14-2.45c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.3v2.53A9.75 9.75 0 0 0 12 21.8Z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M6.54 13.89A5.86 5.86 0 0 1 6.23 12c0-.66.11-1.3.31-1.89V7.58H3.3A9.75 9.75 0 0 0 2.25 12c0 1.57.38 3.06 1.05 4.42l3.24-2.53Z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 6.08c1.43 0 2.71.49 3.72 1.46l2.79-2.79C16.83 3.18 14.63 2.2 12 2.2a9.75 9.75 0 0 0-8.7 5.38l3.24 2.53C7.31 7.8 9.46 6.08 12 6.08Z"
-                />
-              </svg>
-              Continue with Google
-            </Button>
 
             {/* Signup */}
             <p className="mt-8 text-center text-sm text-muted-foreground">

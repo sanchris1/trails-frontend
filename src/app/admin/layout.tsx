@@ -1,25 +1,34 @@
+"use client";
+
+import { useGetSession } from "@/hooks/auth/useGetSession.hook";
 import AdminNavbar from "./components/AdminNavbar";
 import AdminSidebar from "./components/AdminSidebar";
-import { redirect } from "next/navigation";
-import { getSession } from "@/hooks/getSession";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-const AdminLayout = async ({
-  children,
-}: Readonly<{ children: React.ReactNode }>) => {
-  const session = await getSession();
+const AdminLayout = ({ children }: { children: React.ReactNode }) => {
+  const { data: session, isLoading } = useGetSession();
+  const router = useRouter();
 
-  if (!session) {
-    redirect("/auth/login");
-  }
+  useEffect(() => {
+    if (isLoading) return;
 
-  console.log("Session in Admin", session);
+    if (!session) {
+      router.replace("/auth/login");
+      return;
+    }
 
-  const role = session.user?.role;
+    if (session.user?.role !== "admin") {
+      router.replace("/");
+    }
+  }, [session, isLoading, router]);
 
-  const isAdmin = role === "admin";
-
-  if (!isAdmin) {
-    redirect("/");
+  if (isLoading || !session || session.user?.role !== "admin") {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
   return (

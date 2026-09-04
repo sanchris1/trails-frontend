@@ -13,7 +13,7 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const session = request.cookies.get("better-auth.session_token");
+  const session = request.cookies.get("refreshToken");
 
   if (session) {
     return NextResponse.next();
