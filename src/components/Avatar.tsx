@@ -14,11 +14,12 @@ import {
 import { adminProfileMenu } from "@/common";
 import Link from "next/link";
 import { useGetSession } from "@/hooks/auth/useGetSession.hook";
+import { useLogoutUser } from "@/hooks/auth/useLogoutUser";
 
 const AvatarUser = () => {
   const { data: session } = useGetSession();
 
-  async function logoutUser() {}
+  const logoutUser = useLogoutUser();
 
   return (
     <div className="flex items-center gap-3 bg-secondary/5 hover:bg-secondary/10 px-2 cursor-pointer rounded-full">
@@ -58,7 +59,7 @@ const AvatarUser = () => {
             </DropdownMenuGroup>
           ))}
           <DropdownMenuItem
-            onClick={logoutUser}
+            onClick={() => logoutUser.mutate()}
             variant="destructive"
             className="w-full"
           >

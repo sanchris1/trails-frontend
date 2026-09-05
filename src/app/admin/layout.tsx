@@ -23,12 +23,16 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     }
   }, [session, isLoading, router]);
 
-  if (isLoading || !session || session.user?.role !== "admin") {
+  if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         Loading...
       </div>
     );
+  }
+
+  if (!session || session.user?.role !== "admin") {
+    return null;
   }
 
   return (
