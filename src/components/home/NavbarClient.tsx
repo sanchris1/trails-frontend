@@ -47,8 +47,6 @@ const NavbarClient = () => {
 
   const { setTheme } = useTheme();
 
-  console.log("Session at the Navbar:", session);
-
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl ">
       <nav

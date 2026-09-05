@@ -46,8 +46,6 @@ const ExpeditionForm = ({
   expedition?: Expedition;
   mode: "edit" | "new";
 }) => {
-  console.log(adventureId);
-
   const { data, isFetching } = useFetchAdventureDetails(adventureId);
   const router = useRouter();
 

@@ -8,8 +8,6 @@ const AdventureDetailsPage = async ({
 }) => {
   const { adventureId } = await params;
 
-  console.log(adventureId);
-
   return (
     <div>
       <AdventureExpeditionDetailsPage

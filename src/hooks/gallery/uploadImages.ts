@@ -10,7 +10,6 @@ export async function uploadImages({
   expeditionId,
   images,
 }: UploadGalleryImagesVariables) {
-  console.log("Images before upload", images);
   const { data } = await api.post(`/gallery/add/${expeditionId}`, images);
   return data;
 }

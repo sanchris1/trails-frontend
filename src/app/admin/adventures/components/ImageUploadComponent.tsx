@@ -34,7 +34,6 @@ const ImageUploadComponent = () => {
 
     // Upload image here
     const result = await uploadImage(file);
-    console.log(result.data[0]);
 
     if (result.success) {
       toast.success(result.message);

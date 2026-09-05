@@ -13,8 +13,6 @@ const AdventureResults = ({ query }: { query: string }) => {
     queryFn: () => fetchAllAdventures(query),
   });
 
-  console.log(data?.data);
-
   return (
     <section className="bg-background py-10 sm:py-14 lg:py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

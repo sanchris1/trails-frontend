@@ -2,8 +2,6 @@
 // src/lib/api.ts
 import axios from "axios";
 import { tokenStore } from "./tokenStore";
-const refreshUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`;
-console.log("Refreshing with URL:", refreshUrl);
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -63,8 +61,6 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        console.log("Attempting refresh...");
-
         const { data } = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
           {},

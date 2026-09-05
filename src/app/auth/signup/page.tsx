@@ -36,13 +36,11 @@ const Signup = () => {
   const { mutate: signup, isPending: loading } = useMutation({
     mutationFn: signupUser,
     onError: (ctx: any) => {
-      console.log(ctx?.response.data.message);
       toast.error(
         ctx?.response.data.message || "Error logging in, Please try again.",
       );
     },
     onSuccess: (data) => {
-      console.log("New data:", data);
       tokenStore.set(data.accessToken);
       toast.success(data?.message || "Login success");
       router.push(callbackUrl);
