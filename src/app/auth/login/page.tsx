@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 import InputComponent from "@/components/common/InputComponent";
 import Logo from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
+// import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
@@ -205,7 +205,7 @@ const LoginPage = () => {
             </div>
 
             {/* Divider */}
-            <div className="my-7 flex items-center gap-4">
+            {/* <div className="my-7 flex items-center gap-4">
               <Separator className="flex-1" />
 
               <span className="shrink-0 text-xs text-muted-foreground">
@@ -213,7 +213,7 @@ const LoginPage = () => {
               </span>
 
               <Separator className="flex-1" />
-            </div>
+            </div> */}
 
             {/* Signup */}
             <p className="mt-8 text-center text-sm text-muted-foreground">

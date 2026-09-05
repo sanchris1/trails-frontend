@@ -25,6 +25,7 @@ import {
 } from "../ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import { useGetSession } from "@/hooks/auth/useGetSession.hook";
+import { useLogoutUser } from "@/hooks/auth/useLogoutUser";
 
 const NavbarClient = () => {
   const pathname = usePathname();
@@ -42,7 +43,7 @@ const NavbarClient = () => {
 
   const { data: session } = useGetSession();
 
-  async function logoutUser() {}
+  const logoutUser = useLogoutUser();
 
   const { setTheme } = useTheme();
 
@@ -163,7 +164,7 @@ const NavbarClient = () => {
                   ))}
                   <Button
                     variant="outline"
-                    // onClick={handleLogout}
+                    onClick={() => logoutUser.mutate()}
                     className="rounded-xl w-full"
                   >
                     Logout
@@ -290,7 +291,7 @@ const NavbarClient = () => {
                 ) : (
                   <Button
                     variant="outline"
-                    onClick={logoutUser}
+                    onClick={() => logoutUser.mutate()}
                     className="rounded-xl"
                   >
                     Logout
