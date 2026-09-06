@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 // import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { loginUser } from "@/hooks/auth/loginUser";
 import { tokenStore } from "@/lib/tokenStore";
 
@@ -33,6 +33,8 @@ const LoginPage = () => {
 
   const callbackUrl = searchParams.get("callbackUrl") ?? "/expeditions";
 
+  const queryClient = useQueryClient();
+
   const { mutate: login, isPending: loading } = useMutation({
     mutationFn: loginUser,
     onError: (ctx: any) => {
@@ -40,10 +42,11 @@ const LoginPage = () => {
         ctx?.response.data.message || "Error logging in, Please try again.",
       );
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       tokenStore.set(data.accessToken);
       toast.success(data?.message || "Login success");
       router.push(callbackUrl);
+      await queryClient.invalidateQueries({ queryKey: ["session"] });
     },
   });
 
