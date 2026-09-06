@@ -16,11 +16,11 @@ const AuthLayout = ({ children }: { children: Readonly<React.ReactNode> }) => {
   }, [session, isLoading, router]);
 
   if (isLoading) {
-    return <div>Loading...</div>; // or a skeleton
+    return <div>Loading...</div>;
   }
 
   if (session) {
-    return null; // will redirect
+    return null;
   }
 
   return <div>{children}</div>;

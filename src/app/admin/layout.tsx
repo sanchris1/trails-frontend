@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
-  const { data: session, isLoading } = useGetSession();
+  const { data: session, isLoading, isFetching } = useGetSession();
   const router = useRouter();
 
   useEffect(() => {
@@ -21,9 +21,9 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     if (session.user?.role !== "admin") {
       router.replace("/");
     }
-  }, [session, isLoading, router]);
+  }, [session, isLoading, isFetching, router]);
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return (
       <div className="flex h-screen items-center justify-center">
         Loading...
