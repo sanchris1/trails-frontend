@@ -11,20 +11,33 @@ import {
 import { useFetchExpeditions } from "@/hooks/expedition/fetchExpeditions";
 import { useState } from "react";
 import ExpeditionsCommandItem from "./ExpeditionsCommandItem";
-import { Expedition } from "@/types/t.types";
+import { Adventure, Expedition } from "@/types/t.types";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAllAdventures } from "@/hooks/adventures/fetchAdventures";
+
+interface ExpeditionsCommandProps {
+  open: boolean;
+  setOpen: (state: boolean) => void;
+  isAdventure: boolean;
+  setAdventureId?: (adventureId: string) => void;
+  setExpeditionId?: (expeditionId: string) => void;
+}
 
 const ExpeditionsCommand = ({
   open,
   setOpen,
   setExpeditionId,
-}: {
-  open: boolean;
-  setOpen: (open: boolean) => void;
-  setExpeditionId: (expeditionId: string) => void;
-}) => {
+  isAdventure,
+  setAdventureId,
+}: ExpeditionsCommandProps) => {
   const [search, setSearch] = useState("");
 
   const { data, isLoading, isFetching } = useFetchExpeditions(search);
+
+  const { data: adventuresData } = useQuery({
+    queryKey: ["adventures", search],
+    queryFn: () => fetchAllAdventures(search),
+  });
 
   const today = new Date().toLocaleString().split("T")[0];
 
@@ -48,13 +61,28 @@ const ExpeditionsCommand = ({
           {!isFetching && expeditionToAddGalleries.length === 0 && (
             <CommandEmpty>No expeditions found</CommandEmpty>
           )}
-          <CommandGroup heading="Expeditions"></CommandGroup>
-          {expeditionToAddGalleries &&
+          <CommandGroup
+            heading={isAdventure ? "Adventures" : "Expeditions"}
+          ></CommandGroup>
+          {!isAdventure &&
+            expeditionToAddGalleries &&
             expeditionToAddGalleries.map((item: Expedition) => (
               <ExpeditionsCommandItem
+                isAdventure={false}
                 key={item.id}
                 expedition={item}
-                setId={setExpeditionId}
+                setId={setExpeditionId!}
+                setOpen={setOpen}
+              />
+            ))}
+          {isAdventure &&
+            adventuresData &&
+            adventuresData?.data.map((item: Adventure) => (
+              <ExpeditionsCommandItem
+                isAdventure={isAdventure}
+                key={item.id}
+                adventure={item}
+                setId={setAdventureId!}
                 setOpen={setOpen}
               />
             ))}

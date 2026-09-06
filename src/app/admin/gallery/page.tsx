@@ -55,6 +55,7 @@ const GalleryPage = () => {
         open={open}
         setOpen={setOpen}
         setExpeditionId={setExpeditionId}
+        isAdventure={false}
       />
     </div>
   );

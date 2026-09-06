@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -9,6 +11,8 @@ import { useFetchExpeditions } from "@/hooks/expedition/fetchExpeditions";
 import AdventureExpeditionCard from "@/components/common/AdventureExpeditionCard";
 import FetchingProductsPage from "@/components/common/FetchingProductsPage";
 import NoProductsFound from "@/components/common/NoProductsFound";
+import ExpeditionsCommand from "../components/ExpeditionsCommand";
+import { useEffect, useState } from "react";
 
 const ExpeditionsPage = () => {
   const router = useRouter();
@@ -17,6 +21,14 @@ const ExpeditionsPage = () => {
   const query = searchParams.toString();
 
   const { data, isLoading } = useFetchExpeditions(query);
+  const [open, setOpen] = useState(false);
+  const [adventureId, setAdventureId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!adventureId) return;
+    router.push(`/admin/expeditions/create/${adventureId}/new`);
+    setAdventureId(null);
+  }, [adventureId]);
 
   if (!data?.data) return <NoProductsFound />;
 
@@ -30,7 +42,7 @@ const ExpeditionsPage = () => {
             and Memoirs
           </p>
         </div>
-        <Button onClick={() => router.push("/admin/expeditions")}>
+        <Button onClick={() => setOpen(true)}>
           {" "}
           <Plus />
           Create Expedition
@@ -54,6 +66,12 @@ const ExpeditionsPage = () => {
           ))}
         </div>
       )}
+      <ExpeditionsCommand
+        open={open}
+        setOpen={setOpen}
+        setAdventureId={setAdventureId}
+        isAdventure
+      />
     </div>
   );
 };
