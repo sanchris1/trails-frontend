@@ -1,6 +1,9 @@
+"use client";
+
 import { CreateGalleryImage } from "@/types/t.types";
 import Image from "next/image";
 import { Button } from "../ui/button";
+import { useDeleteGalleryImages } from "@/hooks/gallery/useDeleteGalleryImage";
 
 const ImageComponent = ({
   isAdmin,
@@ -9,6 +12,15 @@ const ImageComponent = ({
   isAdmin: boolean;
   image: CreateGalleryImage;
 }) => {
+  const { mutate: deleteImage } = useDeleteGalleryImages();
+
+  function handleDelete() {
+    return deleteImage({
+      expeditionId: image.expeditionId,
+      imagePublicId: image.imagePublicId,
+    });
+  }
+
   return (
     <div className="group relative aspect-square w-full overflow-hidden rounded-xl">
       <Image
@@ -29,7 +41,7 @@ const ImageComponent = ({
       {/* Admin actions */}
       {isAdmin && (
         <div className="absolute right-3 top-3 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-          <Button size="sm" variant="destructive">
+          <Button size="sm" variant="destructive" onClick={handleDelete}>
             Delete
           </Button>
         </div>
