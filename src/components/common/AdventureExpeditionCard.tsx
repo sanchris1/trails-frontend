@@ -83,15 +83,12 @@ const AdventureExpeditionCard = ({
         ? "text-yellow-500 bg-secondary/50"
         : "text-green-500 bg-white/80";
 
+  const title = isAdventure ? adventure.title : expedition!.expeditionTitle;
+
   return (
     <Card className=" pt-0 flex h-full flex-col">
       <div className="aspect-4/3 overflow-hidden relative ">
-        <Image
-          src={adventure.coverImage}
-          alt={adventure.title}
-          fill
-          className=""
-        />
+        <Image src={adventure.coverImage} alt={title} fill className="" />
         <div className="absolute  top-2 inset-x-0 mx-2 flex items-center justify-between">
           <span className="bg-secondary/50 backdrop-blur-3xl py-1 text-xs font-semibold  px-3 rounded-xl text-white ">
             {upperCaseFirstLetter(adventure.difficulty)}
@@ -108,7 +105,7 @@ const AdventureExpeditionCard = ({
       <CardContent className="space-y-2 flex flex-1 flex-col">
         <CardHeader className="space-y-2">
           <h4 className="text-[14px] font-semibold text-accent line-clamp-2">
-            {adventure.title}
+            {title}
           </h4>
           <span className="flex items-start text-xs text-secondary font-medium gap-3 line-clamp-2">
             <MapPin size={20} /> <span className="">{adventure.location}</span>

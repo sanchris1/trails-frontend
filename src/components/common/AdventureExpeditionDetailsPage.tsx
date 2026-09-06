@@ -182,6 +182,8 @@ const AdventureExpeditionDetailsPage = ({
     );
   };
 
+  const title = isAdventure ? data.title : expedition!.expeditionTitle;
+
   return (
     <main className="mx-auto w-full max-w-7xl space-y-6 px-4 pb-10 sm:px-6 lg:px-8">
       {/* Header */}
@@ -192,15 +194,15 @@ const AdventureExpeditionDetailsPage = ({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="truncate text-lg font-bold tracking-tight sm:text-xl">
-                {data.title}
+                {title}
               </h1>
 
-              <Badge
+              {/* <Badge
                 variant={data.isActive ? "secondary" : "destructive"}
                 className="shrink-0"
               >
                 {data.isActive ? "Active" : "Not active"}
-              </Badge>
+              </Badge> */}
             </div>
 
             <p className="mt-1 truncate text-xs text-muted-foreground sm:text-sm">
@@ -242,7 +244,7 @@ const AdventureExpeditionDetailsPage = ({
         <div className="relative aspect-4/3 min-h-90 w-full sm:aspect-16/8 lg:aspect-16/7">
           <Image
             src={data.coverImage}
-            alt={data.title}
+            alt={title}
             fill
             priority
             sizes="(max-width: 640px) 100vw, (max-width: 1280px) 90vw, 1200px"

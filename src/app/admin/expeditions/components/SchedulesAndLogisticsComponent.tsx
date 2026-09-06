@@ -19,6 +19,13 @@ const SchedulesAndLogisticsComponent = () => {
           Schedule and Logistics
         </h4>
       </div>
+      <div className="pb-12">
+        <Label className="mb-2">Expedition Title</Label>
+        <Input
+          {...form.register("expeditionTitle")}
+          placeholder="Expedition title"
+        />
+      </div>
       <div className="grid grid-cols-4 gap-6">
         <div className="">
           <Label className="mb-2">Departure date</Label>

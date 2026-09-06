@@ -77,6 +77,8 @@ export const expeditionSchema = z
   .object({
     adventureId: z.string().uuid("Invalid adventure ID"),
 
+    expeditionTitle: z.string().min(1, "Expedition title required"),
+
     departureDate: z.string().min(1, "Departure date is required"),
 
     departureTime: z.string().min(1, "Departure time is required"),
@@ -126,6 +128,7 @@ export const defaultExpeditionValues: ExpeditionFormValues = {
   guide: "",
   guideContact: "",
   expeditionStatus: "scheduled",
+  expeditionTitle: "",
 };
 
 export interface Expedition {
@@ -134,6 +137,8 @@ export interface Expedition {
 
   departureDate: string;
   departureTime: string;
+
+  expeditionTitle: string;
 
   returnDate: string;
   returnTime: string | null;

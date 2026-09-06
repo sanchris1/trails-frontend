@@ -35,6 +35,7 @@ export const defaultExpeditionValues: ExpeditionFormValues = {
   guide: "",
   guideContact: "",
   expeditionStatus: "scheduled",
+  expeditionTitle: "",
 };
 
 const ExpeditionForm = ({
@@ -111,6 +112,7 @@ const ExpeditionForm = ({
       meetingPoint: expedition.meetingPoint,
       returnDate: expedition.returnDate,
       returnTime: expedition.returnTime ?? "",
+      expeditionTitle: expedition.expeditionTitle,
     });
   }, [expedition, form]);
 
