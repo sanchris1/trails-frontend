@@ -1,8 +1,19 @@
+"use client";
+
 import Image from "next/image";
 import { ArrowRight, Mountain, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFetchFeaturedExpedition } from "@/hooks/expedition/useFetchFeaturedExpedition";
+import FetchingProductsPage from "@/components/common/FetchingProductsPage";
+import { getBetterDateFormat } from "@/hooks/getBetterTimeFormat";
 
 const FeaturedExpedition = () => {
+  const { data: featuredExpedition, isLoading } = useFetchFeaturedExpedition();
+
+  if (isLoading) return <FetchingProductsPage />;
+
+  if (!featuredExpedition) return;
+
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
       <div
@@ -15,8 +26,8 @@ const FeaturedExpedition = () => {
         {/* Image */}
         <div className="relative aspect-4/3 min-h-70 overflow-hidden sm:min-h-95 lg:aspect-auto lg:min-h-130">
           <Image
-            src="/hero/trail-5.jpg"
-            alt="Mount Kenya Summit Expedition through the Sirimon Route"
+            src={featuredExpedition.adventure.coverImage}
+            alt={featuredExpedition?.expedition.expeditionTitle}
             fill
             priority
             sizes="(max-width: 1024px) 100vw, 60vw"
@@ -33,8 +44,8 @@ const FeaturedExpedition = () => {
             </span>
 
             <span className="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-secondary backdrop-blur">
-              <span className="h-1.5 w-1.5 rounded-full bg-green-500" />4 spots
-              left
+              <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+              {featuredExpedition.expedition.slotsLeft} spots left
             </span>
           </div>
         </div>
@@ -44,19 +55,17 @@ const FeaturedExpedition = () => {
           {/* Location */}
           <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-accent">
             <Mountain className="h-3.5 w-3.5" />
-            Mount Kenya National Park
+            {featuredExpedition.adventure.location}
           </div>
 
           {/* Title */}
           <h2 className="mt-4 max-w-md font-serif text-2xl font-semibold leading-tight text-secondary sm:text-3xl">
-            Mount Kenya Summit Expedition: Sirimon Route
+            {featuredExpedition.expedition.expeditionTitle}
           </h2>
 
           {/* Description */}
           <p className="mt-4 max-w-lg text-sm leading-6 text-muted-foreground">
-            Ascend the second highest peak in Africa through the scenic Sirimon
-            route. Experience dramatic shifts in landscape from lush mountain
-            forests to breathtaking alpine terrain.
+            {featuredExpedition.adventure.shortDescription}
           </p>
 
           {/* Divider */}
@@ -66,13 +75,15 @@ const FeaturedExpedition = () => {
           <div className="grid grid-cols-2 gap-x-6 gap-y-5">
             <div>
               <p className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Dates
+                Departure Date
               </p>
 
               <div className="mt-1.5 flex items-center gap-2">
                 <CalendarDays className="hidden h-3.5 w-3.5 text-accent sm:block" />
                 <p className="text-sm font-medium text-secondary">
-                  Oct 12 – Oct 17
+                  {getBetterDateFormat(
+                    featuredExpedition.expedition.departureDate,
+                  )}
                 </p>
               </div>
             </div>
@@ -83,7 +94,7 @@ const FeaturedExpedition = () => {
               </p>
 
               <p className="mt-1.5 text-sm font-medium text-secondary">
-                6 Days / 5 Nights
+                {featuredExpedition.adventure.duration}
               </p>
             </div>
 
@@ -93,11 +104,9 @@ const FeaturedExpedition = () => {
               </p>
 
               <div className="mt-2 flex gap-1">
-                <span className="h-1.5 w-7 rounded-full bg-accent" />
-                <span className="h-1.5 w-7 rounded-full bg-accent" />
-                <span className="h-1.5 w-7 rounded-full bg-accent" />
-                <span className="h-1.5 w-7 rounded-full bg-muted" />
-                <span className="h-1.5 w-7 rounded-full bg-muted" />
+                <span className="h-1.5 w-7 rounded-full text-sm font-bold text-accent">
+                  {featuredExpedition.adventure.difficulty}
+                </span>
               </div>
             </div>
 
@@ -107,7 +116,7 @@ const FeaturedExpedition = () => {
               </p>
 
               <p className="mt-1.5 text-sm font-semibold text-secondary">
-                KSH 45,000
+                KSH: {featuredExpedition.adventure.defaultPrice}
                 <span className="ml-1 text-xs font-normal text-muted-foreground">
                   / person
                 </span>

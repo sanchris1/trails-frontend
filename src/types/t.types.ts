@@ -169,3 +169,8 @@ export interface CreateGalleryImage {
 export type CreateGalleryImagesPayload = {
   images: CreateGalleryImage[];
 };
+
+export interface AdventureExpeditionTypes {
+  adventure: Adventure;
+  expedition: Expedition;
+}

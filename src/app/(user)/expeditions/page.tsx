@@ -18,8 +18,8 @@ const ExpeditionsPage = async ({ searchParams }: Props) => {
   return (
     <div>
       <ExpeditionsHero />
-      <AdventuresExpeditionFilterSection />
       <FeaturedExpedition />
+      <AdventuresExpeditionFilterSection />
       <ExpeditionsList query={query.toString()} />
     </div>
   );
