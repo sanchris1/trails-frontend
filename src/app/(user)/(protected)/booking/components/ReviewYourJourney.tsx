@@ -27,6 +27,11 @@ import {
 import { useState } from "react";
 import { getBetterDateFormat } from "@/hooks/getBetterTimeFormat";
 import { Participant } from "@/types/t.types";
+import { useMutation } from "@tanstack/react-query";
+import { bookExpedition } from "@/hooks/booking/bookExpedition";
+import toast from "react-hot-toast";
+import { bookParticipants } from "@/hooks/booking/bookParticipants";
+import axios from "axios";
 
 interface ReviewYourJourneyPageProps {
   onBack: () => void;
@@ -43,6 +48,41 @@ export default function ReviewYourJourneyPage({
   total,
   participants,
 }: ReviewYourJourneyPageProps) {
+  const { mutate: bookP } = useMutation({
+    mutationFn: bookParticipants,
+    onSuccess: (data: any) => {
+      console.log(data);
+      toast.success(data?.message);
+      onContinue();
+    },
+    onError: (error: any) => {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        console.log(error.response);
+        toast.error(error.response?.data.message);
+      } else toast.error("Incurred some error while booking");
+    },
+  });
+
+  const { mutate: book } = useMutation({
+    mutationFn: bookExpedition,
+    onSuccess: (data: any) => {
+      const newBookingId = data?.data[0]?.id;
+      toast.success(data?.message);
+      if (!newBookingId) {
+        return toast.error(
+          "Booking created but the booking id was not returned",
+        );
+      }
+      bookP({ bookingId: newBookingId, participants });
+    },
+    onError: (error: any) => {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data.message);
+      } else toast.error("Incurred some error while booking");
+    },
+  });
+
   const [confirmed, setConfirmed] = useState(false);
 
   const getInitials = (name: string) => {
@@ -296,7 +336,13 @@ export default function ReviewYourJourneyPage({
                     size="lg"
                     className="w-full gap-2 font-medium"
                     disabled={!confirmed}
-                    onClick={onContinue}
+                    onClick={() => {
+                      book({
+                        expeditionId: expedition.id,
+                        numberOfParticipants: participants.length,
+                      });
+                      // onContinue();
+                    }}
                   >
                     Proceed to Payment
                     <ArrowRight className="h-4 w-4" />
