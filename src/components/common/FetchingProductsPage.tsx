@@ -26,7 +26,6 @@ const FetchingProductsPage = () => {
           </p>
         </div>
 
-        {/* Subtle progress dots */}
         <div className="flex items-center gap-1.5 mt-2">
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]" />
           <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]" />

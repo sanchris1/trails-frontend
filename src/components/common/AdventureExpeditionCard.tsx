@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import Image from "next/image";
-import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Adventure, Expedition } from "@/types/t.types";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { upperCaseFirstLetter } from "@/hooks/upperCaseFirstLetter";
 import {
   Edit2,
@@ -16,8 +16,13 @@ import {
   Trash2,
   Users,
 } from "lucide-react";
-import { Separator } from "../ui/separator";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,12 +32,13 @@ import {
   AlertDialogFooter,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteAdventure } from "@/hooks/adventures/deleteAdventure";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { deleteExpedition } from "@/hooks/expedition/deleteExpedition";
+import { cn } from "@/lib/utils";
 
 interface AdventureExpeditionCardProps {
   isAdmin: boolean;
@@ -48,234 +54,291 @@ const AdventureExpeditionCard = ({
   isAdventure,
 }: AdventureExpeditionCardProps) => {
   const queryClient = useQueryClient();
+  const router = useRouter();
+
   const deleteExpeditionMutation = useMutation({
     mutationFn: (expeditionId: string) => deleteExpedition(expeditionId),
-
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["expeditions"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["expeditions"] });
+      toast.success("Expedition deleted");
     },
+    onError: (error: any) => toast.error(error.message || "Failed to delete"),
   });
+
   const deleteAdventureMutation = useMutation({
     mutationFn: deleteAdventure,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["adventures"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["adventures"] });
+      toast.success("Adventure deleted");
     },
-    onError: (error: any) => {
-      toast.error(error.message);
-    },
+    onError: (error: any) => toast.error(error.message || "Failed to delete"),
   });
-
-  const router = useRouter();
 
   const capacity = adventure.defaultCapacity;
   const slotsLeft = expedition?.slotsLeft ?? 0;
+  const availabilityPercentage = capacity > 0 ? slotsLeft / capacity : 0;
 
-  const availabilityPercentage = slotsLeft / capacity;
-
-  const availabilityClass =
-    availabilityPercentage < 0.3
-      ? "text-red-500 bg-destructive"
-      : availabilityPercentage < 0.6
-        ? "text-yellow-500 bg-secondary/50"
-        : "text-green-500 bg-white/80";
+  const getAvailabilityStyles = () => {
+    if (availabilityPercentage < 0.3) {
+      return "bg-destructive/15 text-destructive border-destructive/30";
+    }
+    if (availabilityPercentage < 0.6) {
+      return "bg-warning/15 text-warning border-warning/30";
+    }
+    return "bg-success/15 text-success border-success/30";
+  };
 
   const title = isAdventure ? adventure.title : expedition!.expeditionTitle;
+  const isClosed =
+    expedition?.expeditionStatus === "cancelled" ||
+    expedition?.expeditionStatus === "completed";
 
   return (
-    <Card className=" pt-0 flex h-full flex-col">
-      <div className="aspect-4/3 overflow-hidden relative ">
-        <Image src={adventure.coverImage} alt={title} fill className="" />
-        <div className="absolute  top-2 inset-x-0 mx-2 flex items-center justify-between">
-          <span className="bg-secondary/50 backdrop-blur-3xl py-1 text-xs font-semibold  px-3 rounded-xl text-white ">
+    <Card className="group relative flex h-full flex-col overflow-hidden border-border/60 pt-0 transition-all duration-300 hover:shadow-lg hover:border-border">
+      {/* Image */}
+      <div className="relative aspect-[4/3] overflow-hidden">
+        <Image
+          src={adventure.coverImage}
+          alt={title}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+
+        {/* Soft gradient for better badge readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+
+        {/* Top badges */}
+        <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
+          <span className="rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur-md">
             {upperCaseFirstLetter(adventure.difficulty)}
           </span>
-          {!isAdventure && (
+
+          {!isAdventure && !isClosed && (
             <span
-              className={`${availabilityClass} text-xs font-semibold px-3 py-1 rounded-full border`}
+              className={cn(
+                "rounded-full border px-2.5 py-1 text-xs font-semibold backdrop-blur-md",
+                getAvailabilityStyles(),
+              )}
             >
-              {expedition?.slotsLeft}/{adventure.defaultCapacity}
+              {slotsLeft} / {capacity} left
             </span>
           )}
         </div>
       </div>
-      <CardContent className="space-y-2 flex flex-1 flex-col">
-        <CardHeader className="space-y-2">
-          <h4 className="text-[14px] font-semibold text-accent line-clamp-2">
+
+      {/* Content */}
+      <CardContent className="flex flex-1 flex-col gap-4 p-5">
+        <div className="space-y-2">
+          <h3 className="text-base font-semibold leading-snug text-foreground line-clamp-2">
             {title}
-          </h4>
-          <span className="flex items-start text-xs text-secondary font-medium gap-3 line-clamp-2">
-            <MapPin size={20} /> <span className="">{adventure.location}</span>
-          </span>
-        </CardHeader>
-        {isAdventure && <Separator />}
-        {isAdventure && (
-          <div className="flex items-center justify-between ">
-            <div className="">
-              <span className="text-[10px] text-secondary font-medium">
-                Duration
-              </span>
-              <div className="flex items-center gap-1.5 text-foreground text-[13px] font-semibold">
-                <Hourglass className="size-3" />{" "}
-                <span className="">{adventure.duration} Day(s)</span>
-              </div>
-            </div>
-            <div className="">
-              <span className="text-[10px] text-secondary font-medium">
-                Elevation
-              </span>
-              <div className="flex items-center gap-1.5 text-foreground text-[13px] font-semibold">
-                <Mountain className="size-3" />{" "}
-                <span className="">{adventure.elevationGain} M</span>
-              </div>
-            </div>
-            <div className="">
-              <span className="text-[10px] text-secondary font-medium">
-                Capacity
-              </span>
-              <div className="flex items-center gap-1.5 text-foreground text-[13px] font-semibold">
-                <Users className="size-3" />{" "}
-                <span className="">{adventure.defaultCapacity}</span>
-              </div>
-            </div>
+          </h3>
+
+          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <MapPin className="h-3.5 w-3.5 shrink-0" />
+            <span className="line-clamp-1">{adventure.location}</span>
           </div>
+        </div>
+
+        {/* Stats - only for Adventures */}
+        {isAdventure && (
+          <>
+            <Separator className="bg-border/60" />
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="space-y-1">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  Duration
+                </p>
+                <div className="flex items-center justify-center gap-1 text-sm font-semibold text-foreground">
+                  <Hourglass className="h-3.5 w-3.5" />
+                  <span>{adventure.duration}d</span>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  Elevation
+                </p>
+                <div className="flex items-center justify-center gap-1 text-sm font-semibold text-foreground">
+                  <Mountain className="h-3.5 w-3.5" />
+                  <span>{adventure.elevationGain}m</span>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                  Capacity
+                </p>
+                <div className="flex items-center justify-center gap-1 text-sm font-semibold text-foreground">
+                  <Users className="h-3.5 w-3.5" />
+                  <span>{adventure.defaultCapacity}</span>
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </CardContent>
-      <CardFooter className="mt-auto flex items-center justify-between">
+
+      {/* Footer */}
+      <CardFooter className="mt-auto flex items-center justify-between gap-3 border-t border-border/40 bg-muted/20 px-5 py-4">
         <div>
-          <span className="text-secondary">Price</span>
-          <p className="font-semibold">
-            KSH: {adventure.defaultPrice.toLocaleString()}
+          <p className="text-xs text-muted-foreground">From</p>
+          <p className="text-base font-bold text-foreground">
+            KES {adventure.defaultPrice.toLocaleString()}
           </p>
         </div>
 
-        {isAdmin && isAdventure && (
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    router.push(`/admin/expeditions/create/${adventure.id}/new`)
-                  }
-                >
-                  <Plus />
-                </Button>
-              }
-            />
-            <TooltipContent>Create Expedition</TooltipContent>
-          </Tooltip>
-        )}
+        <div className="flex items-center gap-1.5">
+          {/* Admin Actions */}
+          {isAdmin && (
+            <TooltipProvider>
+              {isAdventure && (
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                      onClick={() =>
+                        router.push(
+                          `/admin/expeditions/create/${adventure.id}/new`,
+                        )
+                      }
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Create Expedition</TooltipContent>
+                </Tooltip>
+              )}
 
-        {isAdmin && (
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    router.push(
-                      isAdventure
-                        ? `/admin/adventures/${adventure.id}`
-                        : `/admin/expeditions/${expedition?.id}/details`,
-                    )
-                  }
-                >
-                  <Eye />
-                </Button>
-              }
-            />
-            <TooltipContent>View Details</TooltipContent>
-          </Tooltip>
-        )}
-
-        {isAdmin && (
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    router.push(
-                      isAdventure
-                        ? `/admin/adventures/${adventure.id}/edit`
-                        : `/admin/expeditions/${expedition?.id}/edit`,
-                    )
-                  }
-                >
-                  <Edit2 />
-                </Button>
-              }
-            />
-            <TooltipContent>
-              Edit {isAdventure ? "adventure" : "expedition"}
-            </TooltipContent>
-          </Tooltip>
-        )}
-
-        {isAdmin && (
-          <AlertDialog>
-            <AlertDialogTrigger
-              render={
-                <Button variant="destructive">
-                  <Trash2 />
-                </Button>
-              }
-            />
-            <AlertDialogContent>
-              <AlertDialogTitle>
-                Are you sure you want to delete the{" "}
-                {isAdventure ? "Adventure" : "Expedition"}?
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. Please cancel if you are not sure.
-              </AlertDialogDescription>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  variant="destructive"
-                  onClick={() => {
-                    if (isAdventure) {
-                      deleteAdventureMutation.mutate(adventure.id);
-                    } else if (expedition?.id) {
-                      deleteExpeditionMutation.mutate(expedition.id);
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    onClick={() =>
+                      router.push(
+                        isAdventure
+                          ? `/admin/adventures/${adventure.id}`
+                          : `/admin/expeditions/${expedition?.id}/details`,
+                      )
                     }
-                  }}
-                >
-                  {deleteAdventureMutation.isPending ||
-                  deleteExpeditionMutation.isPending
-                    ? "Deleting..."
-                    : "Delete"}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
-        {!isAdmin && !isAdventure && (
-          <Button
-            onClick={() => router.push(`/booking/${expedition?.id}/book`)}
-          >
-            Join
-          </Button>
-        )}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>View Details</TooltipContent>
+              </Tooltip>
 
-        {!isAdmin && (
-          <Button
-            className="bg-accent cursor-pointer"
-            onClick={() =>
-              router.push(
-                isAdventure
-                  ? `/adventures/${adventure.id}`
-                  : `/expeditions/${expedition?.id}`,
-              )
-            }
-          >
-            Details
-          </Button>
-        )}
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                    onClick={() =>
+                      router.push(
+                        isAdventure
+                          ? `/admin/adventures/${adventure.id}/edit`
+                          : `/admin/expeditions/${expedition?.id}/edit`,
+                      )
+                    }
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Edit {isAdventure ? "Adventure" : "Expedition"}
+                </TooltipContent>
+              </Tooltip>
+
+              <AlertDialog>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <AlertDialogTrigger>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>Delete</TooltipContent>
+                </Tooltip>
+
+                <AlertDialogContent>
+                  <AlertDialogTitle>
+                    Delete this {isAdventure ? "Adventure" : "Expedition"}?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. All related data will be
+                    permanently removed.
+                  </AlertDialogDescription>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      onClick={() => {
+                        if (isAdventure) {
+                          deleteAdventureMutation.mutate(adventure.id);
+                        } else if (expedition?.id) {
+                          deleteExpeditionMutation.mutate(expedition.id);
+                        }
+                      }}
+                    >
+                      {deleteAdventureMutation.isPending ||
+                      deleteExpeditionMutation.isPending
+                        ? "Deleting..."
+                        : "Delete"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </TooltipProvider>
+          )}
+
+          {/* User Actions */}
+          {!isAdmin && (
+            <>
+              {!isAdventure && !isClosed && (
+                <Button
+                  size="sm"
+                  onClick={() => router.push(`/booking/${expedition?.id}/book`)}
+                >
+                  Join
+                </Button>
+              )}
+
+              {!isAdventure && isClosed && (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => router.push(`/booking/${expedition?.id}/book`)}
+                >
+                  Gallery
+                </Button>
+              )}
+
+              <Button
+                size="sm"
+                variant={isAdventure ? "default" : "outline"}
+                onClick={() =>
+                  router.push(
+                    isAdventure
+                      ? `/adventures/${adventure.id}`
+                      : `/expeditions/${expedition?.id}`,
+                  )
+                }
+              >
+                Details
+              </Button>
+            </>
+          )}
+        </div>
       </CardFooter>
     </Card>
   );

@@ -3,28 +3,23 @@
 
 import { useFetchAdventureDetails } from "@/hooks/adventures/fetchAdventureQuery";
 import BackButton from "./BackButton";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Card, CardContent } from "../ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import {
-  BookCheck,
-  CalendarCheck,
-  Calendars,
-  ChartBar,
-  ChevronsLeftRightEllipsis,
-  CircleDollarSign,
-  ClipboardClock,
+  BookOpen,
+  Calendar,
   Clock,
-  Contact,
+  DollarSign,
   Edit,
   MapPin,
   Mountain,
-  TimerReset,
-  Trash,
+  Phone,
+  Trash2,
   TrendingUp,
   User,
-  Users2,
-  WavesArrowUp,
+  Users,
+  ArrowUpRight,
 } from "lucide-react";
 import Image from "next/image";
 import { upperCaseFirstLetter } from "@/hooks/upperCaseFirstLetter";
@@ -38,6 +33,18 @@ import {
   getBetterTimeFormat,
 } from "@/hooks/getBetterTimeFormat";
 import { deleteExpedition } from "@/hooks/expedition/deleteExpedition";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 interface AdventureExpeditionDetailsPageProps {
   isAdventure: boolean;
@@ -50,21 +57,26 @@ interface InfoCardProps {
   icon: React.ElementType;
   label: string;
   value: React.ReactNode;
+  className?: string;
 }
 
-const InfoCard = ({ icon: Icon, label, value }: InfoCardProps) => {
+const InfoCard = ({ icon: Icon, label, value, className }: InfoCardProps) => {
   return (
-    <Card className="h-full transition-shadow hover:shadow-sm">
-      <CardContent className="flex items-center gap-4 p-4 sm:p-5">
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-          <Icon className="size-5" />
+    <Card
+      className={cn(
+        "h-full border-border/60 transition-all hover:shadow-md hover:border-border",
+        className,
+      )}
+    >
+      <CardContent className="flex items-center gap-4 p-5">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <Icon className="h-5 w-5" />
         </div>
 
         <div className="min-w-0 space-y-1">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             {label}
           </p>
-
           <p className="truncate text-sm font-semibold text-foreground sm:text-base">
             {value}
           </p>
@@ -83,13 +95,12 @@ const SectionHeader = ({
 }) => {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex size-10 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-        <Icon className="size-5" />
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <Icon className="h-5 w-5" />
       </div>
-
-      <div>
-        <h2 className="text-base font-semibold sm:text-lg">{title}</h2>
-      </div>
+      <h2 className="text-lg font-semibold tracking-tight text-foreground">
+        {title}
+      </h2>
     </div>
   );
 };
@@ -101,51 +112,38 @@ const AdventureExpeditionDetailsPage = ({
   expedition,
 }: AdventureExpeditionDetailsPageProps) => {
   const { data } = useFetchAdventureDetails(adventureId);
-
   const router = useRouter();
   const queryClient = useQueryClient();
 
   const deleteAdventureMutation = useMutation({
     mutationFn: deleteAdventure,
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["adventures"],
-      });
-
+      queryClient.invalidateQueries({ queryKey: ["adventures"] });
+      toast.success("Adventure deleted");
       router.push("/admin/adventures");
     },
     onError: (error: any) => {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to delete adventure");
     },
   });
 
   const deleteExpeditionMutation = useMutation({
     mutationFn: (expeditionId: string) => deleteExpedition(expeditionId),
-
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["expeditions"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["expeditions"] });
+      toast.success("Expedition deleted");
+      router.push("/admin/expeditions");
     },
-
     onError: (error: any) => {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to delete expedition");
     },
   });
 
-  const currentExpedition = !isAdventure ? expedition : undefined;
-
-  if (!data) {
-    return null;
-  }
-
-  if (!isAdventure && !currentExpedition) {
-    return null;
-  }
+  if (!data) return null;
+  if (!isAdventure && !expedition) return null;
 
   const capacity = data.defaultCapacity;
   const slotsLeft = expedition?.slotsLeft ?? 0;
-
   const availabilityPercentage = capacity ? slotsLeft / capacity : 0;
 
   const availabilityVariant =
@@ -155,24 +153,11 @@ const AdventureExpeditionDetailsPage = ({
         ? "secondary"
         : "outline";
 
-  if (deleteExpeditionMutation.isSuccess) {
-    router.push("/admin/expeditions");
-  }
-
   const category = data.category
     .replace(/-/g, " ")
     .replace(/\b\w/g, (char) => char.toUpperCase());
 
-  const handleDelete = () => {
-    if (isAdventure) {
-      deleteAdventureMutation.mutate(data.id);
-      return;
-    }
-
-    if (expedition?.id) {
-      deleteExpeditionMutation.mutate(expedition.id);
-    }
-  };
+  const title = isAdventure ? data.title : expedition!.expeditionTitle;
 
   const handleEdit = () => {
     router.push(
@@ -182,66 +167,78 @@ const AdventureExpeditionDetailsPage = ({
     );
   };
 
-  const title = isAdventure ? data.title : expedition!.expeditionTitle;
+  const isDeleting =
+    deleteAdventureMutation.isPending || deleteExpeditionMutation.isPending;
 
   return (
-    <main className="mx-auto w-full max-w-7xl space-y-6 px-4 pb-10 sm:px-6 lg:px-8">
+    <main className="mx-auto w-full max-w-7xl space-y-8 px-4 pb-16 pt-6 sm:px-6 lg:px-8">
       {/* Header */}
-      <header className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+      <header className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-3">
           <BackButton />
 
           <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="truncate text-lg font-bold tracking-tight sm:text-xl">
-                {title}
-              </h1>
-
-              {/* <Badge
-                variant={data.isActive ? "secondary" : "destructive"}
-                className="shrink-0"
-              >
-                {data.isActive ? "Active" : "Not active"}
-              </Badge> */}
-            </div>
-
-            <p className="mt-1 truncate text-xs text-muted-foreground sm:text-sm">
+            <h1 className="truncate text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+              {title}
+            </h1>
+            <p className="mt-0.5 text-sm text-muted-foreground">
               ID: {data.id}
             </p>
           </div>
         </div>
 
         {isAdmin && (
-          <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
+          <div className="flex items-center gap-2">
             <Button variant="outline" onClick={handleEdit} className="gap-2">
-              <Edit className="size-4" />
-              <span>Edit</span>
+              <Edit className="h-4 w-4" />
+              Edit
             </Button>
 
-            <Button
-              variant="destructive"
-              onClick={handleDelete}
-              disabled={
-                deleteAdventureMutation.isPending ||
-                deleteExpeditionMutation.isPending
-              }
-              className="gap-2"
-            >
-              <Trash className="size-4" />
-              <span>
-                {deleteAdventureMutation.isPending ||
-                deleteExpeditionMutation.isPending
-                  ? "Deleting..."
-                  : "Delete"}
-              </span>
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger>
+                <Button
+                  variant="destructive"
+                  className="gap-2"
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Delete this {isAdventure ? "Adventure" : "Expedition"}?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. All related data will be
+                    permanently removed.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={() => {
+                      if (isAdventure) {
+                        deleteAdventureMutation.mutate(data.id);
+                      } else if (expedition?.id) {
+                        deleteExpeditionMutation.mutate(expedition.id);
+                      }
+                    }}
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         )}
       </header>
 
       {/* Hero */}
-      <section className="relative isolate overflow-hidden rounded-2xl border bg-muted shadow-sm">
-        <div className="relative aspect-4/3 min-h-90 w-full sm:aspect-16/8 lg:aspect-16/7">
+      <section className="relative isolate overflow-hidden rounded-2xl border border-border/60 shadow-sm">
+        <div className="relative aspect-[16/10] min-h-[320px] w-full sm:aspect-[16/8] lg:aspect-[21/9]">
           <Image
             src={data.coverImage}
             alt={title}
@@ -251,33 +248,23 @@ const AdventureExpeditionDetailsPage = ({
             className="object-cover"
           />
 
-          <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/45 to-black/5" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
 
-          <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8 lg:p-10">
-            <div className="max-w-4xl space-y-4">
-              {/* Hero badges */}
+          <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8 lg:p-10">
+            <div className="max-w-3xl space-y-4">
               <div className="flex flex-wrap gap-2">
-                <Badge
-                  variant="secondary"
-                  className="border-white/20 bg-black/30 text-white backdrop-blur-md"
-                >
-                  <Mountain className="mr-1.5 size-4" />
+                <Badge className="border-white/20 bg-black/40 text-white backdrop-blur-md hover:bg-black/50">
+                  <Mountain className="mr-1.5 h-3.5 w-3.5" />
                   {category}
                 </Badge>
 
-                <Badge
-                  variant="secondary"
-                  className="border-white/20 bg-black/30 text-white backdrop-blur-md"
-                >
-                  <TrendingUp className="mr-1.5 size-4" />
+                <Badge className="border-white/20 bg-black/40 text-white backdrop-blur-md hover:bg-black/50">
+                  <TrendingUp className="mr-1.5 h-3.5 w-3.5" />
                   {upperCaseFirstLetter(data.difficulty)}
                 </Badge>
 
-                <Badge
-                  variant="secondary"
-                  className="border-white/20 bg-black/30 text-white backdrop-blur-md"
-                >
-                  <MapPin className="mr-1.5 size-4" />
+                <Badge className="border-white/20 bg-black/40 text-white backdrop-blur-md hover:bg-black/50">
+                  <MapPin className="mr-1.5 h-3.5 w-3.5" />
                   {data.location}
                 </Badge>
 
@@ -286,119 +273,103 @@ const AdventureExpeditionDetailsPage = ({
                     variant={availabilityVariant}
                     className="backdrop-blur-md"
                   >
-                    {slotsLeft} / {data.defaultCapacity} slots available
+                    {slotsLeft} / {data.defaultCapacity} slots left
                   </Badge>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <p className="flex items-center gap-2 text-sm font-medium text-white/80">
-                  <MapPin className="size-4" />
-                  {data.location}
-                </p>
-
-                <p className="max-w-3xl text-sm leading-6 text-white/85 sm:text-base">
-                  {data.shortDescription}
-                </p>
-              </div>
+              <p className="max-w-2xl text-sm leading-relaxed text-white/90 sm:text-base">
+                {data.shortDescription}
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Core information */}
-      <section className="space-y-4">
-        <SectionHeader icon={ChartBar} title="Adventure Overview" />
+      {/* Overview Stats */}
+      <section className="space-y-5">
+        <SectionHeader icon={Mountain} title="Adventure Overview" />
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <InfoCard
-            icon={CircleDollarSign}
+            icon={DollarSign}
             label="Price"
-            value={`Ksh ${data.defaultPrice.toLocaleString()}`}
+            value={`KES ${data.defaultPrice.toLocaleString()}`}
           />
-
           <InfoCard
             icon={Clock}
             label="Duration"
-            value={`${data.duration} Day(s)`}
+            value={`${data.duration} Day${Number(data.duration) > 1 ? "s" : ""}`}
           />
-
           <InfoCard
-            icon={Users2}
+            icon={Users}
             label="Capacity"
             value={`${data.defaultCapacity} people`}
           />
-
           <InfoCard
-            icon={WavesArrowUp}
-            label="Elevation"
-            value={`${data.elevationGain} meters`}
+            icon={ArrowUpRight}
+            label="Elevation Gain"
+            value={`${data.elevationGain} m`}
           />
         </div>
       </section>
 
-      {/* Expedition information */}
+      {/* Expedition specific sections */}
       {!isAdventure && expedition && (
         <>
-          <section className="space-y-4">
-            <SectionHeader icon={CalendarCheck} title="Expedition Schedule" />
+          <section className="space-y-5">
+            <SectionHeader icon={Calendar} title="Expedition Schedule" />
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {currentExpedition?.departureDate && (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {expedition.departureDate && (
                 <InfoCard
-                  icon={Calendars}
-                  label="Departure date"
-                  value={getBetterDateFormat(currentExpedition.departureDate)}
+                  icon={Calendar}
+                  label="Departure Date"
+                  value={getBetterDateFormat(expedition.departureDate)}
                 />
               )}
-
               <InfoCard
-                icon={ClipboardClock}
-                label="Departure time"
+                icon={Clock}
+                label="Departure Time"
                 value={getBetterTimeFormat(expedition.departureTime)}
               />
-
               <InfoCard
-                icon={CalendarCheck}
-                label="Return date"
+                icon={Calendar}
+                label="Return Date"
                 value={getBetterDateFormat(expedition.returnDate)}
               />
-
               {expedition.returnTime && (
                 <InfoCard
-                  icon={TimerReset}
-                  label="Return time"
+                  icon={Clock}
+                  label="Return Time"
                   value={getBetterTimeFormat(expedition.returnTime)}
                 />
               )}
             </div>
           </section>
 
-          <section className="space-y-4">
-            <SectionHeader icon={Users2} title="Expedition Details" />
+          <section className="space-y-5">
+            <SectionHeader icon={Users} title="Expedition Details" />
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <InfoCard
                 icon={User}
-                label="In-charge"
+                label="Guide / In-charge"
                 value={expedition.guide}
               />
-
               <InfoCard
-                icon={Contact}
+                icon={Phone}
                 label="Contact"
                 value={expedition.guideContact}
               />
-
               <InfoCard
-                icon={BookCheck}
-                label="Booked participants"
+                icon={Users}
+                label="Booked Participants"
                 value={`${expedition.bookedParticipants} people`}
               />
-
               <InfoCard
-                icon={ChevronsLeftRightEllipsis}
-                label="Slots left"
+                icon={Users}
+                label="Slots Left"
                 value={`${expedition.slotsLeft} slots`}
               />
             </div>
@@ -406,12 +377,12 @@ const AdventureExpeditionDetailsPage = ({
         </>
       )}
 
-      {/* Description */}
-      <section className="space-y-4">
-        <SectionHeader icon={ChartBar} title="Full Description" />
+      {/* Full Description */}
+      <section className="space-y-5">
+        <SectionHeader icon={BookOpen} title="Full Description" />
 
-        <Card>
-          <CardContent className="p-5 sm:p-6 lg:p-8">
+        <Card className="border-border/60">
+          <CardContent className="p-6 sm:p-8">
             <p className="max-w-4xl whitespace-pre-line text-sm leading-7 text-muted-foreground sm:text-base">
               {data.description}
             </p>
