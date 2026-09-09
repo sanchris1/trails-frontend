@@ -2,122 +2,61 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 const ExpeditionsHero = () => {
   return (
-    <section className="relative isolate min-h-155 overflow-hidden sm:min-h-170 lg:min-h-180">
-      {/* Background image */}
+    <section className="relative isolate min-h-140 overflow-hidden sm:min-h-155 lg:min-h-175">
+      {/* Background Image */}
       <Image
         src="/hero/expeditions-hero-3.jpg"
-        alt="group of hikers standing for a photo after a hike"
+        alt="Group of hikers standing for a photo after a hike"
         fill
         priority
         sizes="100vw"
-        className=" object-cover"
+        className="object-cover object-center"
       />
 
-      {/* Image overlays */}
-      <div className="absolute inset-0 bg-linear-to-r from-background/95 via-background/65 to-background/10" />
-
-      <div className="absolute inset-0 bg-linear-to-t from-background/40 via-transparent to-transparent" />
+      {/* Balanced overlays that work in both light & dark */}
+      <div className="absolute inset-0 bg-linear-to-r from-background/90 via-background/50 to-transparent dark:from-background/95 dark:via-background/60" />
+      <div className="absolute inset-0 bg-linear-to-t from-background/60 via-transparent to-background/20" />
 
       {/* Content */}
-      <div className="relative z-10 mx-auto flex min-h-155 max-w-7xl items-center px-4 py-20 sm:min-h-170 sm:px-6 lg:min-h-180 lg:px-8">
-        <div className="max-w-xl">
+      <div className="relative z-10 mx-auto flex min-h-140 max-w-7xl items-center px-4 py-20 sm:min-h-155 sm:px-6 lg:min-h-175 lg:px-8">
+        <div className="max-w-2xl">
           {/* Eyebrow */}
-          <span
-            className="
-              inline-flex
-              items-center
-              rounded-full
-              border
-              border-secondary/10
-              bg-background/80
-              px-3
-              py-1.5
-              text-[10px]
-              font-semibold
-              uppercase
-              tracking-[0.12em]
-              text-secondary
-              shadow-sm
-              backdrop-blur-sm
-            "
-          >
+          <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/80 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-muted-foreground shadow-sm backdrop-blur-md">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
             Upcoming Expeditions
-          </span>
+          </div>
 
           {/* Heading */}
-          <h1
-            className="
-              mt-5
-              max-w-lg
-              font-serif
-              text-4xl
-              font-semibold
-              leading-[1.05]
-              tracking-tight
-              text-secondary
-              sm:text-5xl
-              lg:text-6xl
-            "
-          >
-            Your Next Adventure <span className="text-accent">Starts Here</span>
+          <h1 className="mt-6 max-w-xl font-serif text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+            Your Next Adventure{" "}
+            <span className="text-primary">Starts Here</span>
           </h1>
 
           {/* Description */}
-          <p
-            className="
-              mt-6
-              max-w-lg
-              text-sm
-              leading-6
-              text-secondary/80
-              sm:text-base
-              sm:leading-7
-            "
-          >
+          <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
             Discover curated journeys through the heart of Kenya. From the
             towering peaks of Mount Kenya to the vast plains of the Mara, join
             expert guides on unforgettable trails.
           </p>
 
           {/* Actions */}
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Button
-              className="
-                h-11
-                rounded-lg
-                bg-accent
-                px-6
-                text-sm
-                font-semibold
-                text-white
-                shadow-sm
-                transition-all
-                hover:bg-accent/90
-                hover:shadow-md
-                active:scale-[0.98]
-              "
+              size="lg"
+              className="h-12 gap-2 rounded-xl px-7 text-base font-semibold shadow-md transition-all hover:shadow-lg"
             >
               Explore Expeditions
+              <ArrowRight className="h-4 w-4" />
             </Button>
 
             <Button
+              size="lg"
               variant="outline"
-              className="
-                h-11
-                rounded-lg
-                border-secondary/30
-                bg-background/30
-                px-6
-                text-sm
-                font-medium
-                text-secondary
-                backdrop-blur-sm
-                transition-all
-                hover:bg-background/60
-              "
+              className="h-12 rounded-xl border-border/70 bg-background/60 px-7 text-base font-medium backdrop-blur-sm hover:bg-background/90"
             >
               How It Works
             </Button>
