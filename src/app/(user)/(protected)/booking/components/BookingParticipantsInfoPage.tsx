@@ -6,36 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Participant } from "@/types/t.types";
 
-type Participant = {
-  fullName: string;
-  email: string;
-  phone: string;
-  medicalNotes: string;
-  emergencyContact: string;
-};
-
-const emptyParticipant = (): Participant => ({
-  fullName: "",
-  email: "",
-  phone: "",
-  medicalNotes: "",
-  emergencyContact: "",
-});
-
-export default function ParticipantInfoPage({
-  numberOfParticipants,
-  onBack,
-  onContinue,
-}: {
-  numberOfParticipants: number;
+interface ParticipantInfoPageProps {
+  participants: Participant[];
+  setParticipants: React.Dispatch<React.SetStateAction<Participant[]>>;
   onBack: () => void;
   onContinue: () => void;
-}) {
-  const [participants, setParticipants] = React.useState<Participant[]>(() =>
-    Array.from({ length: numberOfParticipants }, emptyParticipant),
-  );
+}
 
+export default function ParticipantInfoPage({
+  participants,
+  setParticipants,
+  onBack,
+  onContinue,
+}: ParticipantInfoPageProps) {
   const update = (index: number, field: keyof Participant, value: string) => {
     setParticipants((prev) =>
       prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)),
@@ -56,14 +41,14 @@ export default function ParticipantInfoPage({
           </p>
           <h1 className="text-3xl font-bold">Participant Info</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {numberOfParticipants} participant
-            {numberOfParticipants > 1 ? "s" : ""}
+            {participants.length} participant
+            {participants.length > 1 ? "s" : ""}
           </p>
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {participants.map((p, index) => (
-            <div key={index} className="rounded-lg border p-4 space-y-4">
+            <div key={index} className="rounded-lg border p-5 space-y-4">
               <h2 className="font-semibold">
                 {index === 0 ? "Lead Participant" : `Participant ${index + 1}`}
               </h2>
@@ -96,7 +81,7 @@ export default function ParticipantInfoPage({
                     type="tel"
                     value={p.phone}
                     onChange={(e) => update(index, "phone", e.target.value)}
-                    placeholder="+1 555 000 0000"
+                    placeholder="+254 7XX XXX XXX"
                     required
                   />
                 </div>
@@ -120,14 +105,15 @@ export default function ParticipantInfoPage({
                     onChange={(e) =>
                       update(index, "medicalNotes", e.target.value)
                     }
-                    placeholder="Allergies, conditions, etc."
+                    placeholder="Allergies, conditions, medications..."
+                    rows={3}
                   />
                 </div>
               </div>
             </div>
           ))}
 
-          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between pt-4 border-t">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between pt-6 border-t">
             <Button type="button" variant="outline" onClick={onBack}>
               <ArrowLeft className="size-4 mr-2" />
               Back

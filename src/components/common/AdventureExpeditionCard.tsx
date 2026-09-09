@@ -96,7 +96,7 @@ const AdventureExpeditionCard = ({
   return (
     <Card className="group relative flex h-full flex-col overflow-hidden border-border/60 pt-0 transition-all duration-300 hover:shadow-lg hover:border-border">
       {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-4/3 overflow-hidden">
         <Image
           src={adventure.coverImage}
           alt={title}
@@ -106,7 +106,7 @@ const AdventureExpeditionCard = ({
         />
 
         {/* Soft gradient for better badge readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
 
         {/* Top badges */}
         <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">

@@ -174,3 +174,11 @@ export interface AdventureExpeditionTypes {
   adventure: Adventure;
   expedition: Expedition;
 }
+
+export type Participant = {
+  fullName: string;
+  email: string;
+  phone: string;
+  medicalNotes: string;
+  emergencyContact: string;
+};

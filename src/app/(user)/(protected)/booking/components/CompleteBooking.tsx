@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import Image from "next/image";
@@ -25,20 +26,37 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getBetterDateFormat } from "@/hooks/getBetterTimeFormat";
+import { Participant } from "@/types/t.types";
+
+interface CompleteYourBookingPageProps {
+  onBack: () => void;
+  participants: Participant[];
+  expedition: any;
+  total: number;
+}
 
 export default function CompleteYourBookingPage({
   onBack,
-}: {
-  onBack: () => void;
-}) {
+  participants,
+  expedition,
+  total,
+}: CompleteYourBookingPageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("mpesa");
+
+  // Prefill from Lead Participant
+  const lead = participants[0];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Add your payment logic here
-    setTimeout(() => setIsSubmitting(false), 2000);
+
+    // TODO: Add your actual payment logic here
+    setTimeout(() => {
+      setIsSubmitting(false);
+      // router.push("/booking/success") or similar
+    }, 2000);
   };
 
   return (
@@ -50,7 +68,7 @@ export default function CompleteYourBookingPage({
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="gap-1.5 text-muted-foreground hover:text-foreground -ml-2"
+            className="-ml-2 gap-1.5 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
@@ -62,7 +80,7 @@ export default function CompleteYourBookingPage({
           <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Complete Your Booking
           </h1>
-          <p className="mt-2 text-muted-foreground max-w-2xl">
+          <p className="mt-2 max-w-2xl text-muted-foreground">
             Review your details and securely enter your payment information to
             finalize your expedition.
           </p>
@@ -71,19 +89,17 @@ export default function CompleteYourBookingPage({
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             {/* Left Column */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="space-y-6 lg:col-span-2">
               {/* Payment Method */}
-              <Card className="border-border/60 shadow-sm overflow-hidden">
+              <Card className="overflow-hidden border-border/60 shadow-sm">
                 <div className="h-1.5 w-full bg-primary" />
 
                 <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-                        <Smartphone className="h-5 w-5 text-primary" />
-                      </div>
-                      <CardTitle className="text-lg">Payment Method</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                      <Smartphone className="h-5 w-5 text-primary" />
                     </div>
+                    <CardTitle className="text-lg">Payment Method</CardTitle>
                   </div>
                 </CardHeader>
 
@@ -93,24 +109,24 @@ export default function CompleteYourBookingPage({
                     onValueChange={setPaymentMethod}
                     className="w-full"
                   >
-                    <TabsList className="grid w-full grid-cols-3 h-auto p-1 bg-muted/60">
+                    <TabsList className="grid h-auto w-full grid-cols-3 bg-muted/60 p-1">
                       <TabsTrigger
                         value="mpesa"
-                        className="flex flex-col sm:flex-row items-center gap-1.5 py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                        className="flex flex-col items-center gap-1.5 py-2.5 sm:flex-row data-[state=active]:bg-background data-[state=active]:shadow-sm"
                       >
                         <Smartphone className="h-4 w-4" />
                         <span className="text-xs sm:text-sm">M-Pesa</span>
                       </TabsTrigger>
                       <TabsTrigger
                         value="card"
-                        className="flex flex-col sm:flex-row items-center gap-1.5 py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                        className="flex flex-col items-center gap-1.5 py-2.5 sm:flex-row data-[state=active]:bg-background data-[state=active]:shadow-sm"
                       >
                         <CreditCard className="h-4 w-4" />
                         <span className="text-xs sm:text-sm">Credit Card</span>
                       </TabsTrigger>
                       <TabsTrigger
                         value="bank"
-                        className="flex flex-col sm:flex-row items-center gap-1.5 py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                        className="flex flex-col items-center gap-1.5 py-2.5 sm:flex-row data-[state=active]:bg-background data-[state=active]:shadow-sm"
                       >
                         <Building2 className="h-4 w-4" />
                         <span className="text-xs sm:text-sm">
@@ -119,7 +135,7 @@ export default function CompleteYourBookingPage({
                       </TabsTrigger>
                     </TabsList>
 
-                    {/* M-Pesa Content */}
+                    {/* M-Pesa */}
                     <TabsContent value="mpesa" className="mt-6 space-y-5">
                       <div className="rounded-lg border border-border/60 bg-muted/30 p-4">
                         <div className="flex items-start gap-3">
@@ -144,34 +160,36 @@ export default function CompleteYourBookingPage({
                           M-Pesa Registered Phone Number*
                         </Label>
                         <div className="flex">
-                          <div className="flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-sm text-muted-foreground">
+                          <div className="flex items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
                             +254
                           </div>
                           <Input
                             id="mpesaPhone"
                             placeholder="712 345 678"
                             className="rounded-l-none"
+                            defaultValue={
+                              lead?.phone?.replace("+254", "") || ""
+                            }
                             required
                           />
                         </div>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                           <Info className="h-3.5 w-3.5" />
-                          Use your mobile number registered with M-Pesa. You
-                          will receive a prompt on your phone.
+                          Use the mobile number registered with M-Pesa.
                         </p>
                       </div>
 
-                      <div className="rounded-lg bg-primary/5 border border-primary/20 px-4 py-3 flex items-center justify-between">
+                      <div className="flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
                         <span className="text-sm font-medium text-foreground">
                           Amount to Pay
                         </span>
                         <span className="text-lg font-bold text-primary">
-                          KES 19,110.00
+                          KES {total.toLocaleString()}
                         </span>
                       </div>
                     </TabsContent>
 
-                    {/* Credit Card Content (placeholder) */}
+                    {/* Credit Card */}
                     <TabsContent value="card" className="mt-6 space-y-5">
                       <div className="space-y-2">
                         <Label htmlFor="cardNumber">Card Number</Label>
@@ -192,16 +210,20 @@ export default function CompleteYourBookingPage({
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="nameOnCard">Name on Card</Label>
-                        <Input id="nameOnCard" placeholder="Jane Doe" />
+                        <Input
+                          id="nameOnCard"
+                          placeholder="Jane Doe"
+                          defaultValue={lead?.fullName || ""}
+                        />
                       </div>
                     </TabsContent>
 
-                    {/* Bank Transfer Content (placeholder) */}
+                    {/* Bank Transfer */}
                     <TabsContent value="bank" className="mt-6">
                       <div className="rounded-lg border border-dashed border-border p-6 text-center text-muted-foreground">
-                        <Building2 className="mx-auto h-8 w-8 mb-3 opacity-50" />
+                        <Building2 className="mx-auto mb-3 h-8 w-8 opacity-50" />
                         <p className="font-medium">Bank Transfer Details</p>
-                        <p className="text-sm mt-1">
+                        <p className="mt-1 text-sm">
                           Bank details will be shown after selecting this
                           method.
                         </p>
@@ -230,7 +252,7 @@ export default function CompleteYourBookingPage({
                     <Input
                       id="fullName"
                       placeholder="Jane Doe"
-                      defaultValue="Jane Doe"
+                      defaultValue={lead?.fullName || ""}
                       required
                     />
                   </div>
@@ -243,12 +265,12 @@ export default function CompleteYourBookingPage({
                       id="email"
                       type="email"
                       placeholder="jane.doe@example.com"
-                      defaultValue="jane.doe@example.com"
+                      defaultValue={lead?.email || ""}
                       required
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="city">City / Region</Label>
                       <Input
@@ -275,43 +297,48 @@ export default function CompleteYourBookingPage({
             {/* Right Column - Order Summary */}
             <div className="lg:col-span-1">
               <div className="sticky top-8">
-                <Card className="border-border/60 shadow-sm overflow-hidden">
+                <Card className="overflow-hidden border-border/60 shadow-sm">
                   {/* Expedition Image */}
                   <div className="relative h-40 w-full">
                     <Image
-                      src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=800&auto=format&fit=crop"
-                      alt="The High Sierra Traverse"
+                      src={expedition.adventure.coverImage}
+                      alt={expedition.expeditionTitle}
                       fill
                       className="object-cover"
                       priority
                     />
                     <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
                     <div className="absolute bottom-3 left-3 right-3">
-                      <p className="text-xs font-medium text-white/80 uppercase tracking-wider">
+                      <p className="text-xs font-medium uppercase tracking-wider text-white/80">
                         Expedition
                       </p>
-                      <p className="text-lg font-semibold text-white leading-tight">
-                        The High Sierra Traverse
+                      <p className="text-lg font-semibold leading-tight text-white">
+                        {expedition.expeditionTitle}
                       </p>
                     </div>
                   </div>
 
-                  <CardContent className="pt-5 space-y-4">
+                  <CardContent className="space-y-4 pt-5">
                     <div className="space-y-3 text-sm">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Users className="h-4 w-4" />
                           <span>Participants</span>
                         </div>
-                        <span className="font-medium">3 Explorers</span>
+                        <span className="font-medium">
+                          {participants.length}{" "}
+                          {participants.length === 1 ? "Explorer" : "Explorers"}
+                        </span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <CalendarDays className="h-4 w-4" />
-                          <span>Dates</span>
+                          <span>Departure</span>
                         </div>
-                        <span className="font-medium">Oct 12 – 16, 2024</span>
+                        <span className="font-medium">
+                          {getBetterDateFormat(expedition.departureDate)}
+                        </span>
                       </div>
                     </div>
 
@@ -319,15 +346,17 @@ export default function CompleteYourBookingPage({
 
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Subtotal</span>
-                      <span className="font-medium">$147.00</span>
+                      <span className="font-medium">
+                        KES {total.toLocaleString()}
+                      </span>
                     </div>
 
-                    <div className="flex justify-between items-baseline pt-1">
+                    <div className="flex items-baseline justify-between pt-1">
                       <span className="font-semibold text-foreground">
                         Final Amount
                       </span>
                       <span className="text-2xl font-bold tracking-tight text-foreground">
-                        $147
+                        KES {total.toLocaleString()}
                       </span>
                     </div>
                   </CardContent>
@@ -342,11 +371,11 @@ export default function CompleteYourBookingPage({
                       {isSubmitting
                         ? "Processing..."
                         : paymentMethod === "mpesa"
-                          ? "Pay with M-Pesa → STK Push (KES 19,110)"
+                          ? `Pay with M-Pesa → STK Push (KES ${total.toLocaleString()})`
                           : "Pay & Confirm Booking"}
                     </Button>
 
-                    <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground text-center">
+                    <div className="flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
                       <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
                       <span>
                         {paymentMethod === "mpesa"
