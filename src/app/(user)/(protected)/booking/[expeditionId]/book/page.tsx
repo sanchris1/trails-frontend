@@ -9,7 +9,7 @@ const ExpeditionBookingPage = async ({
 
   return (
     <div>
-      <BookingPage />
+      <BookingPage expeditionId={expeditionId} />
     </div>
   );
 };
