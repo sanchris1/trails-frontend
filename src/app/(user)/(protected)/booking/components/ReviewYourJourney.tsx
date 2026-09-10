@@ -27,7 +27,7 @@ import {
 import { useState } from "react";
 import { getBetterDateFormat } from "@/hooks/getBetterTimeFormat";
 import { Participant } from "@/types/t.types";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { bookExpedition } from "@/hooks/booking/bookExpedition";
 import toast from "react-hot-toast";
 import { bookParticipants } from "@/hooks/booking/bookParticipants";
@@ -48,11 +48,13 @@ export default function ReviewYourJourneyPage({
   total,
   participants,
 }: ReviewYourJourneyPageProps) {
+  const queryClient = useQueryClient();
+
   const { mutate: bookP } = useMutation({
     mutationFn: bookParticipants,
     onSuccess: (data: any) => {
-      console.log(data);
       toast.success(data?.message);
+      queryClient.invalidateQueries({ queryKey: ["expeditions"] });
       onContinue();
     },
     onError: (error: any) => {
@@ -341,7 +343,6 @@ export default function ReviewYourJourneyPage({
                         expeditionId: expedition.id,
                         numberOfParticipants: participants.length,
                       });
-                      // onContinue();
                     }}
                   >
                     Proceed to Payment

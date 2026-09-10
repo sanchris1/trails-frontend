@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -8,6 +9,7 @@ import ReviewYourJourneyPage from "./ReviewYourJourney";
 import CompleteYourBookingPage from "./CompleteBooking";
 import { useFetchExpeditionDetails } from "@/hooks/expedition/useFetchExpeditionsDetails";
 import { Participant } from "@/types/t.types";
+import { useFetchUserBookings } from "@/hooks/booking/useFetchUserBookings";
 
 const emptyParticipant = (): Participant => ({
   fullName: "",
@@ -25,6 +27,18 @@ const steps = [
 ];
 
 const BookingPage = ({ expeditionId }: { expeditionId: string }) => {
+  const { data } = useFetchUserBookings();
+
+  const userBookings: any[] = data?.userBookings ?? [];
+
+  const isBooked =
+    userBookings.some((bookings) => bookings.expeditionId === expeditionId) ??
+    false;
+
+  // const bookedExpeditionDetails = userBookings.find(
+  //   (bookings) => bookings.expeditionId === expeditionId,
+  // );
+
   const [currentStep, setCurrentStep] = useState(1);
 
   // This is now an array of participant objects
@@ -45,20 +59,17 @@ const BookingPage = ({ expeditionId }: { expeditionId: string }) => {
       ? expedition.adventure.defaultPrice * participants.length
       : 0;
 
-  // Helper to change the number of participants (used in Step 1)
   const updateParticipantsCount = (count: number) => {
     setParticipants((prev) => {
       if (count === prev.length) return prev;
 
       if (count > prev.length) {
-        // Add empty participants
         return [
           ...prev,
           ...Array.from({ length: count - prev.length }, emptyParticipant),
         ];
       }
 
-      // Remove from the end
       return prev.slice(0, count);
     });
   };
@@ -71,9 +82,11 @@ const BookingPage = ({ expeditionId }: { expeditionId: string }) => {
         <BookedExpedition
           isLoading={isLoading}
           expedition={expedition}
+          isBooked={isBooked}
           total={total}
           onContinue={nextStep}
           participantsCount={participants.length}
+          setCurrentStep={setCurrentStep}
           setParticipantsCount={updateParticipantsCount}
         />
       )}

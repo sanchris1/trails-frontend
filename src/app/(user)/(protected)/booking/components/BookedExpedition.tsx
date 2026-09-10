@@ -23,20 +23,24 @@ import Link from "next/link";
 
 interface BookedExpeditionProps {
   total: number;
+  isBooked: boolean;
   isLoading: boolean;
   expedition: any;
   onContinue: () => void;
   participantsCount: number;
   setParticipantsCount: (count: number) => void;
+  setCurrentStep: (step: number) => void;
 }
 
 const BookedExpedition = ({
   total,
+  isBooked,
   expedition,
   isLoading,
   onContinue,
   participantsCount,
   setParticipantsCount,
+  setCurrentStep,
 }: BookedExpeditionProps) => {
   const maxParticipants = expedition?.slotsLeft ?? 1;
 
@@ -263,9 +267,9 @@ const BookedExpedition = ({
               <Button
                 className="mt-5 h-11 w-full rounded-lg"
                 size="lg"
-                onClick={onContinue}
+                onClick={isBooked ? () => setCurrentStep(4) : onContinue}
               >
-                Continue to Participants
+                Continue to {isBooked ? "Payment" : "Participants"}
                 <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
 

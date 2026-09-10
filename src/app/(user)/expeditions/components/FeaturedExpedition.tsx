@@ -26,7 +26,7 @@ const FeaturedExpedition = () => {
         {/* Image */}
         <div className="relative aspect-4/3 min-h-70 overflow-hidden sm:min-h-95 lg:aspect-auto lg:min-h-130">
           <Image
-            src={featuredExpedition.adventure.coverImage}
+            src={featuredExpedition?.adventure.coverImage}
             alt={featuredExpedition?.expedition.expeditionTitle}
             fill
             priority
