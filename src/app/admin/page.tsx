@@ -1,7 +1,6 @@
 "use client";
 
 import { dashboardStats } from "@/common";
-import Logo from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import DashboardStatsCard from "./components/DashboardStatsCard";
@@ -22,7 +21,11 @@ const AdminPages = () => {
             Hello, <span className="text-accent">{session?.user?.name}</span>
           </h3>
           <p className="text-sm text-secondary">
-            Welcome to the overview of the <Logo /> for the time
+            Welcome to the overview of the{" "}
+            <span className="text-accent font-bold tracking-wider">
+              Trails and Memoirs
+            </span>{" "}
+            for the time
           </p>
         </div>
         <Button>

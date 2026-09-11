@@ -3,6 +3,7 @@
 import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select } from "@/components/ui/select";
 
 const ExpeditionGalleryFilters = () => {
   return (
@@ -18,23 +19,20 @@ const ExpeditionGalleryFilters = () => {
         {/* Controls */}
         <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:items-center">
           {/* Search */}
-          <div className="relative w-full sm:min-w-55 sm:max-w-70">
+          {/* <div className="relative w-full sm:min-w-55 sm:max-w-70">
             <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
 
             <Input
               placeholder="Search expeditions..."
               className="h-10 rounded-full border-border bg-background pl-9 pr-4 text-xs"
             />
-          </div>
+          </div> */}
 
           {/* Expedition filter */}
-          <Button
-            variant="outline"
-            className="h-10 w-full justify-between rounded-full bg-background px-4 text-xs font-normal sm:w-37.5"
-          >
+          <Select>
             <span>All Expeditions</span>
             <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-          </Button>
+          </Select>
 
           {/* Sort */}
           <Button
