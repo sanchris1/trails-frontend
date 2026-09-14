@@ -11,6 +11,9 @@ const GalleryPage = () => {
     string | undefined
   >(undefined);
   const [page, setPage] = useState<number>(1);
+  const [expeditionTitle, setExpeditionTitle] = useState<
+    string | undefined | null
+  >(null);
 
   const { data: expeditionData } = useFetchExpeditionsWithGallery();
 
@@ -24,11 +27,16 @@ const GalleryPage = () => {
     <div>
       <GalleryHero />
       <ExpeditionGalleryFilters
+        setExpeditionTitle={setExpeditionTitle}
         expeditions={expeditionData?.result}
         selectedExpeditionId={selectedExpeditionId}
         setSelectedExpeditionId={setSelectedExpeditionId}
       />
-      <ExpeditionStories images={data?.images} setPage={setPage} />
+      <ExpeditionStories
+        images={data?.images}
+        setPage={setPage}
+        expeditionTitle={expeditionTitle}
+      />
     </div>
   );
 };

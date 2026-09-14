@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -12,16 +13,28 @@ import {
 } from "@/components/ui/select";
 import { ExpeditionsWithGalleryTypes } from "@/types/t.types";
 import { SlidersHorizontal } from "lucide-react";
+import { useEffect } from "react";
 
 const ExpeditionGalleryFilters = ({
   selectedExpeditionId,
   setSelectedExpeditionId,
   expeditions,
+  setExpeditionTitle,
 }: {
   selectedExpeditionId?: string;
+  setExpeditionTitle: React.Dispatch<
+    React.SetStateAction<string | undefined | null>
+  >;
   setSelectedExpeditionId: (id: string | undefined) => void;
   expeditions: ExpeditionsWithGalleryTypes[];
 }) => {
+  useEffect(() => {
+    const newTitle = selectedExpeditionId
+      ? expeditions?.find((exp) => exp.id == selectedExpeditionId)?.name
+      : null;
+    setExpeditionTitle(newTitle);
+  }, [selectedExpeditionId]);
+
   return (
     <section className="w-full border-y bg-muted/20">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-8 sm:px-8 md:py-10 lg:flex-row lg:items-center lg:justify-between lg:px-10">

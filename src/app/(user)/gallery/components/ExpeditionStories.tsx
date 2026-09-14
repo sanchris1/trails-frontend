@@ -141,7 +141,9 @@ const RightFeaturePattern = ({
 export default function ExpeditionStories({
   images,
   setPage,
+  expeditionTitle,
 }: {
+  expeditionTitle: string | null | undefined;
   images: GalleryImage[];
   setPage: React.Dispatch<React.SetStateAction<number>>;
 }) {
@@ -160,9 +162,7 @@ export default function ExpeditionStories({
         </h2>
 
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-medium uppercase tracking-[0.16em] text-accent">
-          <span>Mount Kenya Circuit</span>
-          <span className="text-muted-foreground">•</span>
-          <span>Northern Route</span>
+          <span>{expeditionTitle ? expeditionTitle : "All Expeditions"}</span>
           <span className="text-muted-foreground">•</span>
           <span>{images?.length} Photos</span>
         </div>
