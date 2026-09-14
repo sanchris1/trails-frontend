@@ -5,8 +5,8 @@ export async function fetchGalleryImages({
   limit = 5,
   expeditionId,
 }: {
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
   expeditionId?: string;
 }) {
   const params = new URLSearchParams({

@@ -16,7 +16,7 @@ const GalleryPage = () => {
   const [open, setOpen] = useState(false);
   const [expeditionId, setExpeditionId] = useState<string | null>(null);
 
-  const { data } = useFetchGalleryImages();
+  const { data } = useFetchGalleryImages({});
 
   const images = data?.images;
 

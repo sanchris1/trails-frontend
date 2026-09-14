@@ -6,8 +6,8 @@ const useFetchGalleryImages = ({
   limit,
   expeditionId,
 }: {
-  page: number;
-  limit: number;
+  page?: number;
+  limit?: number;
   expeditionId?: string;
 }) => {
   return useQuery({
