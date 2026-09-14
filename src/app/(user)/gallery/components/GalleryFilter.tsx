@@ -1,11 +1,27 @@
 "use client";
 
-import { Search, SlidersHorizontal, ChevronDown } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ExpeditionsWithGalleryTypes } from "@/types/t.types";
+import { SlidersHorizontal } from "lucide-react";
 
-const ExpeditionGalleryFilters = () => {
+const ExpeditionGalleryFilters = ({
+  selectedExpeditionId,
+  setSelectedExpeditionId,
+  expeditions,
+}: {
+  selectedExpeditionId?: string;
+  setSelectedExpeditionId: (id: string | undefined) => void;
+  expeditions: ExpeditionsWithGalleryTypes[];
+}) => {
   return (
     <section className="w-full border-y bg-muted/20">
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-5 py-8 sm:px-8 md:py-10 lg:flex-row lg:items-center lg:justify-between lg:px-10">
@@ -29,9 +45,33 @@ const ExpeditionGalleryFilters = () => {
           </div> */}
 
           {/* Expedition filter */}
-          <Select>
-            <span>All Expeditions</span>
-            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+          <Select
+            value={selectedExpeditionId}
+            onValueChange={(value) =>
+              setSelectedExpeditionId(
+                value === "all" || value === null ? undefined : value,
+              )
+            }
+          >
+            <SelectTrigger className="min-w-64">
+              <SelectValue placeholder="Filter by Expeditions">
+                {selectedExpeditionId
+                  ? expeditions?.find((exp) => exp.id === selectedExpeditionId)
+                      ?.name || "Unknown Expedition"
+                  : "All Expeditions"}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Expeditions</SelectLabel>
+                <SelectItem value="all">All Expeditions</SelectItem>
+                {expeditions?.map((exp) => (
+                  <SelectItem key={exp.id} value={exp.id}>
+                    {exp.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
           </Select>
 
           {/* Sort */}

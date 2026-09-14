@@ -140,8 +140,10 @@ const RightFeaturePattern = ({
 
 export default function ExpeditionStories({
   images,
+  setPage,
 }: {
   images: GalleryImage[];
+  setPage: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const groups: GalleryImage[][] = [];
 
@@ -191,6 +193,7 @@ export default function ExpeditionStories({
       {/* Load more (static for now) */}
       <div className="mt-12 flex justify-center sm:mt-16 md:mt-20">
         <Button
+          onClick={() => setPage((prev: number) => (prev += 1))}
           variant="outline"
           className="h-11 rounded-full px-6 text-[10px] font-semibold uppercase tracking-[0.15em]"
         >

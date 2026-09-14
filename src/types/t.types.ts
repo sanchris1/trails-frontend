@@ -182,3 +182,10 @@ export type Participant = {
   medicalNotes: string;
   emergencyContact: string;
 };
+
+export interface ExpeditionsWithGalleryTypes {
+  id: string;
+  coverImage: string;
+  departureDate: string;
+  name: string;
+}

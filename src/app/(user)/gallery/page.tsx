@@ -1,44 +1,34 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import GalleryHero from "./components/GalleryPageHero";
 import ExpeditionGalleryFilters from "./components/GalleryFilter";
 import ExpeditionStories from "./components/ExpeditionStories";
 import useFetchGalleryImages from "@/hooks/gallery/useFetchGalleryImages";
-import { useQueries } from "@tanstack/react-query";
-import { fetchExpeditionDetails } from "@/hooks/expedition/fetchExpeditionDetails";
+import { useState } from "react";
+import useFetchExpeditionsWithGallery from "@/hooks/gallery/useFetchExpeditionsWithGallery";
 
 const GalleryPage = () => {
-  const { data } = useFetchGalleryImages();
+  const [selectedExpeditionId, setSelectedExpeditionId] = useState<
+    string | undefined
+  >(undefined);
+  const [page, setPage] = useState<number>(1);
 
-  console.log(data);
+  const { data: expeditionData } = useFetchExpeditionsWithGallery();
 
-  const expeditionIds: string[] = Array.from(
-    new Set(
-      (data?.images ?? [])
-        .map((image: any) => image.expeditionId)
-        .filter(Boolean),
-    ),
-  );
-
-  const expeditionQueries = useQueries({
-    queries: expeditionIds.map((id: string) => ({
-      queryKey: ["gallery", "expeditions", id],
-      queryFn: () => fetchExpeditionDetails(id),
-      enabled: !!id,
-    })),
+  const { data } = useFetchGalleryImages({
+    page,
+    expeditionId: selectedExpeditionId,
+    limit: 10,
   });
-
-  const fetchedExpeditions = expeditionQueries
-    .map((q) => q?.data?.data)
-    .filter(Boolean);
-
-  console.log(fetchedExpeditions);
 
   return (
     <div>
       <GalleryHero />
-      <ExpeditionGalleryFilters />
-      <ExpeditionStories images={data?.images} />
+      <ExpeditionGalleryFilters
+        expeditions={expeditionData?.result}
+        selectedExpeditionId={selectedExpeditionId}
+        setSelectedExpeditionId={setSelectedExpeditionId}
+      />
+      <ExpeditionStories images={data?.images} setPage={setPage} />
     </div>
   );
 };
