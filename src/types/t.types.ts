@@ -221,3 +221,41 @@ export interface MerchandiseFormValues {
   tags: string;
   images: MerchandiseImage[];
 }
+
+export type MerchandiseResponseImage = {
+  publicId: string;
+  url: string;
+};
+
+export type Merchandise = {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  price: number;
+  stock: number;
+  category: string;
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type MerchandiseColors = {
+  id: string;
+  merchandiseId: string;
+  colors: string[];
+};
+
+export type MerchandiseImages = {
+  id: string;
+  merchandiseId: string;
+  images: MerchandiseResponseImage[];
+};
+
+export type MerchandiseResponseItem = {
+  merchandise: Merchandise;
+  merchandise_colors: MerchandiseColors;
+  merchandise_images: MerchandiseImages;
+};
+
+export type MerchandiseResponse = MerchandiseResponseItem[];

@@ -31,6 +31,7 @@ import { useAddNewMerchandise } from "@/hooks/merchandise/addNewMerchandise";
 import toast from "react-hot-toast";
 import { uploadSeveralImages } from "@/hooks/image/uploadImage";
 import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const defaultMerchandiseValues: MerchandiseFormValues = {
   title: "",
@@ -57,11 +58,8 @@ export default function CreateMerchandiseSidebar({
   mode = "create",
   initialData,
 }: CreateMerchandiseSidebarProps) {
-  const {
-    mutateAsync: addMerchandise,
-    isSuccess,
-    isError,
-  } = useAddNewMerchandise();
+  const { mutateAsync: addMerchandise, isError } = useAddNewMerchandise();
+  const queryClient = useQueryClient();
 
   const [newColor, setNewColor] = useState("#000000");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -148,6 +146,7 @@ export default function CreateMerchandiseSidebar({
       toast.success("Merchandise added successfully");
       reset(defaultMerchandiseValues);
       onOpenChange(false);
+      queryClient.invalidateQueries({ queryKey: ["merchandise"] });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log("Error:", error.response?.data.message);

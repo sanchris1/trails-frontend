@@ -32,84 +32,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import CreateMerchandiseSidebar from "./components/CreateEditMerchandiseSidebar";
-
-type Product = {
-  id: string;
-  name: string;
-  sku: string;
-  category: string;
-  priceKes: number;
-  priceUsd: number;
-  stock: number;
-  stockStatus: "in-stock" | "low-stock" | "out-of-stock";
-  colors: string[];
-  imageCount: number;
-  dateCataloged: string;
-  image: string;
-};
-
-const products: Product[] = [
-  {
-    id: "1",
-    name: "Mara Expedition Heavyweight Tee",
-    sku: "TM-APP-042",
-    category: "APPAREL",
-    priceKes: 6500,
-    priceUsd: 52,
-    stock: 84,
-    stockStatus: "in-stock",
-    colors: ["#8B4513", "#D2B48C", "#F5F5DC"],
-    imageCount: 4,
-    dateCataloged: "Oct 14, 2024",
-    image:
-      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=100&h=100&fit=crop",
-  },
-  {
-    id: "2",
-    name: "Safari Canvas & Leather Field Rucksack",
-    sku: "TM-BAG-018",
-    category: "OUTDOOR GEAR",
-    priceKes: 24800,
-    priceUsd: 195,
-    stock: 4,
-    stockStatus: "low-stock",
-    colors: ["#8B4513", "#A0522D"],
-    imageCount: 6,
-    dateCataloged: "Nov 02, 2024",
-    image:
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=100&h=100&fit=crop",
-  },
-  {
-    id: "3",
-    name: "Rift Valley Wool Trail Overshirt",
-    sku: "TM-APP-038",
-    category: "APPAREL",
-    priceKes: 18200,
-    priceUsd: 145,
-    stock: 32,
-    stockStatus: "in-stock",
-    colors: ["#2F4F4F", "#696969"],
-    imageCount: 3,
-    dateCataloged: "Dec 18, 2024",
-    image:
-      "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=100&h=100&fit=crop",
-  },
-  {
-    id: "4",
-    name: "Debossed Campfire Topo Mug",
-    sku: "TM-ACC-012",
-    category: "ACCESSORIES",
-    priceKes: 3200,
-    priceUsd: 26,
-    stock: 18,
-    stockStatus: "in-stock",
-    colors: ["#8B0000", "#2F2F2F", "#D3D3D3"],
-    imageCount: 5,
-    dateCataloged: "Jan 12, 2025",
-    image:
-      "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=100&h=100&fit=crop",
-  },
-];
+import { useFetchAllMerchandise } from "@/hooks/merchandise/fetchMerchandise";
 
 const stockFilters = [
   { key: "all", label: "ALL PRODUCTS", count: 24 },
@@ -123,6 +46,10 @@ export default function MerchandisePage() {
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const { data } = useFetchAllMerchandise();
+
+  console.log(data);
 
   return (
     <div className="min-h-screen bg-background">
@@ -268,24 +195,27 @@ export default function MerchandisePage() {
             </TableHeader>
 
             <TableBody>
-              {products.map((product) => (
-                <TableRow key={product.id} className="hover:bg-muted/20">
+              {data?.map((product) => (
+                <TableRow
+                  key={product?.merchandise?.id}
+                  className="hover:bg-muted/20"
+                >
                   {/* Product Details */}
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-border bg-muted">
                         <Image
-                          src={product.image}
-                          alt={product.name}
+                          src={product.merchandise_images?.images[0]?.url}
+                          alt={product?.merchandise.title}
                           fill
                           className="object-cover"
                         />
                       </div>
                       <div className="min-w-0">
                         <p className="font-medium leading-tight text-foreground">
-                          {product.name}
+                          {product?.merchandise.title}
                         </p>
-                        <div className="mt-1 flex items-center gap-2">
+                        {/* <div className="mt-1 flex items-center gap-2">
                           <span className="text-xs text-muted-foreground">
                             {product.sku}
                           </span>
@@ -304,7 +234,7 @@ export default function MerchandisePage() {
                               : "Low Stock"}{" "}
                             +{product.stock}
                           </Badge>
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   </TableCell>
@@ -315,7 +245,7 @@ export default function MerchandisePage() {
                       variant="outline"
                       className="text-[10px] font-semibold uppercase tracking-wide"
                     >
-                      {product.category}
+                      {product?.merchandise.category}
                     </Badge>
                   </TableCell>
 
@@ -323,10 +253,7 @@ export default function MerchandisePage() {
                   <TableCell>
                     <div>
                       <p className="font-semibold text-foreground">
-                        KES {product.priceKes.toLocaleString()}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        ${product.priceUsd.toFixed(2)} USD
+                        Ksh: {product?.merchandise.price.toLocaleString()}
                       </p>
                     </div>
                   </TableCell>
@@ -334,7 +261,7 @@ export default function MerchandisePage() {
                   {/* Colors */}
                   <TableCell>
                     <div className="flex items-center gap-1.5">
-                      {product.colors.map((color, i) => (
+                      {product?.merchandise_colors.colors.map((color, i) => (
                         <span
                           key={i}
                           className="h-4 w-4 rounded-full border border-border"
@@ -342,7 +269,7 @@ export default function MerchandisePage() {
                         />
                       ))}
                       <span className="ml-1 text-xs text-muted-foreground">
-                        {product.colors.length}
+                        {product?.merchandise_colors.colors.length}
                       </span>
                     </div>
                   </TableCell>
@@ -351,14 +278,14 @@ export default function MerchandisePage() {
                   <TableCell>
                     <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                       <span className="text-xs">🖼</span>
-                      {product.imageCount} images
+                      {product?.merchandise_images?.images?.length} images
                     </div>
                   </TableCell>
 
-                  {/* Date */}
+                  {/* Date
                   <TableCell className="text-sm text-muted-foreground">
                     {product.dateCataloged}
-                  </TableCell>
+                  </TableCell> */}
 
                   {/* Actions */}
                   <TableCell>
