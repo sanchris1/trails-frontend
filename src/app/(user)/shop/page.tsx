@@ -11,7 +11,9 @@ const ShopPage = () => {
   return (
     <div>
       <ShopHeader />
-      <ShopToolbar merchandiseLength={merchandise!.length} />
+      {!isLoading && (
+        <ShopToolbar merchandiseLength={merchandise?.length ?? 0} />
+      )}
       <ProductGrid merchandise={merchandise!} loading={isLoading} />
     </div>
   );
