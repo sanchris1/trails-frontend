@@ -58,10 +58,9 @@ export default function CreateMerchandiseSidebar({
   initialData,
 }: CreateMerchandiseSidebarProps) {
   const {
-    mutate: addMerchandise,
+    mutateAsync: addMerchandise,
     isSuccess,
     isError,
-    error,
   } = useAddNewMerchandise();
 
   const [newColor, setNewColor] = useState("#000000");
@@ -127,37 +126,37 @@ export default function CreateMerchandiseSidebar({
 
   // ─── Submit ───────────────────────────────────────────────
   const handleFormSubmit = async (data: MerchandiseFormValues) => {
-    const filesToUpload = data.images
-      .map((i) => i.file)
-      .filter((f: File) => !!f);
+    try {
+      const filesToUpload = data.images
+        .map((i) => i.file)
+        .filter((f: File) => !!f);
 
-    const uploadResults = await uploadSeveralImages(filesToUpload);
+      const uploadResults = await uploadSeveralImages(filesToUpload);
 
-    const resultsToUpload = uploadResults?.map((res) => ({
-      url: res?.data[0]?.secure_url,
-      publicId: res?.data[0]?.public_id,
-    }));
+      const resultsToUpload = uploadResults?.map((res) => ({
+        url: res?.data[0]?.secure_url,
+        publicId: res?.data[0]?.public_id,
+      }));
 
-    const payload: any = {
-      ...data,
-      images: resultsToUpload,
-    };
+      const payload: any = {
+        ...data,
+        images: resultsToUpload,
+      };
 
-    addMerchandise({ values: payload });
+      await addMerchandise({ values: payload });
 
-    if (isSuccess) {
       toast.success("Merchandise added successfully");
       reset(defaultMerchandiseValues);
       onOpenChange(false);
-    }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log("Error:", error.response?.data.message);
+        toast.error(error.response?.data.message);
+      }
 
-    if (axios.isAxiosError(error)) {
-      console.log("Error:", error.response?.data.message);
-      toast.error(error.response?.data.message);
-    }
-
-    if (isError) {
-      toast.error("Merchandise upload failed");
+      if (isError) {
+        toast.error("Merchandise upload failed");
+      }
     }
   };
 
