@@ -33,13 +33,8 @@ import {
 import { cn } from "@/lib/utils";
 import CreateMerchandiseSidebar from "./components/CreateEditMerchandiseSidebar";
 import { useFetchAllMerchandise } from "@/hooks/merchandise/fetchMerchandise";
-
-const stockFilters = [
-  { key: "all", label: "ALL PRODUCTS", count: 24 },
-  { key: "in-stock", label: "IN STOCK", count: 19 },
-  { key: "low-stock", label: "LOW STOCK", count: 3 },
-  { key: "drafts", label: "DRAFTS", count: 2 },
-];
+import { useDeleteMerchandise } from "@/hooks/merchandise/deleteMerchandise";
+import LoaderButton from "@/components/common/LoaderButton";
 
 export default function MerchandisePage() {
   const [activeFilter, setActiveFilter] = useState("all");
@@ -49,7 +44,14 @@ export default function MerchandisePage() {
 
   const { data } = useFetchAllMerchandise();
 
-  console.log(data);
+  const { mutate: deleteMerchandise, isPending } = useDeleteMerchandise();
+
+  const stockFilters = [
+    { key: "all", label: "ALL PRODUCTS" },
+    { key: "in-stock", label: "IN STOCK" },
+    { key: "low-stock", label: "LOW STOCK" },
+    { key: "drafts", label: "DRAFTS" },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -154,7 +156,7 @@ export default function MerchandisePage() {
                 )}
               >
                 {filter.label}{" "}
-                <span className="ml-1 opacity-80">{filter.count}</span>
+                <span className="ml-1 opacity-80">{data?.length}</span>
               </button>
             ))}
           </div>
@@ -177,7 +179,7 @@ export default function MerchandisePage() {
                   Category
                 </TableHead>
                 <TableHead className="text-xs font-semibold uppercase tracking-wider">
-                  Price (KES / USD)
+                  Price (KSH)
                 </TableHead>
                 <TableHead className="text-xs font-semibold uppercase tracking-wider">
                   Available Colors
@@ -305,11 +307,21 @@ export default function MerchandisePage() {
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
+                        onClick={() =>
+                          deleteMerchandise({
+                            merchandiseId: product?.merchandise?.id,
+                          })
+                        }
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-destructive"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        {" "}
+                        {isPending ? (
+                          <LoaderButton />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}{" "}
                       </Button>
                     </div>
                   </TableCell>
