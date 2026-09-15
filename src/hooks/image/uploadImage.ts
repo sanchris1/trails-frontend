@@ -9,3 +9,11 @@ export const uploadImage = async (file: File) => {
   });
   return data;
 };
+
+export const uploadSeveralImages = async (file: File[]) => {
+  const uploadPromise = file.map((f) => uploadImage(f));
+
+  const result = await Promise.all(uploadPromise);
+
+  return result;
+};

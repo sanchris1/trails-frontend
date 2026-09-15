@@ -189,3 +189,35 @@ export interface ExpeditionsWithGalleryTypes {
   departureDate: string;
   name: string;
 }
+
+export interface MerchandiseTypes {
+  id: string;
+  title: string;
+  price: number;
+  category: string;
+  description: string;
+  tags: string[];
+  colors: string[];
+  slug: string;
+  stock: number;
+  images: {
+    url: string;
+    publicUrl: string;
+  };
+}
+
+export interface MerchandiseImage {
+  file: File;
+  preview: string; // blob URL for preview
+}
+
+export interface MerchandiseFormValues {
+  title: string;
+  category: string;
+  description: string;
+  price: number;
+  stock: number;
+  colors: string[];
+  tags: string;
+  images: MerchandiseImage[];
+}

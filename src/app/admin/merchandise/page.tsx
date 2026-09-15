@@ -169,7 +169,7 @@ export default function MerchandisePage() {
 
           <div className="flex flex-wrap items-center gap-2">
             <Select defaultValue="outdoor">
-              <SelectTrigger className="w-[160px] bg-card">
+              <SelectTrigger className="w-40 bg-card">
                 <SelectValue placeholder="Category" />
               </SelectTrigger>
               <SelectContent>
@@ -180,7 +180,7 @@ export default function MerchandisePage() {
             </Select>
 
             <Select defaultValue="price-high">
-              <SelectTrigger className="w-[160px] bg-card">
+              <SelectTrigger className="w-40 bg-card">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
