@@ -35,8 +35,10 @@ import CreateMerchandiseSidebar from "./components/CreateEditMerchandiseSidebar"
 import { useFetchAllMerchandise } from "@/hooks/merchandise/fetchMerchandise";
 import { useDeleteMerchandise } from "@/hooks/merchandise/deleteMerchandise";
 import LoaderButton from "@/components/common/LoaderButton";
+import { useRouter } from "next/navigation";
 
 export default function MerchandisePage() {
+  const router = useRouter();
   const [activeFilter, setActiveFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
 
@@ -55,7 +57,7 @@ export default function MerchandisePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <div className=" px-4 py-8 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
           <span>Inventory Ledger</span>
@@ -292,6 +294,11 @@ export default function MerchandisePage() {
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
                       <Button
+                        onClick={() =>
+                          router.replace(
+                            `/admin/merchandise/${product?.merchandise?.slug}`,
+                          )
+                        }
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-muted-foreground hover:text-foreground"

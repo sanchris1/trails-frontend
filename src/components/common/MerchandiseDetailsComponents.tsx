@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   ChevronLeft,
@@ -27,29 +28,24 @@ import {
 } from "@/components/ui/carousel";
 import { MerchandiseResponseItem } from "@/types/t.types";
 import { useRouter } from "next/navigation";
+import { useDeleteMerchandise } from "@/hooks/merchandise/deleteMerchandise";
 
 type MerchandiseDetailsProps = {
   product: MerchandiseResponseItem;
   isAdmin?: boolean;
-
-  onEdit?: () => void;
-  onDelete?: () => void;
-  onDeleteImage?: (imageId: string, publicId: string) => void;
-
-  deleting?: boolean;
-  deletingImage?: string | null;
 };
 
 export default function MerchandiseDetails({
   product,
   isAdmin = false,
-  onEdit,
-  onDelete,
-  onDeleteImage,
-  deleting = false,
-  deletingImage = null,
 }: MerchandiseDetailsProps) {
   const router = useRouter();
+
+  const {
+    mutate: deleteMerchandise,
+    isPending: deleting,
+    isSuccess,
+  } = useDeleteMerchandise();
 
   const { merchandise, merchandise_colors, merchandise_images } = product;
 
@@ -82,6 +78,12 @@ export default function MerchandiseDetails({
     );
   };
 
+  useEffect(() => {
+    if (!deleting && isSuccess) {
+      router.push("/admin/merchandise");
+    }
+  }, [deleting, isSuccess]);
+
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
@@ -91,8 +93,8 @@ export default function MerchandiseDetails({
             <Button
               variant="outline"
               size="sm"
-              onClick={onEdit}
-              disabled={deleting}
+              // onClick={onEdit}
+              // disabled={editing}
             >
               <Pencil className="mr-2 h-4 w-4" />
               Edit
@@ -101,7 +103,9 @@ export default function MerchandiseDetails({
             <Button
               variant="destructive"
               size="sm"
-              onClick={onDelete}
+              onClick={() =>
+                deleteMerchandise({ merchandiseId: merchandise?.id })
+              }
               disabled={deleting}
             >
               {deleting ? (
@@ -148,15 +152,15 @@ export default function MerchandiseDetails({
                       variant="destructive"
                       size="icon"
                       className="absolute right-4 top-4"
-                      disabled={deletingImage === currentImage.publicId}
-                      onClick={() =>
-                        onDeleteImage?.(
-                          merchandise_images.id,
-                          currentImage.publicId,
-                        )
-                      }
+                      // disabled={deletingImage === currentImage.publicId}
+                      // onClick={() =>
+                      //   onDeleteImage?.(
+                      //     merchandise_images.id,
+                      //     currentImage.publicId,
+                      //   )
+                      // }
                     >
-                      {deletingImage === currentImage.publicId ? (
+                      {"sam" === currentImage.publicId ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <Trash2 className="h-4 w-4" />
@@ -353,18 +357,22 @@ export default function MerchandiseDetails({
             )}
 
             {/* Actions */}
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button size="lg" className="flex-1" disabled={isOutOfStock}>
-                <ShoppingBag className="mr-2 h-5 w-5" />
-                {isOutOfStock ? "Out of stock" : "Add to cart"}
-              </Button>
+            {!isAdmin && (
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Button size="lg" className="flex-1" disabled={isOutOfStock}>
+                  <ShoppingBag className="mr-2 h-5 w-5" />
+                  {isOutOfStock ? "Out of stock" : "Add to cart"}
+                </Button>
 
-              <Button size="lg" variant="outline" className="sm:w-14">
-                <Heart className="h-5 w-5" />
-                <span className="sm:hidden">Add to wishlist</span>
-                <span className="sr-only sm:not-sr-only">Add to wishlist</span>
-              </Button>
-            </div>
+                <Button size="lg" variant="outline" className="sm:w-14">
+                  <Heart className="h-5 w-5" />
+                  <span className="sm:hidden">Add to wishlist</span>
+                  <span className="sr-only sm:not-sr-only">
+                    Add to wishlist
+                  </span>
+                </Button>
+              </div>
+            )}
 
             {/* Admin information */}
             {isAdmin && (
