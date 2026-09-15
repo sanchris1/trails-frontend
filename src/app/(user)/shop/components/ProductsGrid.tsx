@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { MerchandiseResponse } from "@/types/t.types";
 import FetchingProductsPage from "@/components/common/FetchingProductsPage";
 
-function formatPrice(price: number) {
+export function formatPrice(price: number) {
   return `KES ${price.toLocaleString()}`;
 }
 

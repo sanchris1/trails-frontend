@@ -29,6 +29,9 @@ import {
 import { MerchandiseResponseItem } from "@/types/t.types";
 import { useRouter } from "next/navigation";
 import { useDeleteMerchandise } from "@/hooks/merchandise/deleteMerchandise";
+import { useFetchAllMerchandise } from "@/hooks/merchandise/fetchMerchandise";
+import { formatPrice } from "@/app/(user)/shop/components/ProductsGrid";
+import Link from "next/link";
 
 type MerchandiseDetailsProps = {
   product: MerchandiseResponseItem;
@@ -40,6 +43,10 @@ export default function MerchandiseDetails({
   isAdmin = false,
 }: MerchandiseDetailsProps) {
   const router = useRouter();
+
+  const { data: relatedMerchandise } = useFetchAllMerchandise();
+
+  console.log(relatedMerchandise);
 
   const {
     mutate: deleteMerchandise,
@@ -443,23 +450,41 @@ export default function MerchandiseDetails({
               </Button>
             </div>
 
-            {/* 
-            Pass up to 4 related products here.
-            
-            Example:
-            
-            <RelatedProducts
-              products={relatedProducts.slice(0, 4)}
-            />
-          */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-x-7 lg:gap-y-12 py-12">
+              {relatedMerchandise
+                ?.filter((m) => m?.merchandise.id !== merchandise?.id)
+                .slice(0, 4)
+                ?.map((item) => (
+                  <Link
+                    key={item.merchandise.id}
+                    href={`/shop/${item?.merchandise.slug}`}
+                    className="group block"
+                  >
+                    {/* Image */}
+                    <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
+                      <Image
+                        src={item.merchandise_images?.images[0].url}
+                        alt={item.merchandise?.slug}
+                        fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        className="object-center transition-transform duration-500 group-hover:scale-[1.04]"
+                      />
+                    </div>
 
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-              {[0, 1, 2, 3].map((item) => (
-                <div
-                  key={item}
-                  className="aspect-4/5 rounded-xl border border-border bg-muted/30"
-                />
-              ))}
+                    {/* Info */}
+                    <div className="mt-3.5 space-y-1">
+                      <p className="text-[10px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
+                        {item?.merchandise.category}
+                      </p>
+                      <h3 className="text-sm font-medium text-foreground transition-colors group-hover:text-primary sm:text-[15px]">
+                        {item.merchandise.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {formatPrice(item?.merchandise.price)}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
             </div>
           </section>
         )}
