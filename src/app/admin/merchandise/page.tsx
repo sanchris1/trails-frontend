@@ -156,7 +156,9 @@ export default function MerchandisePage() {
                 )}
               >
                 {filter.label}{" "}
-                <span className="ml-1 opacity-80">{data?.length}</span>
+                {activeFilter === filter.key && (
+                  <span className="ml-1 opacity-80">{data?.length}</span>
+                )}
               </button>
             ))}
           </div>
