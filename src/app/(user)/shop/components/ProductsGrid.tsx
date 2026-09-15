@@ -26,7 +26,7 @@ export default function ProductGrid({
           {merchandise.map((product) => (
             <Link
               key={product.merchandise.id}
-              href={product.merchandise.slug}
+              href={`/shop/${product?.merchandise.slug}`}
               className="group block"
             >
               {/* Image */}
