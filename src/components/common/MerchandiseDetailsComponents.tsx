@@ -59,9 +59,9 @@ export default function MerchandiseDetails({
 
   const currentImage = images[selectedImage] ?? images[0];
 
-  const formattedPrice = new Intl.NumberFormat("en-US", {
+  const formattedPrice = new Intl.NumberFormat("en-GB", {
     style: "currency",
-    currency: "USD",
+    currency: "KSH",
   }).format(merchandise.price);
 
   const isOutOfStock = merchandise.stock <= 0;
