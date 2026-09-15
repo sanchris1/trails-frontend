@@ -189,9 +189,6 @@ export default function MerchandisePage() {
                 <TableHead className="text-xs font-semibold uppercase tracking-wider">
                   Media
                 </TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wider">
-                  Date Cataloged
-                </TableHead>
                 <TableHead className="text-right text-xs font-semibold uppercase tracking-wider">
                   Actions
                 </TableHead>
