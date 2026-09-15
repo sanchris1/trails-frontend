@@ -17,7 +17,11 @@ const CATEGORIES = [
   "Souvenirs",
 ];
 
-export default function ShopToolbar() {
+export default function ShopToolbar({
+  merchandiseLength,
+}: {
+  merchandiseLength: number;
+}) {
   const [activeCategory, setActiveCategory] = useState("All Gear");
   const [search, setSearch] = useState("");
 
@@ -32,7 +36,8 @@ export default function ShopToolbar() {
               All Merchandise
             </h2>
             <span className="text-xs text-muted-foreground uppercase tracking-wider">
-              (24 Items)
+              {merchandiseLength}
+              {merchandiseLength > 1 ? " Items" : " Item"}
             </span>
           </div>
 
