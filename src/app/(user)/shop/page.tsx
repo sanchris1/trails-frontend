@@ -9,7 +9,7 @@ import { useState } from "react";
 const ShopPage = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [activeCategory, setActiveCategory] = useState("All Gear");
+  const [activeCategory, setActiveCategory] = useState("all");
   const [sort, setSort] = useState("");
 
   const { data: merchandise, isLoading } = useFetchAllMerchandise({
