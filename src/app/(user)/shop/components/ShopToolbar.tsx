@@ -1,30 +1,53 @@
 // components/ShopToolbar.tsx
 "use client";
 
-import { useState } from "react";
-import { Search, SlidersHorizontal, ShoppingBag } from "lucide-react";
+import { Search, ShoppingBag } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const CATEGORIES = [
-  "All Gear",
-  "Apparel",
-  "Accessories",
-  "Outdoor Gear",
-  "Travel Essentials",
-  "Souvenirs",
+const categories = [
+  { value: "all", label: "All Gear" }, // optional – include if you still have an "All" option
+  { value: "apparel", label: "Apparel" },
+  { value: "outdoor-gear", label: "Outdoor Gear" },
+  { value: "accessories", label: "Accessories" },
+  { value: "stickers", label: "Stickers & Prints" },
+];
+
+const sortOptions = [
+  { value: "newest", label: "Newest" },
+  { value: "oldest", label: "Oldest" },
+  { value: "price_asc", label: "Price: Low to High" },
+  { value: "price_desc", label: "Price: High to Low" },
 ];
 
 export default function ShopToolbar({
   merchandiseLength,
+  search,
+  setSearch,
+  activeCategory,
+  setActiveCategory,
+  sort,
+  setSort,
 }: {
   merchandiseLength: number;
+  search: string;
+  sort: string;
+  setSearch: React.Dispatch<React.SetStateAction<string>>;
+  setSort: (sort: string) => void;
+  activeCategory: string;
+  setActiveCategory: React.Dispatch<React.SetStateAction<string>>;
 }) {
-  const [activeCategory, setActiveCategory] = useState("All Gear");
-  const [search, setSearch] = useState("");
-
   return (
     <div className="bg-background">
       <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
@@ -56,14 +79,21 @@ export default function ShopToolbar({
             </div>
 
             {/* Sort */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 gap-1.5 rounded-full px-3 text-xs font-medium uppercase tracking-wider"
-            >
-              Sort
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-            </Button>
+            <Select value={sort} onValueChange={(value) => setSort(value!)}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Sort" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Sort Options</SelectLabel>
+                  {sortOptions.map((sort) => (
+                    <SelectItem key={sort.value} value={sort.value}>
+                      {sort.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
 
             {/* Cart */}
             <Button
@@ -81,13 +111,13 @@ export default function ShopToolbar({
 
         {/* Category pills */}
         <div className="flex gap-2 overflow-x-auto pb-5 hide-scrollbar">
-          {CATEGORIES.map((category) => {
-            const isActive = activeCategory === category;
+          {categories.map((category) => {
+            const isActive = activeCategory === category.value;
 
             return (
               <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
+                key={category.value}
+                onClick={() => setActiveCategory(category.value)}
                 className={cn(
                   "shrink-0 rounded-full px-4 py-1.5 text-xs font-medium tracking-wide uppercase transition-colors",
                   isActive
@@ -95,7 +125,7 @@ export default function ShopToolbar({
                     : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
-                {category}
+                {category.label}
               </button>
             );
           })}
