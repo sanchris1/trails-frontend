@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -22,156 +22,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { useFetchAllBookings } from "@/hooks/booking/admin/fetchAllBookings";
+import FetchingProductsPage from "@/components/common/FetchingProductsPage";
 
-type ParticipantStatus = "confirmed" | "pending" | "cancelled";
-
-interface Participant {
-  id: string;
-  fullName: string;
-  email: string;
-  phone?: string;
-  bookingId: string;
-  status: ParticipantStatus;
-  paid: boolean;
-}
-
-interface Expedition {
-  id: string;
-  name: string;
-  location: string;
-  date: string;
-  capacity: number;
-  participants: Participant[];
-}
-
-const mockExpeditions: Expedition[] = [
-  {
-    id: "EXP-01",
-    name: "Mount Longonot Day Hike",
-    location: "Naivasha",
-    date: "2026-09-20",
-    capacity: 20,
-    participants: [
-      {
-        id: "P-101",
-        fullName: "John Doe",
-        email: "john@email.com",
-        phone: "+254 712 345 678",
-        bookingId: "BK-1048",
-        status: "confirmed",
-        paid: true,
-      },
-      {
-        id: "P-102",
-        fullName: "Mary Njeri",
-        email: "mary@email.com",
-        phone: "+254 722 111 222",
-        bookingId: "BK-1048",
-        status: "confirmed",
-        paid: true,
-      },
-      {
-        id: "P-103",
-        fullName: "David Otieno",
-        email: "david@email.com",
-        bookingId: "BK-1044",
-        status: "confirmed",
-        paid: true,
-      },
-      {
-        id: "P-104",
-        fullName: "Lucy Wambui",
-        email: "lucy@email.com",
-        phone: "+254 733 444 555",
-        bookingId: "BK-1050",
-        status: "pending",
-        paid: false,
-      },
-    ],
-  },
-  {
-    id: "EXP-02",
-    name: "Aberdare Weekend Trek",
-    location: "Nyeri",
-    date: "2026-09-27",
-    capacity: 12,
-    participants: [
-      {
-        id: "P-201",
-        fullName: "Sarah Wanjiku",
-        email: "sarah@email.com",
-        phone: "+254 700 111 222",
-        bookingId: "BK-1047",
-        status: "confirmed",
-        paid: true,
-      },
-      {
-        id: "P-202",
-        fullName: "James Mwangi",
-        email: "james@email.com",
-        bookingId: "BK-1047",
-        status: "confirmed",
-        paid: true,
-      },
-      {
-        id: "P-203",
-        fullName: "Grace Akinyi",
-        email: "grace@email.com",
-        phone: "+254 711 333 444",
-        bookingId: "BK-1047",
-        status: "confirmed",
-        paid: true,
-      },
-      {
-        id: "P-204",
-        fullName: "Peter Kamau",
-        email: "peter@email.com",
-        bookingId: "BK-1051",
-        status: "pending",
-        paid: false,
-      },
-    ],
-  },
-  {
-    id: "EXP-03",
-    name: "Ngong Hills Sunrise Hike",
-    location: "Kajiado",
-    date: "2026-09-22",
-    capacity: 25,
-    participants: [
-      {
-        id: "P-301",
-        fullName: "Anne Chebet",
-        email: "anne@email.com",
-        phone: "+254 722 555 666",
-        bookingId: "BK-1052",
-        status: "confirmed",
-        paid: true,
-      },
-      {
-        id: "P-302",
-        fullName: "Brian Ochieng",
-        email: "brian@email.com",
-        bookingId: "BK-1053",
-        status: "cancelled",
-        paid: false,
-      },
-    ],
-  },
-  {
-    id: "EXP-04",
-    name: "Hell's Gate Walking Safari",
-    location: "Naivasha",
-    date: "2026-09-18",
-    capacity: 15,
-    participants: [],
-  },
-];
-
-const statusConfig: Record<
-  ParticipantStatus,
-  { label: string; className: string }
-> = {
+const statusConfig = {
   confirmed: {
     label: "Confirmed",
     className: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
@@ -184,7 +38,7 @@ const statusConfig: Record<
     label: "Cancelled",
     className: "bg-destructive/10 text-destructive border-destructive/20",
   },
-};
+} as const;
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleDateString("en-KE", {
@@ -196,59 +50,114 @@ function formatDate(dateString: string) {
 }
 
 export default function AdminParticipantsPage() {
-  const [expeditions] = useState<Expedition[]>(mockExpeditions);
   const [search, setSearch] = useState("");
-  const [expanded, setExpanded] = useState<Record<string, boolean>>({
-    "EXP-01": true,
-    "EXP-02": true,
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+
+  const { data, isLoading } = useFetchAllBookings();
+
+  if (isLoading) {
+    return <FetchingProductsPage />;
+  }
+
+  if (!data?.bookingsWithParticipants) {
+    return <p>Not found</p>;
+  }
+
+  const bookings = data.bookingsWithParticipants;
+
+  const expeditionMap = new Map<
+    string,
+    {
+      id: string;
+      title: string;
+      location: string;
+      departureDate: string;
+      totalSlots: number;
+      slotsLeft: number;
+      bookings: typeof bookings;
+      participants: (typeof bookings)[number]["participants"];
+    }
+  >();
+
+  bookings.forEach((booking) => {
+    const expeditionKey = `${booking.title}-${booking.location}-${booking.departureDate}`;
+
+    const existing = expeditionMap.get(expeditionKey);
+
+    if (existing) {
+      existing.bookings.push(booking);
+      existing.participants.push(...booking.participants);
+    } else {
+      expeditionMap.set(expeditionKey, {
+        id: expeditionKey,
+        title: booking.title,
+        location: booking.location,
+        departureDate: booking.departureDate,
+        totalSlots: booking.totalSlots,
+        slotsLeft: booking.slotsLeft,
+        bookings: [booking],
+        participants: [...booking.participants],
+      });
+    }
   });
 
+  const expeditions = Array.from(expeditionMap.values());
+
+  const filteredExpeditions = expeditions
+    .map((exp) => {
+      if (!search.trim()) {
+        return exp;
+      }
+
+      const q = search.toLowerCase();
+
+      const matchingParticipants = exp.participants.filter(
+        (person) =>
+          person.fullName.toLowerCase().includes(q) ||
+          person.email.toLowerCase().includes(q) ||
+          person.phone?.toLowerCase().includes(q) ||
+          person.bookingId.toLowerCase().includes(q),
+      );
+
+      const expeditionMatches =
+        exp.title.toLowerCase().includes(q) ||
+        exp.location.toLowerCase().includes(q);
+
+      return {
+        ...exp,
+        participants: expeditionMatches
+          ? exp.participants
+          : matchingParticipants,
+      };
+    })
+    .filter((exp) => exp.participants.length > 0);
+
   const toggleExpand = (id: string) => {
-    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+    setExpanded((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
   };
 
-  const filteredExpeditions = useMemo(() => {
-    if (!search.trim()) return expeditions;
-
-    const q = search.toLowerCase();
-    return expeditions
-      .map((exp) => ({
-        ...exp,
-        participants: exp.participants.filter(
-          (p) =>
-            p.fullName.toLowerCase().includes(q) ||
-            p.email.toLowerCase().includes(q) ||
-            p.bookingId.toLowerCase().includes(q) ||
-            exp.name.toLowerCase().includes(q),
-        ),
-      }))
-      .filter(
-        (exp) =>
-          exp.participants.length > 0 || exp.name.toLowerCase().includes(q),
-      );
-  }, [expeditions, search]);
-
-  const totalParticipants = expeditions.reduce(
-    (sum, exp) =>
-      sum + exp.participants.filter((p) => p.status !== "cancelled").length,
+  const totalParticipants = bookings.reduce(
+    (sum, booking) => sum + booking.numberOfParticipants,
     0,
   );
 
-  const confirmedCount = expeditions.reduce(
-    (sum, exp) =>
-      sum + exp.participants.filter((p) => p.status === "confirmed").length,
-    0,
-  );
+  const confirmedCount = bookings.filter(
+    (booking) => booking.bookingStatus === "confirmed",
+  ).length;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
           Participants
         </h1>
+
         <p className="mt-1 text-sm text-muted-foreground">
-          View hikers grouped by the expedition they’re joining.
+          View hikers grouped by the expedition they&apos;re joining.
         </p>
       </div>
 
@@ -258,20 +167,27 @@ export default function AdminParticipantsPage() {
           <p className="text-xs font-medium text-muted-foreground">
             Expeditions
           </p>
+
           <p className="mt-1 text-2xl font-semibold text-foreground">
             {expeditions.length}
           </p>
         </div>
+
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="text-xs font-medium text-muted-foreground">
             Total participants
           </p>
+
           <p className="mt-1 text-2xl font-semibold text-foreground">
             {totalParticipants}
           </p>
         </div>
+
         <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs font-medium text-muted-foreground">Confirmed</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            Confirmed bookings
+          </p>
+
           <p className="mt-1 text-2xl font-semibold text-emerald-600">
             {confirmedCount}
           </p>
@@ -279,8 +195,9 @@ export default function AdminParticipantsPage() {
       </div>
 
       {/* Search */}
-      <div className="mb-6 relative max-w-sm">
+      <div className="relative mb-6 max-w-sm">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
         <Input
           placeholder="Search by name, email, booking, or trail..."
           value={search}
@@ -294,9 +211,11 @@ export default function AdminParticipantsPage() {
         {filteredExpeditions.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-card py-16 text-center">
             <Users className="mb-3 h-8 w-8 text-muted-foreground/50" />
+
             <p className="text-sm font-medium text-foreground">
               No participants found
             </p>
+
             <p className="mt-1 text-xs text-muted-foreground">
               Try a different search term.
             </p>
@@ -304,15 +223,23 @@ export default function AdminParticipantsPage() {
         ) : (
           filteredExpeditions.map((exp) => {
             const isOpen = expanded[exp.id] ?? false;
-            const activeCount = exp.participants.filter(
-              (p) => p.status !== "cancelled",
-            ).length;
-            const spotsLeft = exp.capacity - activeCount;
+
+            const activeParticipants = exp.participants.filter((person) => {
+              const booking = exp.bookings.find(
+                (booking) => booking.bookingId === person.bookingId,
+              );
+
+              return booking?.bookingStatus !== "cancelled";
+            });
+
+            const activeCount = activeParticipants.length;
+
+            const spotsLeft = exp.slotsLeft;
 
             return (
               <div
                 key={exp.id}
-                className="rounded-xl border border-border bg-card overflow-hidden"
+                className="overflow-hidden rounded-xl border border-border bg-card"
               >
                 {/* Expedition header */}
                 <button
@@ -331,23 +258,26 @@ export default function AdminParticipantsPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="font-semibold text-foreground">
-                        {exp.name}
+                        {exp.title}
                       </h2>
+
                       <Badge variant="secondary" className="text-[10px]">
-                        {activeCount}/{exp.capacity} spots
+                        {activeCount}/{exp.totalSlots} spots
                       </Badge>
+
                       {spotsLeft <= 3 && spotsLeft > 0 && (
                         <Badge
                           variant="outline"
-                          className="text-[10px] border-amber-500/30 text-amber-700"
+                          className="border-amber-500/30 text-[10px] text-amber-700"
                         >
                           Almost full
                         </Badge>
                       )}
+
                       {spotsLeft <= 0 && (
                         <Badge
                           variant="outline"
-                          className="text-[10px] border-destructive/30 text-destructive"
+                          className="border-destructive/30 text-[10px] text-destructive"
                         >
                           Full
                         </Badge>
@@ -359,13 +289,19 @@ export default function AdminParticipantsPage() {
                         <MapPin className="h-3.5 w-3.5" />
                         {exp.location}
                       </span>
+
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3.5 w-3.5" />
-                        {formatDate(exp.date)}
+                        {formatDate(exp.departureDate)}
                       </span>
+
                       <span className="flex items-center gap-1">
                         <Users className="h-3.5 w-3.5" />
                         {exp.participants.length} listed
+                      </span>
+
+                      <span>
+                        {spotsLeft} {spotsLeft === 1 ? "spot" : "spots"} left
                       </span>
                     </div>
                   </div>
@@ -380,81 +316,105 @@ export default function AdminParticipantsPage() {
                       </p>
                     ) : (
                       <ul className="divide-y divide-border">
-                        {exp.participants.map((person) => (
-                          <li
-                            key={person.id}
-                            className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-                          >
-                            <div className="min-w-0 space-y-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <p className="font-medium text-foreground">
-                                  {person.fullName}
-                                </p>
-                                <Badge
-                                  variant="outline"
-                                  className={cn(
-                                    "text-[10px] font-medium",
-                                    statusConfig[person.status].className,
+                        {exp.participants.map((person) => {
+                          const booking = exp.bookings.find(
+                            (booking) => booking.bookingId === person.bookingId,
+                          );
+
+                          const bookingStatus =
+                            booking?.bookingStatus ?? "pending";
+
+                          const paymentStatus =
+                            booking?.paymentStatus ?? "pending";
+
+                          const status =
+                            statusConfig[
+                              bookingStatus as keyof typeof statusConfig
+                            ] ?? statusConfig.pending;
+
+                          return (
+                            <li
+                              key={person.id}
+                              className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                            >
+                              <div className="min-w-0 space-y-1">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <p className="font-medium text-foreground">
+                                    {person.fullName}
+                                  </p>
+
+                                  <Badge
+                                    variant="outline"
+                                    className={cn(
+                                      "text-[10px] font-medium",
+                                      status.className,
+                                    )}
+                                  >
+                                    {status.label}
+                                  </Badge>
+
+                                  {paymentStatus === "paid" ? (
+                                    <Badge
+                                      variant="outline"
+                                      className="border-emerald-500/30 text-[10px] text-emerald-700"
+                                    >
+                                      Paid
+                                    </Badge>
+                                  ) : (
+                                    <Badge
+                                      variant="outline"
+                                      className="border-amber-500/30 text-[10px] text-amber-700"
+                                    >
+                                      {paymentStatus}
+                                    </Badge>
                                   )}
-                                >
-                                  {statusConfig[person.status].label}
-                                </Badge>
-                                {person.paid ? (
-                                  <Badge
-                                    variant="outline"
-                                    className="text-[10px] border-emerald-500/30 text-emerald-700"
-                                  >
-                                    Paid
-                                  </Badge>
-                                ) : (
-                                  <Badge
-                                    variant="outline"
-                                    className="text-[10px] border-amber-500/30 text-amber-700"
-                                  >
-                                    Unpaid
-                                  </Badge>
-                                )}
-                              </div>
+                                </div>
 
-                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <Mail className="h-3 w-3" />
-                                  {person.email}
-                                </span>
-                                {person.phone && (
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                                   <span className="flex items-center gap-1">
-                                    <Phone className="h-3 w-3" />
-                                    {person.phone}
+                                    <Mail className="h-3 w-3" />
+                                    {person.email}
                                   </span>
-                                )}
-                                <span>Booking: {person.bookingId}</span>
-                              </div>
-                            </div>
 
-                            <DropdownMenu>
-                              <DropdownMenuTrigger>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 shrink-0"
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem>
-                                  View booking
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  Send message
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="text-destructive">
-                                  Remove from list
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </li>
-                        ))}
+                                  {person.phone && (
+                                    <span className="flex items-center gap-1">
+                                      <Phone className="h-3 w-3" />
+                                      {person.phone}
+                                    </span>
+                                  )}
+
+                                  <span>Booking: {person.bookingId}</span>
+                                </div>
+                              </div>
+
+                              <DropdownMenu>
+                                <DropdownMenuTrigger>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 shrink-0"
+                                  >
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem>
+                                    View booking
+                                  </DropdownMenuItem>
+
+                                  <DropdownMenuItem>
+                                    Send message
+                                  </DropdownMenuItem>
+
+                                  <DropdownMenuItem className="text-destructive">
+                                    Remove from list
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </li>
+                          );
+                        })}
                       </ul>
                     )}
                   </div>

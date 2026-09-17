@@ -259,3 +259,31 @@ export type MerchandiseResponseItem = {
 };
 
 export type MerchandiseResponse = MerchandiseResponseItem[];
+
+export interface BookingParticipant {
+  id: string;
+  bookingId: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  medicalNotes: string | null;
+  emergencyContact: string;
+}
+
+export interface Booking {
+  bookingId: string;
+  title: string;
+  location: string;
+  departureDate: string;
+  bookingStatus: string;
+  paymentStatus: string;
+  totalSlots: number;
+  numberOfParticipants: number;
+  slotsLeft: number;
+  participants: BookingParticipant[];
+}
+
+export interface FetchAllBookingsResponse {
+  success: boolean;
+  bookingsWithParticipants: Booking[];
+}
