@@ -80,7 +80,7 @@ export default function AdminParticipantsPage() {
   >();
 
   bookings.forEach((booking) => {
-    const expeditionKey = `${booking.title}-${booking.location}-${booking.departureDate}`;
+    const expeditionKey = `${booking.trailName}-${booking.location}-${booking.departureDate}`;
 
     const existing = expeditionMap.get(expeditionKey);
 
@@ -90,7 +90,7 @@ export default function AdminParticipantsPage() {
     } else {
       expeditionMap.set(expeditionKey, {
         id: expeditionKey,
-        title: booking.title,
+        title: booking.trailName,
         location: booking.location,
         departureDate: booking.departureDate,
         totalSlots: booking.totalSlots,

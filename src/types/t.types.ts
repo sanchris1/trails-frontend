@@ -260,6 +260,15 @@ export type MerchandiseResponseItem = {
 
 export type MerchandiseResponse = MerchandiseResponseItem[];
 
+export type BookingStatus = "pending" | "confirmed" | "cancelled";
+
+export type PaymentStatus =
+  | "pending"
+  | "partially_paid"
+  | "paid"
+  | "failed"
+  | "refunded";
+
 export interface BookingParticipant {
   id: string;
   bookingId: string;
@@ -272,14 +281,18 @@ export interface BookingParticipant {
 
 export interface Booking {
   bookingId: string;
-  title: string;
+  customerName: string | null;
+  customerEmail: string | null;
+  trailName: string;
   location: string;
   departureDate: string;
-  bookingStatus: string;
-  paymentStatus: string;
-  totalSlots: number;
+  bookingStatus: BookingStatus;
+  paymentStatus: PaymentStatus;
+  totalAmount: number;
   numberOfParticipants: number;
+  totalSlots: number;
   slotsLeft: number;
+  createdAt: string;
   participants: BookingParticipant[];
 }
 
