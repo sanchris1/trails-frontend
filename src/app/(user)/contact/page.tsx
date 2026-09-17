@@ -29,7 +29,7 @@ const defaultContactValues: ContactFormValues = {
   message: "",
 };
 
-export default function ContactPage() {
+const ContactPage = () => {
   const {
     register,
     control,
@@ -105,7 +105,7 @@ export default function ContactPage() {
                 <div>
                   <p className="text-sm font-medium text-foreground">Phone</p>
                   <p className="text-sm text-muted-foreground">
-                    +254 700 000 000
+                    +254 116321912
                   </p>
                 </div>
               </div>
@@ -248,4 +248,6 @@ export default function ContactPage() {
       </div>
     </div>
   );
-}
+};
+
+export default ContactPage;
