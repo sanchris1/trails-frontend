@@ -33,10 +33,6 @@ const footerLinks = {
       href: "/contact",
     },
     {
-      label: "Our Guides",
-      href: "/guides",
-    },
-    {
       label: "FAQs",
       href: "/faq",
     },
