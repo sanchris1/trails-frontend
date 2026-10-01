@@ -14,10 +14,50 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Trails and Memoirs",
-  description: "The mountains are calling and i must go...",
+  title: "Trails & Memoirs | Kenyan Hiking Group and Outdoor Expeditions",
+  description:
+    "Join Trails & Memoirs for the ultimate outdoor group expeditions in Kenya. Book your next hike to Elephant Hill, Ragia Falls, and more. Register today!",
+  keywords: [
+    "hiking groups in Kenya",
+    "Trails and Memoirs booking",
+    "Trails and Memoirs ",
+    "Elephant Hill hike",
+    "Ragia Falls trekking",
+    "Nairobi hiking community",
+  ],
+  alternates: {
+    canonical: "https://trails-and-memoirs.vercel.app",
+  },
   verification: {
     google: "3aWfJFMWrudoiQ0p1SqvR_tHMHALMyekb9-jMPHacWs",
+  },
+  openGraph: {
+    title: "Trails & Memoirs | Kenyan Hiking Group",
+    description:
+      "Discover your next adventure. Join a community of Kenyan hikers exploring stunning trails together.",
+    url: "https://trails-and-memoirs.vercel.app",
+    siteName: "Trails & Memoirs",
+    locale: "en_KE",
+    type: "website",
+    images: [
+      {
+        url: "https://trails-and-memoirs.vercel.app/og-image.jpeg",
+        width: 1200,
+        height: 630,
+        alt: "Trails & Memoirs hiking expedition",
+      },
+    ],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
