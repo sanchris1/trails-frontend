@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   title: "Trails & Memoirs | Kenyan Hiking Group and Outdoor Expeditions",
   description:
     "Join Trails & Memoirs for the ultimate outdoor group expeditions in Kenya. Book your next hike to Elephant Hill, Ragia Falls, and more. Register today!",
+  icons: {
+    icon: "/favicon.svg",
+  },
   keywords: [
     "hiking groups in Kenya",
     "Trails and Memoirs booking",
