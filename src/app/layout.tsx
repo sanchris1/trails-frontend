@@ -16,6 +16,9 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Trails and Memoirs",
   description: "The mountains are calling and i must go...",
+  verification: {
+    google: "3aWfJFMWrudoiQ0p1SqvR_tHMHALMyekb9-jMPHacWs",
+  },
 };
 
 export default async function RootLayout({
