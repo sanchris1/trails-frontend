@@ -317,7 +317,9 @@ const AdventureExpeditionCard = ({
                 <Button
                   size="sm"
                   variant="secondary"
-                  onClick={() => router.push(`/booking/${expedition?.id}/book`)}
+                  onClick={() =>
+                    router.push(`/gallery?expeditionId=${expedition?.id}`)
+                  }
                 >
                   Gallery
                 </Button>
