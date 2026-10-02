@@ -1,15 +1,7 @@
 import { api } from "@/lib/api";
+import { BookExpeditionsRequestData } from "@/types/t.types";
 
-export async function bookExpedition({
-  expeditionId,
-  numberOfParticipants,
-}: {
-  expeditionId: string;
-  numberOfParticipants: number;
-}) {
-  const { data } = await api.post(`/booking/book/${expeditionId}`, {
-    numberOfParticipants,
-  });
-
-  return data;
+export async function bookExpedition(data: BookExpeditionsRequestData) {
+  const { data: receivedData } = await api.post("/booking/book", data);
+  return receivedData;
 }

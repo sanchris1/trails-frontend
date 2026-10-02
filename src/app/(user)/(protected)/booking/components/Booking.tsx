@@ -35,13 +35,9 @@ const BookingPage = ({ expeditionId }: { expeditionId: string }) => {
     userBookings.some((bookings) => bookings.expeditionId === expeditionId) ??
     false;
 
-  // const bookedExpeditionDetails = userBookings.find(
-  //   (bookings) => bookings.expeditionId === expeditionId,
-  // );
-
   const [currentStep, setCurrentStep] = useState(1);
+  const [bookingId, setBookingId] = useState<string | null>(null);
 
-  // This is now an array of participant objects
   const [participants, setParticipants] = useState<Participant[]>([
     emptyParticipant(),
   ]);
@@ -102,6 +98,7 @@ const BookingPage = ({ expeditionId }: { expeditionId: string }) => {
 
       {currentStep === 3 && (
         <ReviewYourJourneyPage
+          setBookingId={setBookingId}
           total={total}
           participants={participants} // ← now the real array
           onBack={prevStep}
@@ -112,6 +109,7 @@ const BookingPage = ({ expeditionId }: { expeditionId: string }) => {
 
       {currentStep === 4 && (
         <CompleteYourBookingPage
+          bookingId={bookingId}
           onBack={prevStep}
           participants={participants} // ← you can also pass it here
           total={total}

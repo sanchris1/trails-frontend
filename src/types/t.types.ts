@@ -300,3 +300,24 @@ export interface FetchAllBookingsResponse {
   success: boolean;
   bookingsWithParticipants: Booking[];
 }
+
+export interface BookingData {
+  expeditionId: string;
+  bookingStatus?: "pending" | "cancelled" | "confirmed";
+  numberOfParticipants: number;
+  paymentStatus?: "pending" | "partially_paid" | "paid" | "failed" | "refunded";
+  totalAmount: number;
+}
+
+export interface BookParticipantsData {
+  fullName: string;
+  email: string;
+  phone: string;
+  medicalNotes: string;
+  emergencyContact: string;
+}
+
+export interface BookExpeditionsRequestData {
+  bookings: BookingData;
+  bookingParticipants: BookParticipantsData[];
+}

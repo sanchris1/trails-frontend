@@ -30,7 +30,6 @@ import { Participant } from "@/types/t.types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { bookExpedition } from "@/hooks/booking/bookExpedition";
 import toast from "react-hot-toast";
-import { bookParticipants } from "@/hooks/booking/bookParticipants";
 import axios from "axios";
 
 interface ReviewYourJourneyPageProps {
@@ -38,6 +37,7 @@ interface ReviewYourJourneyPageProps {
   onContinue: () => void;
   expedition: any;
   total: number;
+  setBookingId: (id: string | null) => void;
   participants: Participant[];
 }
 
@@ -47,41 +47,23 @@ export default function ReviewYourJourneyPage({
   expedition,
   total,
   participants,
+  setBookingId,
 }: ReviewYourJourneyPageProps) {
   const queryClient = useQueryClient();
-
-  const { mutate: bookP } = useMutation({
-    mutationFn: bookParticipants,
-    onSuccess: (data: any) => {
-      toast.success(data?.message);
-      queryClient.invalidateQueries({ queryKey: ["expeditions"] });
-      onContinue();
-    },
-    onError: (error: any) => {
-      console.log(error);
-      if (axios.isAxiosError(error)) {
-        console.log(error.response);
-        toast.error(error.response?.data.message);
-      } else toast.error("Incurred some error while booking");
-    },
-  });
 
   const { mutate: book } = useMutation({
     mutationFn: bookExpedition,
     onSuccess: (data: any) => {
-      const newBookingId = data?.data[0]?.id;
       toast.success(data?.message);
-      if (!newBookingId) {
-        return toast.error(
-          "Booking created but the booking id was not returned",
-        );
-      }
-      bookP({ bookingId: newBookingId, participants });
+      setBookingId(data.result.bookingId);
+      onContinue();
+      queryClient.invalidateQueries({ queryKey: ["bookings"] });
     },
     onError: (error: any) => {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data.message);
       } else toast.error("Incurred some error while booking");
+      console.log(error);
     },
   });
 
@@ -94,6 +76,17 @@ export default function ReviewYourJourneyPage({
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const handleBookExpeditionsAndParticipants = () => {
+    book({
+      bookingParticipants: participants,
+      bookings: {
+        expeditionId: expedition.id,
+        numberOfParticipants: participants.length,
+        totalAmount: total,
+      },
+    });
   };
 
   return (
@@ -335,15 +328,10 @@ export default function ReviewYourJourneyPage({
 
                 <CardFooter className="flex flex-col gap-3 pt-2">
                   <Button
+                    onClick={handleBookExpeditionsAndParticipants}
                     size="lg"
                     className="w-full gap-2 font-medium"
                     disabled={!confirmed}
-                    onClick={() => {
-                      book({
-                        expeditionId: expedition.id,
-                        numberOfParticipants: participants.length,
-                      });
-                    }}
                   >
                     Proceed to Payment
                     <ArrowRight className="h-4 w-4" />
