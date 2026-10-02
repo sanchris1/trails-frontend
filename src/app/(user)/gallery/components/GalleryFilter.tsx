@@ -47,16 +47,6 @@ const ExpeditionGalleryFilters = ({
 
         {/* Controls */}
         <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto lg:items-center">
-          {/* Search */}
-          {/* <div className="relative w-full sm:min-w-55 sm:max-w-70">
-            <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-
-            <Input
-              placeholder="Search expeditions..."
-              className="h-10 rounded-full border-border bg-background pl-9 pr-4 text-xs"
-            />
-          </div> */}
-
           {/* Expedition filter */}
           <Select
             value={selectedExpeditionId}
