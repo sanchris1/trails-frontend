@@ -8,11 +8,7 @@ import { useParams } from "next/navigation";
 const AdminMerchandiseDetailsPage = () => {
   const { merchandiseSlug } = useParams<{ merchandiseSlug: string }>();
 
-  console.log(merchandiseSlug);
-
   const { data, isLoading } = useGetMerchandiseDetails({ merchandiseSlug });
-
-  console.log(data);
 
   if (isLoading) return <FetchingProductsPage />;
 

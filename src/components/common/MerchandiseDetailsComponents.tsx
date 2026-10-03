@@ -46,8 +46,6 @@ export default function MerchandiseDetails({
 
   const { data: relatedMerchandise } = useFetchAllMerchandise();
 
-  console.log(relatedMerchandise);
-
   const {
     mutate: deleteMerchandise,
     isPending: deleting,

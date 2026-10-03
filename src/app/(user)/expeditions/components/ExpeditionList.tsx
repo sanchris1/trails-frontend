@@ -27,8 +27,6 @@ const ExpeditionsList = ({ query }: { query: string }) => {
     (item: Expedition) => item.expeditionStatus === activeCondition,
   );
 
-  console.log(conditionalFilteredExpeditions);
-
   return (
     <section className="bg-background py-16 sm:py-20 lg:py-24">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">

@@ -92,7 +92,6 @@ export default function AdminSettingsPage() {
       });
       return;
     }
-    console.log("Password change requested");
     securityForm.reset();
   };
 
