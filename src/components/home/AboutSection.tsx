@@ -60,21 +60,21 @@ const AboutSection = () => {
           {/* Stats */}
           <div className="mt-8 grid grid-cols-3 gap-3 sm:gap-4">
             <div className="rounded-2xl bg-muted/50 p-4 text-center">
-              <p className="text-xl font-bold sm:text-2xl">2000+</p>
+              <p className="text-xl font-bold sm:text-2xl">20+</p>
               <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
                 Our Explorers
               </p>
             </div>
 
             <div className="rounded-2xl bg-muted/50 p-4 text-center">
-              <p className="text-xl font-bold sm:text-2xl">100+</p>
+              <p className="text-xl font-bold sm:text-2xl">5+</p>
               <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
                 Destinations
               </p>
             </div>
 
             <div className="rounded-2xl bg-muted/50 p-4 text-center">
-              <p className="text-xl font-bold sm:text-2xl">20+</p>
+              <p className="text-xl font-bold sm:text-2xl">2+</p>
               <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
                 Years Experience
               </p>

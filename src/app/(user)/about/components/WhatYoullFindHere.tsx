@@ -32,7 +32,7 @@ const defaultItems: CardItem[] = [
   {
     title: "Expedition Stories",
     cta: "Read",
-    href: "/stories",
+    href: "/gallery",
     imageSrc: "/hero/trail-4.jpg",
     imageAlt: "Journal and notebook overlooking the savanna",
   },
@@ -55,7 +55,7 @@ export default function WhatYoullFindHere({
             <Link
               key={item.title}
               href={item.href}
-              className="group relative aspect-[3/4] overflow-hidden rounded-2xl"
+              className="group relative aspect-3/4 overflow-hidden rounded-2xl"
             >
               {/* Image */}
               <Image
@@ -67,7 +67,7 @@ export default function WhatYoullFindHere({
               />
 
               {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/20 to-transparent" />
 
               {/* Text content */}
               <div className="absolute inset-x-0 bottom-0 p-6 sm:p-7">

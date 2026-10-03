@@ -11,9 +11,9 @@ const features = [
   {
     id: "guide",
     icon: BadgeCheck,
-    title: "Best Tour Guide",
+    title: "Best Tour Experience",
     description:
-      "We provide professional tour guides and experienced people who understand every destination.",
+      "We provide some wonderful memorable expeditions to every part of the country and with ease of transport to and from the sites.",
     featured: true,
   },
   {
@@ -21,7 +21,7 @@ const features = [
     icon: CalendarCheck,
     title: "Easy Booking",
     description:
-      "We make it simple for you to book your next adventure and travel to the place you want.",
+      "We make it simple for you to book your next expedition and travel to the place you want.",
   },
 ];
 

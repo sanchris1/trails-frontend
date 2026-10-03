@@ -1,14 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowRight, Mountain, CalendarDays } from "lucide-react";
+import { ArrowRight, Mountain, CalendarDays, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFetchFeaturedExpedition } from "@/hooks/expedition/useFetchFeaturedExpedition";
 import FetchingProductsPage from "@/components/common/FetchingProductsPage";
 import { getBetterDateFormat } from "@/hooks/getBetterTimeFormat";
+import { useRouter } from "next/navigation";
 
 const FeaturedExpedition = () => {
   const { data: featuredExpedition, isLoading } = useFetchFeaturedExpedition();
+  const router = useRouter();
 
   if (isLoading) return <FetchingProductsPage />;
 
@@ -126,6 +128,9 @@ const FeaturedExpedition = () => {
 
           {/* CTA */}
           <Button
+            onClick={() =>
+              router.push(`/expeditions/${featuredExpedition.expedition.id}`)
+            }
             className="
               mt-7 h-11 w-full rounded-lg
               bg-accent text-white
@@ -137,6 +142,22 @@ const FeaturedExpedition = () => {
           >
             View Details
             <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+          <Button
+            onClick={() =>
+              router.push(`/booking/${featuredExpedition.expedition.id}/book`)
+            }
+            className="
+              mt-7 h-11 w-full rounded-lg
+              bg-secondary text-white
+              transition-all duration-300
+              hover:bg-secondary/90
+              hover:shadow-md
+              active:scale-[0.98]
+            "
+          >
+            Book Now
+            <ShieldAlert className="ml-2 h-4 w-4" />
           </Button>
         </div>
       </div>

@@ -11,13 +11,13 @@ export default function WhyKenyaHero({
   imageAlt = "Kenya highlands landscape",
 }: WhyKenyaHeroProps) {
   const stats = [
-    { value: "40+", label: "Adventure Experiences" },
-    { value: "20+", label: "Destinations" },
-    { value: "1000s", label: "Trail Memories" },
+    { value: "4+", label: "Adventure Experiences" },
+    { value: "4+", label: "Destinations" },
+    { value: "20", label: "Trail Memories" },
   ];
 
   return (
-    <section className="relative h-[85vh] min-h-[580px] w-full overflow-hidden md:h-[90vh]">
+    <section className="relative h-[85vh] min-h-145 w-full overflow-hidden md:h-[90vh]">
       {/* Background Image */}
       <Image
         src={imageSrc}
@@ -29,7 +29,7 @@ export default function WhyKenyaHero({
       />
 
       {/* Dark gradient overlay for readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
+      <div className="absolute inset-0 bg-linear-to-b from-black/50 via-black/40 to-black/60" />
 
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-5 text-center">

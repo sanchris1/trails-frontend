@@ -27,7 +27,7 @@ const AboutHero = () => {
 
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Button className="h-12 rounded-full bg-accent px-7 font-semibold text-white hover:bg-accent/90">
-              <Link href="/adventures">Explore Adventures</Link>
+              <Link href="/shop">Explore Shop</Link>
             </Button>
 
             <Button
@@ -44,7 +44,7 @@ const AboutHero = () => {
           {/* Decorative background */}
           <div className="absolute -right-6 -top-6 hidden h-32 w-32 rounded-full bg-accent/10 sm:block" />
 
-          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl shadow-xl sm:rounded-3xl">
+          <div className="relative aspect-4/5 w-full overflow-hidden rounded-2xl shadow-xl sm:rounded-3xl">
             <Image
               src="/hero/trail-1.jpg"
               alt="Hikers exploring a mountain trail in Kenya"
@@ -55,7 +55,7 @@ const AboutHero = () => {
             />
 
             {/* Image overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/30 via-transparent to-transparent" />
           </div>
 
           {/* Small floating label */}

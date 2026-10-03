@@ -1,6 +1,6 @@
 import { Mail } from "lucide-react";
 import Link from "next/link";
-import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa6";
+import { FaInstagram } from "react-icons/fa6";
 import Logo from "../common/Logo";
 
 const footerLinks = {
@@ -38,24 +38,24 @@ const footerLinks = {
     },
   ],
 
-  support: [
-    {
-      label: "Help Center",
-      href: "/help",
-    },
-    {
-      label: "Booking Information",
-      href: "/booking-information",
-    },
-    {
-      label: "Terms & Conditions",
-      href: "/terms",
-    },
-    {
-      label: "Privacy Policy",
-      href: "/privacy",
-    },
-  ],
+  // support: [
+  //   {
+  //     label: "Help Center",
+  //     href: "/help",
+  //   },
+  //   {
+  //     label: "Booking Information",
+  //     href: "/booking-information",
+  //   },
+  //   {
+  //     label: "Terms & Conditions",
+  //     href: "/terms",
+  //   },
+  //   {
+  //     label: "Privacy Policy",
+  //     href: "/privacy",
+  //   },
+  // ],
 };
 
 const Footer = () => {
@@ -120,24 +120,27 @@ const Footer = () => {
           <FooterColumn title="Company" links={footerLinks.company} />
 
           {/* Support */}
-          <FooterColumn title="Support" links={footerLinks.support} />
+          {/* <FooterColumn title="Support" links={footerLinks.support} /> */}
 
           {/* Social */}
           <div>
             <h3 className="text-sm font-semibold">Follow Us</h3>
 
             <div className="mt-4 flex gap-2">
-              <SocialLink href="#" label="Instagram">
+              <SocialLink
+                href="https://www.instagram.com/trails_and_memoirs/"
+                label="Instagram"
+              >
                 <FaInstagram className="h-4 w-4" />
               </SocialLink>
 
-              <SocialLink href="#" label="Facebook">
+              {/* <SocialLink href="#" label="Facebook">
                 <FaFacebook className="h-4 w-4" />
               </SocialLink>
 
               <SocialLink href="#" label="Twitter">
                 <FaTwitter className="h-4 w-4" />
-              </SocialLink>
+              </SocialLink> */}
             </div>
           </div>
         </div>

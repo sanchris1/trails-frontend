@@ -3,8 +3,11 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const ExpeditionsHero = () => {
+  const router = useRouter();
+
   return (
     <section className="relative isolate min-h-140 overflow-hidden sm:min-h-155 lg:min-h-175">
       {/* Background Image */}
@@ -46,19 +49,21 @@ const ExpeditionsHero = () => {
           {/* Actions */}
           <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
             <Button
+              onClick={() => router.push("/shop")}
               size="lg"
               className="h-12 gap-2 rounded-xl px-7 text-base font-semibold shadow-md transition-all hover:shadow-lg"
             >
-              Explore Expeditions
+              Explore Shop
               <ArrowRight className="h-4 w-4" />
             </Button>
 
             <Button
+              onClick={() => router.push("/gallery")}
               size="lg"
               variant="outline"
               className="h-12 rounded-xl border-border/70 bg-background/60 px-7 text-base font-medium backdrop-blur-sm hover:bg-background/90"
             >
-              How It Works
+              Gallery Stories
             </Button>
           </div>
         </div>
