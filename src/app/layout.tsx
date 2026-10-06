@@ -6,6 +6,7 @@ import { Toaster as ReactHotToaster } from "react-hot-toast";
 import QueryProvider from "@/providers/query-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toast";
+import { Analytics } from "@vercel/analytics/next";
 
 const poppins = Poppins({
   variable: "--font-geist-sans",
@@ -83,6 +84,7 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            <Analytics />
             <Toaster />
             <ReactHotToaster />
             <TooltipProvider>{children}</TooltipProvider>
