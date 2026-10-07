@@ -2,8 +2,11 @@
 
 import { CalendarDays, MapPin, Users } from "lucide-react";
 import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
 
 const ExploreDestination = () => {
+  const router = useRouter();
+
   return (
     <section className="px-4 py-16 sm:px-6 lg:px-8">
       <div className="relative mx-auto max-w-6xl">
@@ -150,6 +153,7 @@ const ExploreDestination = () => {
 
               {/* CTA */}
               <Button
+                onClick={() => router.push("/suggested")}
                 className="
                   h-11
                   rounded-xl
@@ -157,6 +161,7 @@ const ExploreDestination = () => {
                   px-6
                   text-sm
                   font-semibold
+                  cursor-pointer
                   text-accent-foreground
                   transition-all
                   hover:bg-accent/90

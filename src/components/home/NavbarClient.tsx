@@ -148,22 +148,18 @@ const NavbarClient = () => {
                     <DropdownMenuLabel>My Profile</DropdownMenuLabel>
                   </DropdownMenuGroup>
                   {profileMenuItems.map((item) => (
-                    <DropdownMenuItem
+                    <Link
                       key={item.id}
-                      className={"text-sm w-full"}
+                      href={item.href}
+                      className="flex items-center gap-5 text-[13px] text-xs w-full hover:border hover:border-border rounded-2xl p-1 text-secondary"
                     >
-                      <Link
-                        href={item.href}
-                        className="flex items-center gap-5 text-[13px]"
-                      >
-                        <item.icon /> {item.label}
-                      </Link>
-                    </DropdownMenuItem>
+                      <item.icon className="text-xs" size={15} /> {item.label}
+                    </Link>
                   ))}
                   <Button
                     variant="outline"
                     onClick={() => logoutUser.mutate()}
-                    className="rounded-xl w-full"
+                    className=" w-full"
                   >
                     Logout
                   </Button>

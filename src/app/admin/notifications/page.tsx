@@ -13,97 +13,118 @@ import {
 import {
   Bell,
   CalendarX,
-  Mail,
   Check,
-  CheckCheck,
   Trash2,
   Filter,
+  CircleX,
+  RefreshCw,
+  AlarmClock,
+  BellRing,
+  Clock,
+  CalendarCheck,
+  CalendarPlus,
+  MessageSquare,
+  CircleDollarSign,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useFetchAdminNotifications } from "@/hooks/notifications/fetchAdminNotifications";
+import { useMarkAsReadNotification } from "@/hooks/notifications/markAsReadNotification";
+import { useDeleteNotification } from "@/hooks/notifications/deleteNotification";
 
-type NotificationType = "booking_cancelled" | "contact" | "system";
+export type NotificationType =
+  | "inquiry"
+  | "booking_created"
+  | "booking_confirmed"
+  | "booking_cancelled"
+  | "payment_pending"
+  | "payment_received"
+  | "payment_failed"
+  | "payment_reminder"
+  | "expedition_reminder"
+  | "expedition_updated"
+  | "expedition_cancelled"
+  | "system";
 
-interface Notification {
+export interface Notification {
   id: string;
+  recipientId: string;
+  senderId: string | null;
   type: NotificationType;
   title: string;
   message: string;
+  bookingId: string | null;
+  expeditionId: string | null;
   isRead: boolean;
   createdAt: string;
-  meta?: {
-    bookingId?: string;
-    contactName?: string;
-    contactEmail?: string;
-  };
+  readAt: string;
 }
 
-// Temporary mock data — replace with real API data later
-const mockNotifications: Notification[] = [
-  {
-    id: "1",
-    type: "booking_cancelled",
-    title: "Booking Cancelled",
-    message: "John Doe cancelled the Mount Longonot hike scheduled for Sep 20.",
-    isRead: false,
-    createdAt: "2026-09-17T06:12:00Z",
-    meta: { bookingId: "BK-1042" },
-  },
-  {
-    id: "2",
-    type: "contact",
-    title: "New Contact Message",
-    message: "Sarah asked about upcoming group hikes and merchandise sizes.",
-    isRead: false,
-    createdAt: "2026-09-17T05:40:00Z",
-    meta: {
-      contactName: "Sarah Wanjiku",
-      contactEmail: "sarah@email.com",
-    },
-  },
-  {
-    id: "3",
-    type: "booking_cancelled",
-    title: "Booking Cancelled",
-    message: "James Mwangi cancelled the Aberdare weekend trek.",
-    isRead: true,
-    createdAt: "2026-09-16T18:22:00Z",
-    meta: { bookingId: "BK-1038" },
-  },
-  {
-    id: "4",
-    type: "contact",
-    title: "New Contact Message",
-    message: "Partnership inquiry from an outdoor gear brand.",
-    isRead: true,
-    createdAt: "2026-09-16T14:05:00Z",
-    meta: {
-      contactName: "David Otieno",
-      contactEmail: "david@outdoorgear.com",
-    },
-  },
-  {
-    id: "5",
-    type: "system",
-    title: "System Notice",
-    message:
-      "Low stock alert: Mara Expedition Tee (Black) has only 3 items left.",
-    isRead: false,
-    createdAt: "2026-09-16T11:30:00Z",
-  },
-];
-
 const typeConfig = {
+  inquiry: {
+    label: "Inquiry",
+    icon: MessageSquare,
+    color: "text-blue-600",
+    bg: "bg-blue-500/10",
+  },
+  booking_created: {
+    label: "Booking Created",
+    icon: CalendarPlus,
+    color: "text-indigo-600",
+    bg: "bg-indigo-500/10",
+  },
+  booking_confirmed: {
+    label: "Booking Confirmed",
+    icon: CalendarCheck,
+    color: "text-green-600",
+    bg: "bg-green-500/10",
+  },
   booking_cancelled: {
-    label: "Booking",
+    label: "Booking Cancelled",
     icon: CalendarX,
     color: "text-destructive",
     bg: "bg-destructive/10",
   },
-  contact: {
-    label: "Contact",
-    icon: Mail,
+  payment_pending: {
+    label: "Payment Pending",
+    icon: Clock,
+    color: "text-amber-600",
+    bg: "bg-amber-500/10",
+  },
+  payment_received: {
+    label: "Payment Received",
+    icon: CircleDollarSign,
+    color: "text-green-600",
+    bg: "bg-green-500/10",
+  },
+  payment_failed: {
+    label: "Payment Failed",
+    icon: CircleX,
+    color: "text-destructive",
+    bg: "bg-destructive/10",
+  },
+  payment_reminder: {
+    label: "Payment Reminder",
+    icon: BellRing,
+    color: "text-amber-600",
+    bg: "bg-amber-500/10",
+  },
+  expedition_reminder: {
+    label: "Expedition Reminder",
+    icon: AlarmClock,
+    color: "text-orange-600",
+    bg: "bg-orange-500/10",
+  },
+  expedition_updated: {
+    label: "Expedition Updated",
+    icon: RefreshCw,
     color: "text-blue-600",
     bg: "bg-blue-500/10",
+  },
+  expedition_cancelled: {
+    label: "Expedition Cancelled",
+    icon: CircleX,
+    color: "text-destructive",
+    bg: "bg-destructive/10",
   },
   system: {
     label: "System",
@@ -111,7 +132,15 @@ const typeConfig = {
     color: "text-amber-600",
     bg: "bg-amber-500/10",
   },
-};
+} satisfies Record<
+  NotificationType,
+  {
+    label: string;
+    icon: typeof Bell;
+    color: string;
+    bg: string;
+  }
+>;
 
 function formatTime(dateString: string) {
   const date = new Date(dateString);
@@ -124,31 +153,24 @@ function formatTime(dateString: string) {
 }
 
 export default function AdminNotificationsPage() {
-  const [notifications, setNotifications] =
-    useState<Notification[]>(mockNotifications);
+  const { data: notificationsData } = useFetchAdminNotifications();
+
   const [filter, setFilter] = useState<"all" | NotificationType>("all");
+
+  const { mutate: markAsRead } = useMarkAsReadNotification();
+
+  const { mutate: deleteNotification } = useDeleteNotification();
+
+  if (notificationsData?.length === 0 || !notificationsData) {
+    return;
+  }
 
   const filtered =
     filter === "all"
-      ? notifications
-      : notifications.filter((n) => n.type === filter);
+      ? notificationsData
+      : notificationsData.filter((n) => n.type === filter);
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
-
-  const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
-    );
-  };
-
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-  };
-
-  const deleteNotification = (id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  };
-
+  const unreadCount = notificationsData.filter((n) => !n.isRead).length;
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       {/* Header */}
@@ -177,22 +199,33 @@ export default function AdminNotificationsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All</SelectItem>
-              <SelectItem value="booking_cancelled">Bookings</SelectItem>
-              <SelectItem value="contact">Contacts</SelectItem>
+
+              <SelectItem value="inquiry">Inquiries</SelectItem>
+
+              <SelectItem value="booking_created">Booking Created</SelectItem>
+              <SelectItem value="booking_confirmed">
+                Booking Confirmed
+              </SelectItem>
+              <SelectItem value="booking_cancelled">
+                Booking Cancelled
+              </SelectItem>
+              <SelectItem value="payment_pending">Payment Pending</SelectItem>
+              <SelectItem value="payment_received">Payment Received</SelectItem>
+              <SelectItem value="payment_failed">Payment Failed</SelectItem>
+              <SelectItem value="payment_reminder">Payment Reminder</SelectItem>
+              <SelectItem value="expedition_reminder">
+                Expedition Reminder
+              </SelectItem>
+              <SelectItem value="expedition_updated">
+                Expedition Updated
+              </SelectItem>
+              <SelectItem value="expedition_cancelled">
+                Expedition Cancelled
+              </SelectItem>
+
               <SelectItem value="system">System</SelectItem>
             </SelectContent>
           </Select>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={markAllAsRead}
-            disabled={unreadCount === 0}
-            className="gap-1.5"
-          >
-            <CheckCheck className="h-4 w-4" />
-            Mark all read
-          </Button>
         </div>
       </div>
 
@@ -258,19 +291,6 @@ export default function AdminNotificationsPage() {
                         <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
                           {notification.message}
                         </p>
-
-                        {/* Meta */}
-                        {notification.meta?.contactEmail && (
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            From: {notification.meta.contactName} (
-                            {notification.meta.contactEmail})
-                          </p>
-                        )}
-                        {notification.meta?.bookingId && (
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            Booking ID: {notification.meta.bookingId}
-                          </p>
-                        )}
 
                         <p className="mt-2 text-xs text-muted-foreground">
                           {formatTime(notification.createdAt)}

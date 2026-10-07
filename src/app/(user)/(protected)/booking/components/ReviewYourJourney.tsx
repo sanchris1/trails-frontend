@@ -57,7 +57,9 @@ export default function ReviewYourJourneyPage({
       toast.success(data?.message);
       setBookingId(data.result.bookingId);
       onContinue();
-      queryClient.invalidateQueries({ queryKey: ["bookings"] });
+      queryClient.invalidateQueries({
+        queryKey: ["bookings", "notifications"],
+      });
     },
     onError: (error: any) => {
       if (axios.isAxiosError(error)) {
