@@ -17,6 +17,10 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import {
+  AdminStatsResponse,
+  useFetchAdminDashboardStats,
+} from "@/hooks/adminDashboard/fetchAdminDashboardStats";
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat("en-KE", {
@@ -33,37 +37,6 @@ function formatDate(dateString: string) {
     month: "short",
   });
 }
-
-const kpis = [
-  {
-    label: "Revenue (this month)",
-    value: formatCurrency(186500),
-    change: "+12.4%",
-    positive: true,
-    icon: CreditCard,
-  },
-  {
-    label: "Bookings",
-    value: "48",
-    change: "+8",
-    positive: true,
-    icon: Calendar,
-  },
-  {
-    label: "Participants",
-    value: "126",
-    change: "+15",
-    positive: true,
-    icon: Users,
-  },
-  {
-    label: "Pending reviews",
-    value: "5",
-    change: "2 new",
-    positive: true,
-    icon: Star,
-  },
-];
 
 const upcomingExpeditions = [
   {
@@ -160,6 +133,40 @@ const activityIcon: Record<string, string> = {
 };
 
 export default function AdminDashboardPage() {
+  const { data: stats = {} as AdminStatsResponse } =
+    useFetchAdminDashboardStats();
+
+  const kpis = [
+    {
+      label: "Revenue (this month)",
+      value: formatCurrency(stats?.revenue?.total),
+      change: ` ${stats?.revenue?.differenceAsPercentage}%`,
+      positive: stats?.revenue?.signage === "pos",
+      icon: CreditCard,
+    },
+    {
+      label: "Bookings",
+      value: stats?.bookings?.total,
+      change: ` ${stats?.bookings?.differenceAsPercentage}%`,
+      positive: stats?.bookings?.signage === "pos",
+      icon: Calendar,
+    },
+    {
+      label: "Participants",
+      value: stats?.participants?.total,
+      change: ` ${stats?.participants?.differenceAsPercentage}%`,
+      positive: stats?.participants?.signage === "pos",
+      icon: Users,
+    },
+    {
+      label: "Pending reviews",
+      value: "5",
+      change: "2 new",
+      positive: true,
+      icon: Star,
+    },
+  ];
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
       {/* Header */}
