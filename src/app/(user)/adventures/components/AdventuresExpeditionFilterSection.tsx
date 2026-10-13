@@ -1,5 +1,4 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -8,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const AdventuresExpeditionFilterSection = () => {
@@ -109,22 +108,6 @@ const AdventuresExpeditionFilterSection = () => {
                   <SelectItem value="hard">Hard</SelectItem>
                 </SelectContent>
               </Select>
-
-              {/* More filters */}
-              <Button
-                variant="outline"
-                className="
-              h-11
-              w-full
-              rounded-xl
-              sm:w-11
-              sm:px-0
-            "
-              >
-                <SlidersHorizontal className="h-4 w-4" />
-
-                <span className="sm:hidden">More Filters</span>
-              </Button>
             </div>
           </div>
 
