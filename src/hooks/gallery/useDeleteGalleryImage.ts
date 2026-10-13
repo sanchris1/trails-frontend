@@ -14,8 +14,11 @@ export const useDeleteGalleryImages = () => {
       imagePublicId: string;
     }) => deleteImage(expeditionId, imagePublicId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["gallery"] });
       toast.success("Image deleted successfully");
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["gallery"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-images"] }),
+      ]);
     },
     onError: () => {
       toast.error("Error deleting image");

@@ -7,18 +7,16 @@ import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import ExpeditionsCommand from "../components/ExpeditionsCommand";
 import { useRouter } from "next/navigation";
-import useFetchGalleryImages from "@/hooks/gallery/useFetchGalleryImages";
 import ImageComponent from "@/components/common/ImageComponent";
 import { CreateGalleryImage } from "@/types/t.types";
+import { useFetchAdminGalleryImages } from "@/hooks/gallery/fetchAdminGalleryImages";
 
 const GalleryPage = () => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [expeditionId, setExpeditionId] = useState<string | null>(null);
 
-  const { data } = useFetchGalleryImages({});
-
-  const images = data?.images;
+  const { data: images } = useFetchAdminGalleryImages();
 
   useEffect(() => {
     if (!expeditionId) return;
