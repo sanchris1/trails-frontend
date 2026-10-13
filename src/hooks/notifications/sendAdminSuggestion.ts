@@ -1,6 +1,5 @@
 import { api } from "@/lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
 
 async function sendAdminSuggestion({
   title,
@@ -22,9 +21,10 @@ export const useSendAdminSuggestion = () => {
 
   return useMutation({
     mutationFn: sendAdminSuggestion,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notifications"] });
-      toast.success("Suggestion sent successfully");
-    },
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-stats"] }),
+      ]),
   });
 };

@@ -10,10 +10,10 @@ export const useDeleteNotification = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteNotification,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["notifications", "admin-stats"],
-      });
-    },
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-stats"] }),
+      ]),
   });
 };

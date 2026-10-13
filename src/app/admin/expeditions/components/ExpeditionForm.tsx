@@ -64,11 +64,19 @@ const ExpeditionForm = ({
     mutationFn: createNewExpedition,
 
     onSuccess: (data: any) => {
-      toast.success(data?.success || "Successfully created the expedition");
-      queryClient.invalidateQueries({
-        queryKey: ["expeditions", "adventures", "admin-stats"],
-      });
       router.push("/admin/expeditions");
+      toast.success(data?.success || "Successfully created the expedition");
+      return Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["expeditions"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["admin-stats"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["notifications"],
+        }),
+      ]);
     },
 
     onError: (error: any) => {

@@ -86,7 +86,7 @@ export default function SuggestAdventurePage() {
         message: `Requesting that Trails and Memoirs take
          {${payload.numberOfParticipants}}
        people to  {${payload.location}} which 
-      is a  { ${payload.type}} . The suggested
+      is a  { ${payload.type}} type of expedition. The suggested
        dates are from  {${payload.checkInDate}} to  {${payload.checkOutDate}}. 
        We hope that {${payload.description} } will be our experience`,
       });

@@ -13,11 +13,11 @@ export const useMarkAsReadNotification = () => {
 
   return useMutation({
     mutationFn: markAsReadNotification,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["notifications", "admin-stats"],
-      });
-    },
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-stats"] }),
+      ]),
     onError: (error: any) => {
       if (axios.isAxiosError(error)) {
         console.error(error.response?.data);

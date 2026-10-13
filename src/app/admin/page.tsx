@@ -355,35 +355,6 @@ export default function AdminDashboardPage() {
               })}
             </div>
           </div>
-
-          {/* Mini stats */}
-          {/* <div className="rounded-xl border border-border bg-card p-5">
-            <h2 className="mb-3 font-semibold text-foreground">
-              This month snapshot
-            </h2>
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">
-                  Confirmed bookings
-                </span>
-                <span className="font-medium text-foreground">28</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Cancelled</span>
-                <span className="font-medium text-foreground">3</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Merch revenue</span>
-                <span className="font-medium text-foreground">
-                  {formatCurrency(41200)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Avg. trail rating</span>
-                <span className="font-medium text-foreground">4.7 ★</span>
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
     </div>
