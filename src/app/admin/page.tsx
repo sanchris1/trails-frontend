@@ -249,7 +249,10 @@ export default function AdminDashboardPage() {
                 </h2>
               </div>
               <Button variant="ghost" size="sm" className="gap-1 text-xs">
-                <Link href="/admin/notifications">
+                <Link
+                  href="/admin/notifications"
+                  className="flex items-center gap-2"
+                >
                   All notifications
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
