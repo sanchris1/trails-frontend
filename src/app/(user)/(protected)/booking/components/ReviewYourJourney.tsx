@@ -58,7 +58,7 @@ export default function ReviewYourJourneyPage({
       setBookingId(data.result.bookingId);
       onContinue();
       queryClient.invalidateQueries({
-        queryKey: ["bookings", "notifications"],
+        queryKey: ["bookings", "notifications", "admin-stats"],
       });
     },
     onError: (error: any) => {

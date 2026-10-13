@@ -21,6 +21,7 @@ import {
   AdminStatsResponse,
   useFetchAdminDashboardStats,
 } from "@/hooks/adminDashboard/fetchAdminDashboardStats";
+import { formatRelativeTime } from "@/utils/dateTimeFormat";
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat("en-KE", {
@@ -37,71 +38,6 @@ function formatDate(dateString: string) {
     month: "short",
   });
 }
-
-const upcomingExpeditions = [
-  {
-    id: "EXP-01",
-    name: "Mount Longonot Day Hike",
-    location: "Naivasha",
-    date: "2026-09-20",
-    confirmed: 14,
-    capacity: 20,
-  },
-  {
-    id: "EXP-02",
-    name: "Ngong Hills Sunrise Hike",
-    location: "Kajiado",
-    date: "2026-09-22",
-    confirmed: 9,
-    capacity: 25,
-  },
-  {
-    id: "EXP-03",
-    name: "Aberdare Weekend Trek",
-    location: "Nyeri",
-    date: "2026-09-27",
-    confirmed: 11,
-    capacity: 12,
-  },
-];
-
-const recentActivity = [
-  {
-    id: "1",
-    type: "booking",
-    title: "New booking",
-    detail: "John Doe · Mount Longonot Day Hike",
-    time: "12 min ago",
-  },
-  {
-    id: "2",
-    type: "payment",
-    title: "Payment received",
-    detail: "KES 8,500 · BK-1048",
-    time: "28 min ago",
-  },
-  {
-    id: "3",
-    type: "contact",
-    title: "Contact message",
-    detail: "Sarah asked about group hikes",
-    time: "1 hr ago",
-  },
-  {
-    id: "4",
-    type: "cancel",
-    title: "Booking cancelled",
-    detail: "James Mwangi · Hell's Gate",
-    time: "2 hrs ago",
-  },
-  {
-    id: "5",
-    type: "review",
-    title: "New review",
-    detail: "5★ · Ngong Hills Sunrise Hike",
-    time: "3 hrs ago",
-  },
-];
 
 const alerts = [
   {
@@ -124,17 +60,26 @@ const alerts = [
   },
 ];
 
-const activityIcon: Record<string, string> = {
-  booking: "bg-emerald-500/10 text-emerald-600",
-  payment: "bg-blue-500/10 text-blue-600",
-  contact: "bg-purple-500/10 text-purple-600",
-  cancel: "bg-destructive/10 text-destructive",
-  review: "bg-amber-500/10 text-amber-600",
+export const notificationActivityStyles: Record<string, string> = {
+  inquiry: "bg-purple-500/10 text-purple-600",
+  booking_created: "bg-emerald-500/10 text-emerald-600",
+  booking_confirmed: "bg-emerald-600/15 text-emerald-700",
+  payment_pending: "bg-blue-500/10 text-blue-600",
+  payment_received: "bg-emerald-500/10 text-emerald-600",
+  payment_reminder: "bg-blue-500/10 text-blue-600",
+  payment_failed: "bg-amber-500/10 text-amber-600",
+  expedition_reminder: "bg-amber-500/10 text-amber-600",
+  expedition_updated: "bg-amber-500/10 text-amber-600",
+  booking_cancelled: "bg-destructive/10 text-destructive",
+  expedition_cancelled: "bg-destructive/10 text-destructive",
+  system: "bg-slate-500/10 text-slate-600",
 };
 
 export default function AdminDashboardPage() {
   const { data: stats = {} as AdminStatsResponse } =
     useFetchAdminDashboardStats();
+
+  console.log(stats);
 
   const kpis = [
     {
@@ -226,7 +171,10 @@ export default function AdminDashboardPage() {
                 </h2>
               </div>
               <Button variant="ghost" size="sm" className="gap-1 text-xs">
-                <Link href="/admin/participants">
+                <Link
+                  href="/admin/participants"
+                  className="flex items-center gap-2"
+                >
                   View all
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
@@ -234,8 +182,10 @@ export default function AdminDashboardPage() {
             </div>
 
             <ul className="divide-y divide-border">
-              {upcomingExpeditions.map((exp) => {
-                const pct = Math.round((exp.confirmed / exp.capacity) * 100);
+              {stats?.expeditions?.map((exp) => {
+                const pct = Math.round(
+                  (Number(exp.bookedSlots) / exp.totalSlots) * 100,
+                );
                 const almostFull = pct >= 80;
                 return (
                   <li
@@ -243,7 +193,7 @@ export default function AdminDashboardPage() {
                     className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="min-w-0">
-                      <p className="font-medium text-foreground">{exp.name}</p>
+                      <p className="font-medium text-foreground">{exp.title}</p>
                       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
@@ -251,7 +201,7 @@ export default function AdminDashboardPage() {
                         </span>
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {formatDate(exp.date)}
+                          {formatDate(exp.departureDate)}
                         </span>
                       </div>
                     </div>
@@ -259,7 +209,7 @@ export default function AdminDashboardPage() {
                     <div className="flex items-center gap-3">
                       <div className="text-right">
                         <p className="text-sm font-medium text-foreground">
-                          {exp.confirmed}/{exp.capacity}
+                          {exp.bookedSlots}/{exp.totalSlots}
                         </p>
                         <p className="text-[10px] text-muted-foreground">
                           confirmed
@@ -307,7 +257,7 @@ export default function AdminDashboardPage() {
             </div>
 
             <ul className="divide-y divide-border">
-              {recentActivity.map((item) => (
+              {stats?.notifications?.map((item) => (
                 <li
                   key={item.id}
                   className="flex items-start gap-3 px-5 py-3.5"
@@ -315,7 +265,7 @@ export default function AdminDashboardPage() {
                   <div
                     className={cn(
                       "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-                      activityIcon[item.type],
+                      notificationActivityStyles[item.type],
                     )}
                   >
                     <Bell className="h-3.5 w-3.5" />
@@ -325,11 +275,11 @@ export default function AdminDashboardPage() {
                       {item.title}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {item.detail}
+                      {item.message}
                     </p>
                   </div>
                   <span className="shrink-0 text-[11px] text-muted-foreground">
-                    {item.time}
+                    {formatRelativeTime(item.createdAt)}
                   </span>
                 </li>
               ))}
@@ -404,7 +354,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Mini stats */}
-          <div className="rounded-xl border border-border bg-card p-5">
+          {/* <div className="rounded-xl border border-border bg-card p-5">
             <h2 className="mb-3 font-semibold text-foreground">
               This month snapshot
             </h2>
@@ -430,7 +380,7 @@ export default function AdminDashboardPage() {
                 <span className="font-medium text-foreground">4.7 ★</span>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

@@ -65,8 +65,9 @@ const ExpeditionForm = ({
 
     onSuccess: (data: any) => {
       toast.success(data?.success || "Successfully created the expedition");
-      queryClient.invalidateQueries({ queryKey: ["expeditions"] });
-      queryClient.invalidateQueries({ queryKey: ["adventures"] });
+      queryClient.invalidateQueries({
+        queryKey: ["expeditions", "adventures", "admin-stats"],
+      });
       router.push("/admin/expeditions");
     },
 
