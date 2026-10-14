@@ -5,6 +5,8 @@ import ShopToolbar from "./components/ShopToolbar";
 import ProductGrid from "./components/ProductsGrid";
 import { useFetchAllMerchandise } from "@/hooks/merchandise/fetchMerchandise";
 import { useState } from "react";
+import { useFetchUserFavoriteMerchandise } from "@/hooks/favorites/merchandise/fetchUserFavoriteMerchandise";
+import { useToggleUserFavoriteMerchandise } from "@/hooks/favorites/merchandise/toggleUserFavoriteMerchandise";
 
 const ShopPage = () => {
   const [search, setSearch] = useState("");
@@ -18,6 +20,19 @@ const ShopPage = () => {
     sort,
     page,
   });
+
+  const { data: { allUserFavoritesMerchandise = [] } = {} } =
+    useFetchUserFavoriteMerchandise();
+
+  const isFavoriteMerchandise = (merchandiseId: string) =>
+    allUserFavoritesMerchandise
+      .map((merchandise) => merchandise.id)
+      .some((fav) => fav === merchandiseId);
+
+  const { mutate: toggleFavoriteMerchandise } =
+    useToggleUserFavoriteMerchandise();
+
+  console.log(allUserFavoritesMerchandise);
 
   return (
     <div>
@@ -34,6 +49,8 @@ const ShopPage = () => {
       />
 
       <ProductGrid
+        toggleFavoriteMerchandise={toggleFavoriteMerchandise}
+        isFavoriteMerchandise={isFavoriteMerchandise}
         merchandise={merchandise!}
         loading={isLoading}
         setPage={setPage}

@@ -1,9 +1,9 @@
-// components/ProductGrid.tsx
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MerchandiseResponse } from "@/types/t.types";
 import FetchingProductsPage from "@/components/common/FetchingProductsPage";
+import { FaHeart, FaRegHeart } from "react-icons/fa6";
 
 export function formatPrice(price: number) {
   return `KES ${price?.toLocaleString()}`;
@@ -13,10 +13,14 @@ export default function ProductGrid({
   loading,
   merchandise,
   setPage,
+  isFavoriteMerchandise,
+  toggleFavoriteMerchandise,
 }: {
   loading: boolean;
   merchandise: MerchandiseResponse;
   setPage: React.Dispatch<React.SetStateAction<number>>;
+  isFavoriteMerchandise: (id: string) => boolean;
+  toggleFavoriteMerchandise: (id: string) => void;
 }) {
   if (loading) return <FetchingProductsPage />;
 
@@ -40,6 +44,22 @@ export default function ProductGrid({
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                 />
+                <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      toggleFavoriteMerchandise(product.merchandise.id);
+                    }}
+                    className={` ${isFavoriteMerchandise(product.merchandise.id) ? "text-accent bg-transparent" : "bg-black/40 backdrop-blur-sm text-secondary "}  rounded-full hover:bg-transparent  p-2 text-xs `}
+                  >
+                    {isFavoriteMerchandise(product.merchandise.id) ? (
+                      <FaHeart />
+                    ) : (
+                      <FaRegHeart />
+                    )}
+                  </Button>
+                </div>
               </div>
 
               {/* Info */}

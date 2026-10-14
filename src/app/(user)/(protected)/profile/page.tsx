@@ -6,7 +6,6 @@ import {
   Map,
   Package,
   Heart,
-  ShieldCheck,
   Calendar,
   MapPin,
   Bell,
@@ -20,58 +19,30 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useFetchUserFavorites } from "@/hooks/favorites/fetchUserFavorites";
 import Image from "next/image";
-
-// Mock data (replace with real data later)
-const mockUser = {
-  id: "usr_123",
-  name: "Amina Wanjiku",
-  email: "amina.wanjiku@example.com",
-  role: "user",
-  verified: true,
-  createdAt: new Date("2024-11-12"),
-};
+import { useFetchUserFavoriteMerchandise } from "@/hooks/favorites/merchandise/fetchUserFavoriteMerchandise";
+import { useGetSession } from "@/hooks/auth/useGetSession.hook";
+import { formatRelativeTime } from "@/utils/dateTimeFormat";
 
 const unreadNotificationsCount = 3; // example – pull from your notifications query
 
-const mockFavoriteMerchandise = [
-  {
-    id: "merch_1",
-    title: "Explorer Softshell Jacket",
-    category: "Apparel",
-    price: 8500,
-    stock: 12,
-  },
-  {
-    id: "merch_2",
-    title: "Trail Daypack 28L",
-    category: "Gear",
-    price: 6200,
-    stock: 8,
-  },
-  {
-    id: "merch_3",
-    title: "Kenya Wildlife Cap",
-    category: "Accessories",
-    price: 1800,
-    stock: 24,
-  },
-];
-
 export default function ProfilePage() {
-  const initials = mockUser.name
+  const {
+    data: {
+      user = { createdAt: "", email: "", id: "", name: "", role: "" },
+    } = {},
+  } = useGetSession();
+  const { data: { allUserFavorites = [] } = {} } = useFetchUserFavorites();
+  const { data: { allUserFavoritesMerchandise = [] } = {} } =
+    useFetchUserFavoriteMerchandise();
+
+  const initials = user.name
     .split(" ")
     .map((n) => n[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
 
-  const memberSince = mockUser.createdAt.toLocaleDateString("en-KE", {
-    month: "long",
-    year: "numeric",
-  });
-
-  const { data: { allUserFavorites = [] } = {} } = useFetchUserFavorites();
-
+  console.log(user);
   return (
     <div className="min-h-screen bg-background">
       {/* Header / Profile Card */}
@@ -89,22 +60,13 @@ export default function ProfilePage() {
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-                    {mockUser.name}
+                    {user.name}
                   </h1>
-                  {mockUser.verified && (
-                    <Badge
-                      variant="secondary"
-                      className="gap-1 bg-success/15 text-success hover:bg-success/20"
-                    >
-                      <ShieldCheck className="h-3.5 w-3.5" />
-                      Verified
-                    </Badge>
-                  )}
                 </div>
 
-                <p className="text-muted-foreground">{mockUser.email}</p>
+                <p className="text-muted-foreground">{user.email}</p>
                 <p className="text-sm text-muted-foreground">
-                  Member since {memberSince}
+                  Member since {formatRelativeTime(user.createdAt)}
                 </p>
               </div>
             </div>
@@ -192,7 +154,7 @@ export default function ProfilePage() {
 
           {allUserFavorites.length === 0 ? (
             <Card className="border-dashed">
-              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+              <CardContent className="flex flex-col items-center justify-center pb-0 text-center">
                 <Heart className="mb-3 h-10 w-10 text-muted-foreground/40" />
                 <p className="text-muted-foreground">
                   You haven’t favorited any expeditions yet.
@@ -204,7 +166,7 @@ export default function ProfilePage() {
               {allUserFavorites.map((exp) => (
                 <Card
                   key={exp.expeditionId}
-                  className="group overflow-hidden transition-shadow hover:shadow-md pt-0"
+                  className="group overflow-hidden transition-shadow hover:shadow-md pt-0 pb-0"
                 >
                   <div className="relative h-42 bg-linear-to-br from-primary/20 via-secondary/15 to-accent/20">
                     <Image
@@ -285,7 +247,7 @@ export default function ProfilePage() {
             </Button>
           </div>
 
-          {mockFavoriteMerchandise.length === 0 ? (
+          {allUserFavoritesMerchandise.length === 0 ? (
             <Card className="border-dashed">
               <CardContent className="flex flex-col items-center justify-center py-12 text-center">
                 <Package className="mb-3 h-10 w-10 text-muted-foreground/40" />
@@ -296,12 +258,18 @@ export default function ProfilePage() {
             </Card>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {mockFavoriteMerchandise.map((item) => (
+              {allUserFavoritesMerchandise.map((item) => (
                 <Card
                   key={item.id}
-                  className="group overflow-hidden transition-shadow hover:shadow-md"
+                  className="group overflow-hidden transition-shadow hover:shadow-md py-0 "
                 >
-                  <div className="relative h-36 bg-linear-to-br from-accent/15 via-primary/10 to-secondary/15">
+                  <div className="relative h-42 bg-linear-to-br from-accent/15 via-primary/10 to-secondary/15 ">
+                    <Image
+                      src={item.images.at(0)?.url ?? ""}
+                      fill
+                      alt={item.title}
+                      className="object-cover"
+                    />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Package className="h-10 w-10 text-accent/50" />
                     </div>
@@ -327,7 +295,7 @@ export default function ProfilePage() {
                     </div>
 
                     <Button variant="outline" size="sm" className="w-full">
-                      <Link href={`/shop/${item.id}`}>View product</Link>
+                      <Link href={`/shop/${item.slug}`}>View product</Link>
                     </Button>
                   </CardContent>
                 </Card>
