@@ -23,15 +23,6 @@ const AvatarUser = () => {
 
   return (
     <div className="flex items-center gap-3 bg-secondary/5 hover:bg-secondary/10 px-2 cursor-pointer rounded-full">
-      {session?.user.image && (
-        <Avatar>
-          <AvatarImage
-            src={session?.user.image}
-            alt="user_avatar"
-            className=" grayscale"
-          />
-        </Avatar>
-      )}
       <span className="text-primary">{session?.user.name}</span>
       <DropdownMenu>
         <DropdownMenuTrigger

@@ -42,7 +42,6 @@ export default function ProfilePage() {
     .toUpperCase()
     .slice(0, 2);
 
-  console.log(user);
   return (
     <div className="min-h-screen bg-background">
       {/* Header / Profile Card */}
