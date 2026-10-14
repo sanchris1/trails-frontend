@@ -18,6 +18,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { useFetchUserFavorites } from "@/hooks/favorites/fetchUserFavorites";
+import Image from "next/image";
 
 // Mock data (replace with real data later)
 const mockUser = {
@@ -30,36 +32,6 @@ const mockUser = {
 };
 
 const unreadNotificationsCount = 3; // example – pull from your notifications query
-
-const mockFavoriteExpeditions = [
-  {
-    id: "exp_1",
-    title: "Maasai Mara Sunrise Safari",
-    location: "Maasai Mara",
-    duration: "3 Days",
-    difficulty: "Moderate",
-    departureDate: "2026-11-15",
-    status: "scheduled",
-  },
-  {
-    id: "exp_2",
-    title: "Mount Kenya Summit Trek",
-    location: "Mount Kenya",
-    duration: "5 Days",
-    difficulty: "Challenging",
-    departureDate: "2026-12-02",
-    status: "scheduled",
-  },
-  {
-    id: "exp_3",
-    title: "Diani Beach Cultural Escape",
-    location: "Diani",
-    duration: "4 Days",
-    difficulty: "Easy",
-    departureDate: "2027-01-10",
-    status: "scheduled",
-  },
-];
 
 const mockFavoriteMerchandise = [
   {
@@ -97,6 +69,8 @@ export default function ProfilePage() {
     month: "long",
     year: "numeric",
   });
+
+  const { data: { allUserFavorites = [] } = {} } = useFetchUserFavorites();
 
   return (
     <div className="min-h-screen bg-background">
@@ -216,7 +190,7 @@ export default function ProfilePage() {
             </Button>
           </div>
 
-          {mockFavoriteExpeditions.length === 0 ? (
+          {allUserFavorites.length === 0 ? (
             <Card className="border-dashed">
               <CardContent className="flex flex-col items-center justify-center py-12 text-center">
                 <Heart className="mb-3 h-10 w-10 text-muted-foreground/40" />
@@ -227,12 +201,18 @@ export default function ProfilePage() {
             </Card>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {mockFavoriteExpeditions.map((exp) => (
+              {allUserFavorites.map((exp) => (
                 <Card
-                  key={exp.id}
-                  className="group overflow-hidden transition-shadow hover:shadow-md"
+                  key={exp.expeditionId}
+                  className="group overflow-hidden transition-shadow hover:shadow-md pt-0"
                 >
-                  <div className="relative h-36 bg-linear-to-br from-primary/20 via-secondary/15 to-accent/20">
+                  <div className="relative h-42 bg-linear-to-br from-primary/20 via-secondary/15 to-accent/20">
+                    <Image
+                      src={exp.image}
+                      fill
+                      alt={exp.title}
+                      className="object-center"
+                    />
                     <div className="absolute inset-0 flex items-center justify-center">
                       <Map className="h-10 w-10 text-primary/40" />
                     </div>
@@ -264,12 +244,13 @@ export default function ProfilePage() {
                           },
                         )}
                       </span>
-                      <span>{exp.duration}</span>
                       <span className="capitalize">{exp.difficulty}</span>
                     </div>
 
                     <Button variant="outline" size="sm" className="w-full">
-                      <Link href={`/expeditions/${exp.id}`}>View details</Link>
+                      <Link href={`/expeditions/${exp.expeditionId}`}>
+                        View details
+                      </Link>
                     </Button>
                   </CardContent>
                 </Card>

@@ -7,10 +7,19 @@ import { useFetchFeaturedExpedition } from "@/hooks/expedition/useFetchFeaturedE
 import FetchingProductsPage from "@/components/common/FetchingProductsPage";
 import { getBetterDateFormat } from "@/hooks/getBetterTimeFormat";
 import { useRouter } from "next/navigation";
+import { useFetchUserFavorites } from "@/hooks/favorites/fetchUserFavorites";
+import { useToggleFavorites } from "@/hooks/favorites/toggleFavorites";
+import { FaHeart, FaRegHeart } from "react-icons/fa6";
 
 const FeaturedExpedition = () => {
   const { data: featuredExpedition, isLoading } = useFetchFeaturedExpedition();
   const router = useRouter();
+  const { mutate: toggleFavorites } = useToggleFavorites();
+  const { data: { allUserFavorites = [] } = {} } = useFetchUserFavorites();
+
+  const isFavoriteAdventure = allUserFavorites
+    .map((favorite) => favorite.expeditionId)
+    .some((f) => f === featuredExpedition?.expedition?.id);
 
   if (isLoading) return <FetchingProductsPage />;
 
@@ -40,8 +49,8 @@ const FeaturedExpedition = () => {
           <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent" />
 
           {/* Badges */}
-          <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-            <span className="rounded-full bg-accent px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
+          <div className="absolute left-4 top-4 flex flex-wrap gap-4">
+            <span className="flex items-center justify-center rounded-full bg-accent px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
               Featured
             </span>
 
@@ -49,6 +58,12 @@ const FeaturedExpedition = () => {
               <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
               {featuredExpedition.expedition.slotsLeft} spots left
             </span>
+            <Button
+              onClick={() => toggleFavorites(featuredExpedition.expedition.id)}
+              className={` ${isFavoriteAdventure ? "text-accent bg-transparent" : "bg-black/40 backdrop-blur-sm text-secondary "}  rounded-full hover:bg-transparent  p-2 text-xs `}
+            >
+              {isFavoriteAdventure ? <FaHeart /> : <FaRegHeart />}
+            </Button>
           </div>
         </div>
 

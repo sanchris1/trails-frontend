@@ -38,7 +38,9 @@ import { deleteAdventure } from "@/hooks/adventures/deleteAdventure";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { deleteExpedition } from "@/hooks/expedition/deleteExpedition";
-import { cn } from "@/lib/utils";
+import { FaHeart, FaRegHeart } from "react-icons/fa6";
+import { useToggleFavorites } from "@/hooks/favorites/toggleFavorites";
+import { useFetchUserFavorites } from "@/hooks/favorites/fetchUserFavorites";
 
 interface AdventureExpeditionCardProps {
   isAdmin: boolean;
@@ -74,24 +76,17 @@ const AdventureExpeditionCard = ({
     onError: (error: any) => toast.error(error.message || "Failed to delete"),
   });
 
-  const capacity = adventure.defaultCapacity;
-  const slotsLeft = expedition?.slotsLeft ?? 0;
-  const availabilityPercentage = capacity > 0 ? slotsLeft / capacity : 0;
-
-  const getAvailabilityStyles = () => {
-    if (availabilityPercentage < 0.3) {
-      return "bg-destructive/15 text-destructive border-destructive/30";
-    }
-    if (availabilityPercentage < 0.6) {
-      return "bg-warning/15 text-warning border-warning/30";
-    }
-    return "bg-success/15 text-success border-success/30";
-  };
-
   const title = isAdventure ? adventure.title : expedition!.expeditionTitle;
   const isClosed =
     expedition?.expeditionStatus === "cancelled" ||
     expedition?.expeditionStatus === "completed";
+
+  const { mutate: toggleFavorites } = useToggleFavorites();
+  const { data: { allUserFavorites = [] } = {} } = useFetchUserFavorites();
+
+  const isFavoriteAdventure = allUserFavorites
+    .map((favorite) => favorite.expeditionId)
+    .some((f) => f === expedition?.id);
 
   return (
     <Card className="group relative flex h-full flex-col overflow-hidden border-border/60 pt-0 transition-all duration-300 hover:shadow-lg hover:border-border">
@@ -114,16 +109,17 @@ const AdventureExpeditionCard = ({
             {upperCaseFirstLetter(adventure.difficulty)}
           </span>
 
-          {!isAdventure && !isClosed && (
-            <span
-              className={cn(
-                "rounded-full border px-2.5 py-1 text-xs font-semibold backdrop-blur-md",
-                getAvailabilityStyles(),
-              )}
-            >
-              {slotsLeft} / {capacity} left
-            </span>
-          )}
+          {!isAdventure &&
+            !isAdmin &&
+            expedition &&
+            expedition.expeditionStatus === "scheduled" && (
+              <Button
+                onClick={() => toggleFavorites(expedition.id)}
+                className={` ${isFavoriteAdventure ? "text-accent bg-transparent" : "bg-black/40 backdrop-blur-sm text-secondary "}  rounded-full hover:bg-transparent  p-2 text-xs `}
+              >
+                {isFavoriteAdventure ? <FaHeart /> : <FaRegHeart />}
+              </Button>
+            )}
         </div>
       </div>
 
