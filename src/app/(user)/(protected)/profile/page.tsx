@@ -21,7 +21,7 @@ import { useFetchUserFavorites } from "@/hooks/favorites/fetchUserFavorites";
 import Image from "next/image";
 import { useFetchUserFavoriteMerchandise } from "@/hooks/favorites/merchandise/fetchUserFavoriteMerchandise";
 import { useGetSession } from "@/hooks/auth/useGetSession.hook";
-import { formatRelativeTime } from "@/utils/dateTimeFormat";
+import { formatDate } from "@/utils/dateTimeFormat";
 
 const unreadNotificationsCount = 3; // example – pull from your notifications query
 
@@ -65,7 +65,7 @@ export default function ProfilePage() {
 
                 <p className="text-muted-foreground">{user.email}</p>
                 <p className="text-sm text-muted-foreground">
-                  Member since {formatRelativeTime(user.createdAt)}
+                  Member since {formatDate(new Date(user.createdAt))}
                 </p>
               </div>
             </div>

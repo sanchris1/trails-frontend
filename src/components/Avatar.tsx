@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar, AvatarImage } from "./ui/avatar";
 import { ChevronDown, LogOut } from "lucide-react";
 import {
   DropdownMenu,

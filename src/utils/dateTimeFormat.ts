@@ -26,3 +26,10 @@ export function formatRelativeTime(dateString: string | Date): string {
     return rtf.format(Math.round(elapsed / msPerYear), "year");
   }
 }
+
+export const formatDate = (date: Date) =>
+  date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
