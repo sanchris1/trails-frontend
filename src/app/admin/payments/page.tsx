@@ -41,24 +41,37 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useUpdatePaymentAndBookingStatus } from "@/hooks/booking/admin/updatePaymentAndBookingStatus";
 
-type ReceiptStatus = "pending" | "cancelled" | "confirmed";
-type StatusFilter = "all" | ReceiptStatus;
+export type PaymentStatus =
+  | "pending"
+  | "partially_paid"
+  | "paid"
+  | "failed"
+  | "refunded";
+type StatusFilter = "all" | PaymentStatus;
 
-const statusConfig: Record<
-  ReceiptStatus,
+export const statusConfig: Record<
+  PaymentStatus,
   { label: string; className: string }
 > = {
-  confirmed: {
-    label: "Confirmed",
-    className: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
-  },
   pending: {
     label: "Pending",
     className: "bg-amber-500/10 text-amber-700 border-amber-500/20",
   },
-  cancelled: {
-    label: "Cancelled",
+  partially_paid: {
+    label: "Partially Paid",
+    className: "bg-blue-500/10 text-blue-700 border-blue-500/20",
+  },
+  paid: {
+    label: "Paid",
+    className: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
+  },
+  failed: {
+    label: "Failed",
     className: "bg-destructive/10 text-destructive border-destructive/20",
+  },
+  refunded: {
+    label: "Refunded",
+    className: "bg-purple-500/10 text-purple-700 border-purple-500/20",
   },
 };
 
@@ -121,16 +134,22 @@ export default function AdminPaymentsPage() {
     });
   }, [allReceipts, search, statusFilter]);
 
-  const confirmedCount = allReceipts.filter(
-    (payment) => payment.status === "confirmed",
+  const paidCount = allReceipts.filter(
+    (payment) => payment.status === "paid",
   ).length;
 
   const pendingCount = allReceipts.filter(
     (payment) => payment.status === "pending",
   ).length;
 
-  const cancelledCount = allReceipts.filter(
-    (payment) => payment.status === "cancelled",
+  const failedCount = allReceipts.filter(
+    (payment) => payment.status === "failed",
+  ).length;
+  const refundedCount = allReceipts.filter(
+    (payment) => payment.status === "refunded",
+  ).length;
+  const partialPaymentCount = allReceipts.filter(
+    (payment) => payment.status === "partially_paid",
   ).length;
 
   if (axios.isAxiosError(error)) {
@@ -191,9 +210,11 @@ export default function AdminPaymentsPage() {
 
       {/* Status summary */}
       <div className="mb-6 flex flex-wrap gap-2 text-xs text-muted-foreground">
-        <Badge variant="outline">Confirmed: {confirmedCount}</Badge>
+        <Badge variant="outline">Confirmed: {paidCount}</Badge>
         <Badge variant="outline">Pending: {pendingCount}</Badge>
-        <Badge variant="outline">Cancelled: {cancelledCount}</Badge>
+        <Badge variant="outline">Cancelled: {failedCount}</Badge>
+        <Badge variant="outline">Cancelled: {partialPaymentCount}</Badge>
+        <Badge variant="outline">Cancelled: {refundedCount}</Badge>
       </div>
 
       {/* Filters */}
@@ -319,17 +340,16 @@ export default function AdminPaymentsPage() {
 
                     <TableCell>
                       <div className="flex items-center gap-1.5 font-medium">
-                        {payment.status === "confirmed" && (
+                        {payment.status === "paid" && (
                           <ArrowUpRight className="h-3.5 w-3.5 text-emerald-600" />
                         )}
-                        {payment.status === "cancelled" && (
+                        {payment.status === "failed" && (
                           <XCircle className="h-3.5 w-3.5 text-destructive" />
                         )}
                         <span
                           className={cn(
-                            payment.status === "confirmed" &&
-                              "text-emerald-700",
-                            payment.status === "cancelled" &&
+                            payment.status === "paid" && "text-emerald-700",
+                            payment.status === "failed" &&
                               "text-muted-foreground line-through",
                           )}
                         >
@@ -343,10 +363,10 @@ export default function AdminPaymentsPage() {
                         variant="outline"
                         className={cn(
                           "font-medium",
-                          statusConfig[payment.status].className,
+                          statusConfig[payment.status]?.className,
                         )}
                       >
-                        {statusConfig[payment.status].label}
+                        {statusConfig[payment.status]?.label}
                       </Badge>
                     </TableCell>
 
@@ -367,7 +387,7 @@ export default function AdminPaymentsPage() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem>View details</DropdownMenuItem>
                           <DropdownMenuItem>View booking</DropdownMenuItem>
-                          {payment.status === "confirmed" && (
+                          {payment.status === "paid" && (
                             <DropdownMenuItem
                               className="text-destructive"
                               onClick={() =>
@@ -381,12 +401,13 @@ export default function AdminPaymentsPage() {
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem
-                            onClick={() =>
+                            onClick={() => {
                               updateStatus({
                                 bookingId: payment.bookingId,
                                 status: "paid",
-                              })
-                            }
+                              });
+                              console.log(payment.status);
+                            }}
                           >
                             Mark as paid
                           </DropdownMenuItem>

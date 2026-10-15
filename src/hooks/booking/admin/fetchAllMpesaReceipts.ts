@@ -1,3 +1,4 @@
+import { PaymentStatus } from "@/app/admin/payments/page";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 
@@ -16,7 +17,7 @@ interface FetchReceiptsResponse {
     userEmail: string;
     title: string;
     amount: number;
-    status: "pending" | "cancelled" | "confirmed";
+    status: PaymentStatus;
     paymentDate: string;
     receiptNumber: string;
     bookingId: string;
