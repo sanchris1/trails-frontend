@@ -15,6 +15,31 @@ export function useToggleFavorites() {
 
   return useMutation({
     mutationFn: toggleFavorites,
+
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ["user-favorites"] });
+
+      const previousFavorites = queryClient.getQueryData(["user-favorites"]);
+
+      queryClient.setQueryData(["user-favorites"], (old: any) => {
+        if (!old.allFavorites) return old;
+
+        const exists = old.allFavorites.some(
+          (item: any) => String(item.id) === id,
+        );
+
+        return {
+          ...old,
+          allFavorites: exists
+            ? old.allFavorites.filter(
+                (favorite: any) => String(favorite.id) !== id,
+              )
+            : old.allFavorites,
+        };
+      });
+      return previousFavorites;
+    },
+
     onSuccess: (data) => {
       toast.success(data.message);
       return Promise.all([
