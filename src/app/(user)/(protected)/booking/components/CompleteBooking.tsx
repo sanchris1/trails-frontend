@@ -76,10 +76,10 @@ export default function CompleteYourBookingPage({
     mutationFn: sendReceiptNumber,
     onSuccess: (data: any) => {
       toast.success(data?.message);
-      router.replace("/");
+      router.replace("/profile");
     },
     onError: (ctx: any) => {
-      toast.error(ctx?.message || "Error sending the receipt");
+      toast.error(ctx?.message || "Error sending the receipt number");
     },
   });
 

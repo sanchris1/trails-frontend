@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -22,159 +23,59 @@ import {
 import {
   Search,
   Filter,
-  MoreHorizontal,
   CreditCard,
   ArrowUpRight,
-  ArrowDownLeft,
+  Clock,
+  XCircle,
+  RefreshCw,
+  MoreHorizontal,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useFetchAllMpesaReceipts } from "@/hooks/booking/admin/fetchAllMpesaReceipts";
+import axios from "axios";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { useUpdatePaymentAndBookingStatus } from "@/hooks/booking/admin/updatePaymentAndBookingStatus";
 
-type PaymentStatus = "completed" | "pending" | "failed" | "refunded";
-type PaymentMethod = "mpesa" | "card" | "bank";
-
-interface Payment {
-  id: string;
-  bookingId: string;
-  customerName: string;
-  customerEmail: string;
-  trailName: string;
-  amount: number;
-  method: PaymentMethod;
-  status: PaymentStatus;
-  transactionRef?: string;
-  createdAt: string;
-}
-
-const mockPayments: Payment[] = [
-  {
-    id: "PAY-9001",
-    bookingId: "BK-1048",
-    customerName: "John Doe",
-    customerEmail: "john@email.com",
-    trailName: "Mount Longonot Day Hike",
-    amount: 8500,
-    method: "mpesa",
-    status: "completed",
-    transactionRef: "QGX7K2M91A",
-    createdAt: "2026-09-15T10:22:00Z",
-  },
-  {
-    id: "PAY-9002",
-    bookingId: "BK-1047",
-    customerName: "Sarah Wanjiku",
-    customerEmail: "sarah@email.com",
-    trailName: "Aberdare Weekend Trek",
-    amount: 32000,
-    method: "card",
-    status: "pending",
-    createdAt: "2026-09-16T14:08:00Z",
-  },
-  {
-    id: "PAY-9003",
-    bookingId: "BK-1046",
-    customerName: "James Mwangi",
-    customerEmail: "james@email.com",
-    trailName: "Hell's Gate Walking Safari",
-    amount: 4500,
-    method: "mpesa",
-    status: "refunded",
-    transactionRef: "QGX7K2M88B",
-    createdAt: "2026-09-14T09:15:00Z",
-  },
-  {
-    id: "PAY-9004",
-    bookingId: "BK-1045",
-    customerName: "Grace Akinyi",
-    customerEmail: "grace@email.com",
-    trailName: "Ngong Hills Sunrise Hike",
-    amount: 12000,
-    method: "mpesa",
-    status: "completed",
-    transactionRef: "QGX7K2M70C",
-    createdAt: "2026-09-08T16:42:00Z",
-  },
-  {
-    id: "PAY-9005",
-    bookingId: "BK-1044",
-    customerName: "David Otieno",
-    customerEmail: "david@email.com",
-    trailName: "Mount Longonot Day Hike",
-    amount: 8500,
-    method: "bank",
-    status: "completed",
-    transactionRef: "BNK-55201",
-    createdAt: "2026-09-13T11:35:00Z",
-  },
-  {
-    id: "PAY-9006",
-    bookingId: "BK-1043",
-    customerName: "Mary Njeri",
-    customerEmail: "mary@email.com",
-    trailName: "Karura Forest Nature Walk",
-    amount: 7500,
-    method: "mpesa",
-    status: "failed",
-    transactionRef: "QGX7K2M55D",
-    createdAt: "2026-09-16T08:18:00Z",
-  },
-  {
-    id: "PAY-9007",
-    bookingId: "BK-1042",
-    customerName: "Peter Kamau",
-    customerEmail: "peter@email.com",
-    trailName: "Ngong Hills Sunrise Hike",
-    amount: 4000,
-    method: "card",
-    status: "completed",
-    transactionRef: "CARD-88921",
-    createdAt: "2026-09-11T13:00:00Z",
-  },
-];
+type ReceiptStatus = "pending" | "cancelled" | "confirmed";
+type StatusFilter = "all" | ReceiptStatus;
 
 const statusConfig: Record<
-  PaymentStatus,
+  ReceiptStatus,
   { label: string; className: string }
 > = {
-  completed: {
-    label: "Completed",
+  confirmed: {
+    label: "Confirmed",
     className: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
   },
   pending: {
     label: "Pending",
     className: "bg-amber-500/10 text-amber-700 border-amber-500/20",
   },
-  failed: {
-    label: "Failed",
+  cancelled: {
+    label: "Cancelled",
     className: "bg-destructive/10 text-destructive border-destructive/20",
   },
-  refunded: {
-    label: "Refunded",
-    className: "bg-blue-500/10 text-blue-700 border-blue-500/20",
-  },
-};
-
-const methodLabels: Record<PaymentMethod, string> = {
-  mpesa: "M-Pesa",
-  card: "Card",
-  bank: "Bank transfer",
 };
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat("en-KE", {
     style: "currency",
     currency: "KES",
-    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(amount);
 }
 
 function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleString("en-KE", {
+  const date = new Date(dateString);
+
+  if (Number.isNaN(date.getTime())) return "—";
+
+  return date.toLocaleString("en-KE", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -184,81 +85,115 @@ function formatDate(dateString: string) {
 }
 
 export default function AdminPaymentsPage() {
-  const [payments] = useState<Payment[]>(mockPayments);
+  const { data, isLoading, isError, error, refetch, isFetching } =
+    useFetchAllMpesaReceipts();
+
+  const { mutate: updateStatus } = useUpdatePaymentAndBookingStatus();
+
+  const stats = data?.stats ?? {
+    totalRevenue: 0,
+    pendingRevenue: 0,
+    refundedRevenue: 0,
+    transactionsCount: 0,
+  };
+
+  const allReceipts = data?.allReceipts ?? [];
+
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | PaymentStatus>(
-    "all",
-  );
-  const [methodFilter, setMethodFilter] = useState<"all" | PaymentMethod>(
-    "all",
-  );
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
-  const filtered = payments.filter((p) => {
-    const matchesSearch =
-      p.customerName.toLowerCase().includes(search.toLowerCase()) ||
-      p.id.toLowerCase().includes(search.toLowerCase()) ||
-      p.bookingId.toLowerCase().includes(search.toLowerCase()) ||
-      p.transactionRef?.toLowerCase().includes(search.toLowerCase()) ||
-      p.trailName.toLowerCase().includes(search.toLowerCase());
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase();
 
-    const matchesStatus = statusFilter === "all" || p.status === statusFilter;
+    return allReceipts.filter((payment) => {
+      const matchesSearch =
+        !term ||
+        payment.userName.toLowerCase().includes(term) ||
+        payment.userEmail.toLowerCase().includes(term) ||
+        payment.id.toLowerCase().includes(term) ||
+        (payment.paymentReceiptId?.toLowerCase().includes(term) ?? false) ||
+        payment.title.toLowerCase().includes(term);
 
-    const matchesMethod = methodFilter === "all" || p.method === methodFilter;
+      const matchesStatus =
+        statusFilter === "all" || payment.status === statusFilter;
 
-    return matchesSearch && matchesStatus && matchesMethod;
-  });
+      return matchesSearch && matchesStatus;
+    });
+  }, [allReceipts, search, statusFilter]);
 
-  const completedPayments = payments.filter((p) => p.status === "completed");
-  const totalRevenue = completedPayments.reduce((sum, p) => sum + p.amount, 0);
-  const pendingAmount = payments
-    .filter((p) => p.status === "pending")
-    .reduce((sum, p) => sum + p.amount, 0);
-  const refundedAmount = payments
-    .filter((p) => p.status === "refunded")
-    .reduce((sum, p) => sum + p.amount, 0);
+  const confirmedCount = allReceipts.filter(
+    (payment) => payment.status === "confirmed",
+  ).length;
 
+  const pendingCount = allReceipts.filter(
+    (payment) => payment.status === "pending",
+  ).length;
+
+  const cancelledCount = allReceipts.filter(
+    (payment) => payment.status === "cancelled",
+  ).length;
+
+  if (axios.isAxiosError(error)) {
+    console.error(error.response);
+  }
+  console.log(error);
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div className=" py-8 px-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Payments
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Track booking payments, refunds, and transaction status.
-        </p>
+      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Payments
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Track booking payments, receipts, and transaction status.
+          </p>
+        </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => void refetch()}
+          disabled={isFetching}
+        >
+          <RefreshCw
+            className={cn("mr-2 h-4 w-4", isFetching && "animate-spin")}
+          />
+          Refresh
+        </Button>
       </div>
 
       {/* Stats */}
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs font-medium text-muted-foreground">
-            Total revenue
-          </p>
-          <p className="mt-1 text-xl font-semibold text-foreground sm:text-2xl">
-            {formatCurrency(totalRevenue)}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs font-medium text-muted-foreground">Pending</p>
-          <p className="mt-1 text-xl font-semibold text-amber-600 sm:text-2xl">
-            {formatCurrency(pendingAmount)}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs font-medium text-muted-foreground">Refunded</p>
-          <p className="mt-1 text-xl font-semibold text-blue-600 sm:text-2xl">
-            {formatCurrency(refundedAmount)}
-          </p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-4">
-          <p className="text-xs font-medium text-muted-foreground">
-            Transactions
-          </p>
-          <p className="mt-1 text-xl font-semibold text-foreground sm:text-2xl">
-            {payments.length}
-          </p>
-        </div>
+      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Total revenue"
+          value={formatCurrency(stats.totalRevenue)}
+          icon={<ArrowUpRight className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Pending payments"
+          value={formatCurrency(stats.pendingRevenue)}
+          icon={<Clock className="h-4 w-4" />}
+          valueClassName="text-amber-600"
+        />
+        <StatCard
+          label="Refunded revenue"
+          value={formatCurrency(stats.refundedRevenue)}
+          icon={<RefreshCw className="h-4 w-4" />}
+          valueClassName="text-blue-600"
+        />
+        <StatCard
+          label="Transactions"
+          value={String(stats.transactionsCount)}
+          icon={<CreditCard className="h-4 w-4" />}
+        />
+      </div>
+
+      {/* Status summary */}
+      <div className="mb-6 flex flex-wrap gap-2 text-xs text-muted-foreground">
+        <Badge variant="outline">Confirmed: {confirmedCount}</Badge>
+        <Badge variant="outline">Pending: {pendingCount}</Badge>
+        <Badge variant="outline">Cancelled: {cancelledCount}</Badge>
       </div>
 
       {/* Filters */}
@@ -266,171 +201,248 @@ export default function AdminPaymentsPage() {
         <div className="relative max-w-sm flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Search by customer, booking, ref, or trail..."
+            placeholder="Search customer, booking, receipt, or trail..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(event) => setSearch(event.target.value)}
             className="pl-9"
           />
         </div>
 
-        <div className="flex gap-3">
-          <Select
-            value={statusFilter}
-            onValueChange={(v) => setStatusFilter(v as "all" | PaymentStatus)}
-          >
-            <SelectTrigger className="w-35">
-              <Filter className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="failed">Failed</SelectItem>
-              <SelectItem value="refunded">Refunded</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={methodFilter}
-            onValueChange={(v) => setMethodFilter(v as "all" | PaymentMethod)}
-          >
-            <SelectTrigger className="w-37.5">
-              <CreditCard className="mr-2 h-4 w-4" />
-              <SelectValue placeholder="Method" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All methods</SelectItem>
-              <SelectItem value="mpesa">M-Pesa</SelectItem>
-              <SelectItem value="card">Card</SelectItem>
-              <SelectItem value="bank">Bank transfer</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <Select
+          value={statusFilter}
+          onValueChange={(value) => setStatusFilter(value as StatusFilter)}
+        >
+          <SelectTrigger className="w-full sm:w-48">
+            <Filter className="mr-2 h-4 w-4" />
+            <SelectValue placeholder="Filter status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="confirmed">Confirmed</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-border bg-card overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Payment</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Trail / Booking</TableHead>
-              <TableHead>Method</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="w-12.5" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.length === 0 ? (
+      <div className="overflow-hidden rounded-xl border border-border bg-card">
+        {isLoading ? (
+          <div className="flex min-h-48 items-center justify-center gap-2 text-sm text-muted-foreground">
+            <RefreshCw className="h-4 w-4 animate-spin" />
+            Loading payments...
+          </div>
+        ) : isError ? (
+          <div className="flex min-h-48 flex-col items-center justify-center gap-3 p-6 text-center">
+            <XCircle className="h-8 w-8 text-destructive" />
+            <p className="text-sm font-medium">Could not load payments.</p>
+            <p className="text-xs text-muted-foreground">
+              {error instanceof Error
+                ? error.message
+                : "An unexpected error occurred."}
+            </p>
+            <Button variant="outline" size="sm" onClick={() => void refetch()}>
+              Try again
+            </Button>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={8} className="h-32 text-center">
-                  <p className="text-sm text-muted-foreground">
-                    No payments found
-                  </p>
-                </TableCell>
+                <TableHead>Booking / Receipt</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead>Trail / Product</TableHead>
+                <TableHead>Method</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
-            ) : (
-              filtered.map((payment) => (
-                <TableRow key={payment.id}>
-                  <TableCell>
-                    <p className="font-medium text-foreground">{payment.id}</p>
-                    {payment.transactionRef && (
-                      <p className="text-xs text-muted-foreground font-mono">
-                        {payment.transactionRef}
-                      </p>
+            </TableHeader>
+
+            <TableBody>
+              {filtered.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="h-32 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      {allReceipts.length === 0
+                        ? "No payment records found."
+                        : "No payments match your search or filters."}
+                    </p>
+                    {(search || statusFilter !== "all") && (
+                      <Button
+                        variant="link"
+                        size="sm"
+                        onClick={() => {
+                          setSearch("");
+                          setStatusFilter("all");
+                        }}
+                      >
+                        Clear filters
+                      </Button>
                     )}
                   </TableCell>
+                </TableRow>
+              ) : (
+                filtered.map((payment) => (
+                  <TableRow key={payment.id}>
+                    <TableCell>
+                      <p className="font-medium text-foreground">
+                        {payment.receiptNumber}
+                      </p>
+                      <p className="font-mono text-xs text-muted-foreground">
+                        Receipt: {payment.paymentReceiptId ?? "Not available"}
+                      </p>
+                    </TableCell>
 
-                  <TableCell>
-                    <p className="font-medium text-foreground">
-                      {payment.customerName}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {payment.customerEmail}
-                    </p>
-                  </TableCell>
+                    <TableCell>
+                      <p className="font-medium text-foreground">
+                        {payment.userName}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {payment.userEmail}
+                      </p>
+                    </TableCell>
 
-                  <TableCell>
-                    <p className="text-sm text-foreground line-clamp-1">
-                      {payment.trailName}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {payment.bookingId}
-                    </p>
-                  </TableCell>
+                    <TableCell>
+                      <p className="line-clamp-2 text-sm text-foreground">
+                        {payment.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Booking ID: {payment.id}
+                      </p>
+                    </TableCell>
 
-                  <TableCell>
-                    <span className="text-sm">
-                      {methodLabels[payment.method]}
-                    </span>
-                  </TableCell>
+                    <TableCell>
+                      <span className="text-sm">M-Pesa</span>
+                    </TableCell>
 
-                  <TableCell>
-                    <div className="flex items-center gap-1.5 font-medium">
-                      {payment.status === "refunded" ? (
-                        <ArrowDownLeft className="h-3.5 w-3.5 text-blue-600" />
-                      ) : payment.status === "completed" ? (
-                        <ArrowUpRight className="h-3.5 w-3.5 text-emerald-600" />
-                      ) : null}
-                      <span
+                    <TableCell>
+                      <div className="flex items-center gap-1.5 font-medium">
+                        {payment.status === "confirmed" && (
+                          <ArrowUpRight className="h-3.5 w-3.5 text-emerald-600" />
+                        )}
+                        {payment.status === "cancelled" && (
+                          <XCircle className="h-3.5 w-3.5 text-destructive" />
+                        )}
+                        <span
+                          className={cn(
+                            payment.status === "confirmed" &&
+                              "text-emerald-700",
+                            payment.status === "cancelled" &&
+                              "text-muted-foreground line-through",
+                          )}
+                        >
+                          {formatCurrency(payment.amount)}
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    <TableCell>
+                      <Badge
+                        variant="outline"
                         className={cn(
-                          payment.status === "refunded" && "text-blue-600",
-                          payment.status === "failed" &&
-                            "text-muted-foreground line-through",
+                          "font-medium",
+                          statusConfig[payment.status].className,
                         )}
                       >
-                        {formatCurrency(payment.amount)}
-                      </span>
-                    </div>
-                  </TableCell>
+                        {statusConfig[payment.status].label}
+                      </Badge>
+                    </TableCell>
 
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={cn(
-                        "font-medium",
-                        statusConfig[payment.status].className,
-                      )}
-                    >
-                      {statusConfig[payment.status].label}
-                    </Badge>
-                  </TableCell>
-
-                  <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
-                    {formatDate(payment.createdAt)}
-                  </TableCell>
-
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View details</DropdownMenuItem>
-                        <DropdownMenuItem>View booking</DropdownMenuItem>
-                        {payment.status === "completed" && (
-                          <DropdownMenuItem className="text-destructive">
-                            Issue refund
+                    <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
+                      {formatDate(payment.paymentDate)}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>View details</DropdownMenuItem>
+                          <DropdownMenuItem>View booking</DropdownMenuItem>
+                          {payment.status === "confirmed" && (
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() =>
+                                updateStatus({
+                                  bookingId: payment.bookingId,
+                                  status: "refunded",
+                                })
+                              }
+                            >
+                              Issue refund
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            onClick={() =>
+                              updateStatus({
+                                bookingId: payment.bookingId,
+                                status: "paid",
+                              })
+                            }
+                          >
+                            Mark as paid
                           </DropdownMenuItem>
-                        )}
-                        {payment.status === "pending" && (
-                          <DropdownMenuItem>Mark as paid</DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+                          <DropdownMenuItem
+                            onClick={() =>
+                              updateStatus({
+                                bookingId: payment.bookingId,
+                                status: "partially_paid",
+                              })
+                            }
+                          >
+                            Mark as paid partially
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        )}
       </div>
+
+      <p className="mt-3 text-xs text-muted-foreground">
+        Showing {filtered.length} of {allReceipts.length} records
+      </p>
+    </div>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  icon,
+  valueClassName,
+}: {
+  label: string;
+  value: string;
+  icon: React.ReactNode;
+  valueClassName?: string;
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <span className="text-muted-foreground">{icon}</span>
+      </div>
+      <p
+        className={cn(
+          "mt-2 text-xl font-semibold text-foreground sm:text-2xl",
+          valueClassName,
+        )}
+      >
+        {value}
+      </p>
     </div>
   );
 }

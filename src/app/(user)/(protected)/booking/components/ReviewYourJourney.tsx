@@ -61,6 +61,7 @@ export default function ReviewYourJourneyPage({
         queryClient.invalidateQueries({ queryKey: ["notifications"] }),
         queryClient.invalidateQueries({ queryKey: ["bookings"] }),
         queryClient.invalidateQueries({ queryKey: ["admin-stats"] }),
+        queryClient.invalidateQueries({ queryKey: ["mpesa-receipt"] }),
       ]);
     },
     onError: (error: any) => {
