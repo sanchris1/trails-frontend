@@ -7,97 +7,12 @@ import {
   Heart,
   MapPin,
   Calendar,
-  Star,
   ShoppingBag,
   ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-
-type FavoriteType = "trail" | "merchandise";
-
-interface FavoriteItem {
-  id: string;
-  type: FavoriteType;
-  name: string;
-  image: string;
-  // Trail fields
-  location?: string;
-  duration?: string;
-  difficulty?: string;
-  rating?: number;
-  // Merch fields
-  price?: number;
-  category?: string;
-  inStock?: boolean;
-  savedAt: string;
-}
-
-const mockFavorites: FavoriteItem[] = [
-  {
-    id: "fav-1",
-    type: "trail",
-    name: "Mount Longonot Day Hike",
-    image: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=400",
-    location: "Naivasha",
-    duration: "6–7 hours",
-    difficulty: "Moderate",
-    rating: 4.8,
-    savedAt: "2026-09-10T12:00:00Z",
-  },
-  {
-    id: "fav-2",
-    type: "merchandise",
-    name: "Mara Expedition Heavyweight Tee",
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400",
-    price: 6500,
-    category: "Apparel",
-    inStock: true,
-    savedAt: "2026-09-12T09:30:00Z",
-  },
-  {
-    id: "fav-3",
-    type: "trail",
-    name: "Ngong Hills Sunrise Hike",
-    image: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400",
-    location: "Kajiado",
-    duration: "4–5 hours",
-    difficulty: "Easy–Moderate",
-    rating: 4.9,
-    savedAt: "2026-09-08T15:20:00Z",
-  },
-  {
-    id: "fav-4",
-    type: "merchandise",
-    name: "Trail Icon Sticker Pack",
-    image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400",
-    price: 1200,
-    category: "Accessories",
-    inStock: true,
-    savedAt: "2026-09-14T11:00:00Z",
-  },
-  {
-    id: "fav-5",
-    type: "trail",
-    name: "Aberdare Weekend Trek",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400",
-    location: "Nyeri",
-    duration: "2 days",
-    difficulty: "Challenging",
-    rating: 4.7,
-    savedAt: "2026-09-05T08:45:00Z",
-  },
-  {
-    id: "fav-6",
-    type: "merchandise",
-    name: "Summit Fleece Hoodie",
-    image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400",
-    price: 9800,
-    category: "Apparel",
-    inStock: false,
-    savedAt: "2026-09-11T17:10:00Z",
-  },
-];
+import { useFetchAllAdminFavorites } from "@/hooks/favorites/fetchAllFavorites";
 
 function formatCurrency(amount: number) {
   return new Intl.NumberFormat("en-KE", {
@@ -115,20 +30,21 @@ function formatDate(dateString: string) {
 }
 
 export default function FavoritesPage() {
-  const [favorites, setFavorites] = useState<FavoriteItem[]>(mockFavorites);
-  const [filter, setFilter] = useState<"all" | FavoriteType>("all");
+  const { data: { allFavorites = [] } = {} } = useFetchAllAdminFavorites();
+
+  const [filter, setFilter] = useState<"all" | "merchandise" | "expedition">(
+    "all",
+  );
 
   const filtered =
     filter === "all"
-      ? favorites
-      : favorites.filter((item) => item.type === filter);
+      ? allFavorites
+      : allFavorites.filter((item) => item.type === filter);
 
-  const trailCount = favorites.filter((f) => f.type === "trail").length;
-  const merchCount = favorites.filter((f) => f.type === "merchandise").length;
-
-  const removeFavorite = (id: string) => {
-    setFavorites((prev) => prev.filter((f) => f.id !== id));
-  };
+  const trailCount = allFavorites.filter((f) => f.type === "expedition").length;
+  const merchCount = allFavorites.filter(
+    (f) => f.type === "merchandise",
+  ).length;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -149,12 +65,12 @@ export default function FavoritesPage() {
           size="sm"
           onClick={() => setFilter("all")}
         >
-          All ({favorites.length})
+          All ({allFavorites.length})
         </Button>
         <Button
-          variant={filter === "trail" ? "default" : "outline"}
+          variant={filter === "expedition" ? "default" : "outline"}
           size="sm"
-          onClick={() => setFilter("trail")}
+          onClick={() => setFilter("expedition")}
         >
           Trails ({trailCount})
         </Button>
@@ -193,8 +109,8 @@ export default function FavoritesPage() {
               {/* Image */}
               <div className="relative aspect-4/3 overflow-hidden bg-muted">
                 <Image
-                  src={item.image}
-                  alt={item.name}
+                  src={item.image ?? ""}
+                  alt={item.title}
                   fill
                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                   unoptimized
@@ -205,28 +121,18 @@ export default function FavoritesPage() {
                   className="absolute left-3 top-3 text-[10px]"
                   variant="secondary"
                 >
-                  {item.type === "trail" ? "Trail" : "Merch"}
+                  {item.type === "expedition" ? "Trail" : "Merch"}
                 </Badge>
-
-                {/* Remove button */}
-                <button
-                  type="button"
-                  onClick={() => removeFavorite(item.id)}
-                  className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-background/90 text-destructive shadow-sm backdrop-blur transition-opacity hover:bg-background"
-                  title="Remove from favorites"
-                >
-                  <Heart className="h-4 w-4 fill-current" />
-                </button>
               </div>
 
               {/* Content */}
               <div className="space-y-3 p-4">
                 <div>
                   <h3 className="font-semibold text-foreground line-clamp-1">
-                    {item.name}
+                    {item.title}
                   </h3>
 
-                  {item.type === "trail" ? (
+                  {item.type === "expedition" ? (
                     <div className="mt-1.5 space-y-1">
                       <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <MapPin className="h-3.5 w-3.5" />
@@ -237,12 +143,6 @@ export default function FavoritesPage() {
                           <Calendar className="h-3.5 w-3.5" />
                           {item.duration}
                         </span>
-                        {item.rating && (
-                          <span className="flex items-center gap-1">
-                            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                            {item.rating}
-                          </span>
-                        )}
                       </div>
                       {item.difficulty && (
                         <Badge variant="outline" className="mt-1 text-[10px]">
@@ -263,12 +163,12 @@ export default function FavoritesPage() {
                           variant="outline"
                           className={cn(
                             "text-[10px]",
-                            item.inStock
+                            item.stock > 0
                               ? "border-emerald-500/30 text-emerald-700"
                               : "border-destructive/30 text-destructive",
                           )}
                         >
-                          {item.inStock ? "In stock" : "Out of stock"}
+                          {item.stock > 0 ? "In stock" : "Out of stock"}
                         </Badge>
                       </div>
                     </div>
@@ -281,7 +181,7 @@ export default function FavoritesPage() {
                   </span>
 
                   <Button variant="outline" size="sm" className="h-8 gap-1.5">
-                    {item.type === "trail" ? (
+                    {item.type === "expedition" ? (
                       <>
                         <ExternalLink className="h-3.5 w-3.5" />
                         View trail

@@ -17,7 +17,10 @@ export function useToggleFavorites() {
     mutationFn: toggleFavorites,
     onSuccess: (data) => {
       toast.success(data.message);
-      queryClient.invalidateQueries({ queryKey: ["user-favorites"] });
+      return Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["user-favorites"] }),
+        queryClient.invalidateQueries({ queryKey: ["admin-favorites"] }),
+      ]);
     },
 
     onError: (error: any) => {

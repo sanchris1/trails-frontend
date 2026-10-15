@@ -17,9 +17,17 @@ export function useToggleUserFavoriteMerchandise() {
     mutationFn: toggleUserFavoriteMerchandise,
     onSuccess: (data) => {
       toast.success(data.message);
-      queryClient.invalidateQueries({
-        queryKey: ["user-favorite-merchandise"],
-      });
+      return Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ["user-favorite-merchandise"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["admin-favorites"],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ["user-favorites"],
+        }),
+      ]);
     },
 
     onError: (error: any) => {
