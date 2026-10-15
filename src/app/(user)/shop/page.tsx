@@ -32,8 +32,6 @@ const ShopPage = () => {
   const { mutate: toggleFavoriteMerchandise } =
     useToggleUserFavoriteMerchandise();
 
-  console.log(allUserFavoritesMerchandise);
-
   return (
     <div>
       <ShopHeader />

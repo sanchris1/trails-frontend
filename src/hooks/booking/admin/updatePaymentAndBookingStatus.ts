@@ -22,14 +22,12 @@ export const useUpdatePaymentAndBookingStatus = () => {
   return useMutation({
     mutationFn: updatePaymentAndBookingStatus,
     onSuccess: ({ data }) => {
-      console.log(data);
       toast.success(data?.message || "Successfully updated the status");
       return Promise.all([
         queryClient.invalidateQueries({ queryKey: ["mpesa-receipt"] }),
       ]);
     },
     onError: ({ data }) => {
-      console.log(data);
       toast.error(data?.message || "Failed to update the status");
     },
   });

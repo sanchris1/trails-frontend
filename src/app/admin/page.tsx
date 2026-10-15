@@ -79,8 +79,6 @@ export default function AdminDashboardPage() {
   const { data: stats = {} as AdminStatsResponse } =
     useFetchAdminDashboardStats();
 
-  console.log(stats);
-
   const kpis = [
     {
       label: "Revenue (this month)",

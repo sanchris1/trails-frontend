@@ -401,13 +401,12 @@ export default function AdminPaymentsPage() {
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem
-                            onClick={() => {
+                            onClick={() =>
                               updateStatus({
                                 bookingId: payment.bookingId,
                                 status: "paid",
-                              });
-                              console.log(payment.status);
-                            }}
+                              })
+                            }
                           >
                             Mark as paid
                           </DropdownMenuItem>
