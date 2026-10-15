@@ -14,11 +14,13 @@ export type FavoriteTrail = {
   savedAt: string;
   type: "expedition";
   href: string;
+  likesCount: number;
 };
 
 export type FavoriteProduct = {
   favoriteId: string;
   id: string;
+  likesCount: number;
   title: string;
   image: string | null;
   category: string;

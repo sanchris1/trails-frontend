@@ -117,12 +117,19 @@ export default function FavoritesPage() {
                 />
 
                 {/* Type badge */}
-                <Badge
-                  className="absolute left-3 top-3 text-[10px]"
-                  variant="secondary"
-                >
-                  {item.type === "expedition" ? "Trail" : "Merch"}
-                </Badge>
+                <div className="absolute left-3 top-3 flex items-center gap-2">
+                  <Badge variant="secondary" className="text-[10px]">
+                    {item.type === "expedition" ? "Trail" : "Merch"}
+                  </Badge>
+
+                  <Badge
+                    variant="secondary"
+                    className="flex items-center gap-1 text-[10px]"
+                  >
+                    <Heart className="h-3 w-3" />
+                    {item.likesCount} {item.likesCount > 1 ? "likes" : "like"}
+                  </Badge>
+                </div>
               </div>
 
               {/* Content */}
