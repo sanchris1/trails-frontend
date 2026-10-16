@@ -10,7 +10,6 @@ import toast from "react-hot-toast";
 import InputComponent from "@/components/common/InputComponent";
 import Logo from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
-// import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
