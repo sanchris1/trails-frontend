@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function proxy(request: NextRequest) {
-  const protectedRoutes = ["/booking", "/admin"];
+export function middleware(request: NextRequest) {
+  const protectedRoutes = ["/booking", "/admin", "/profile", "/bookings"];
   const { pathname } = request.nextUrl;
 
   const isProtected = protectedRoutes.some(
-    (item) => pathname === item || pathname.startsWith(`${item}/`),
+    (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
 
   if (!isProtected) {
@@ -27,5 +27,10 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/booking"],
+  matcher: [
+    "/booking/:path*",
+    "/admin/:path*",
+    "/profile/:path*",
+    "/bookings/:path*",
+  ],
 };

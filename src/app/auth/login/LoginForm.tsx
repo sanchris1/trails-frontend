@@ -31,8 +31,6 @@ const LoginForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/expeditions";
-
   const queryClient = useQueryClient();
 
   const { mutate: login, isPending: loading } = useMutation({
@@ -45,8 +43,15 @@ const LoginForm = () => {
     onSuccess: async (data) => {
       tokenStore.set(data.accessToken);
       toast.success(data?.message || "Login success");
-      router.push(callbackUrl);
+
       await queryClient.invalidateQueries({ queryKey: ["session"] });
+
+      const raw = searchParams.get("callbackUrl") ?? "/expeditions";
+      const safeCallback =
+        raw.startsWith("/") && !raw.startsWith("//") ? raw : "/expeditions";
+
+      router.replace(safeCallback);
+      router.refresh();
     },
   });
 
