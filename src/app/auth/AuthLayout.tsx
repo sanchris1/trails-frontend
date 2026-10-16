@@ -20,10 +20,6 @@ const AuthLayout = ({ children }: { children: ReactNode }) => {
     router.replace(safeCallback);
   }, [session, isLoading, router, searchParams]);
 
-  if (isLoading || session) {
-    return null;
-  }
-
   return <>{children}</>;
 };
 
