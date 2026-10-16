@@ -5,11 +5,23 @@ import toast from "react-hot-toast";
 async function updatePaymentAndBookingStatus({
   bookingId,
   status,
+  amountPaid,
 }: {
   bookingId: string;
   status: string;
+  amountPaid?: string | number;
 }) {
-  const { data } = await api.put(`/booking/update-status/${bookingId}`, {
+  const params = new URLSearchParams();
+
+  if (amountPaid !== undefined && amountPaid !== "") {
+    params.set("amountPaid", String(amountPaid));
+  }
+
+  const query = params.toString();
+
+  const url = `booking/update-status/${bookingId}${query ? `?${query}` : ""}`;
+
+  const { data } = await api.put(url, {
     status,
   });
 

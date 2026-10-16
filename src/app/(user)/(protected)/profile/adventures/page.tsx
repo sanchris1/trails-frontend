@@ -17,62 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-
-// Mock data based on your schema (replace with real data later)
-const mockBookings = [
-  {
-    id: "bk_001",
-    expeditionId: "exp_1",
-    expeditionTitle: "Maasai Mara Sunrise Safari",
-    location: "Maasai Mara",
-    departureDate: "2026-11-15",
-    returnDate: "2026-11-17",
-    numberOfParticipants: 2,
-    bookingStatus: "confirmed",
-    paymentStatus: "partially_paid", // ← needs payment
-    totalAmount: 45000,
-    amountPaid: 20000,
-  },
-  {
-    id: "bk_002",
-    expeditionId: "exp_2",
-    expeditionTitle: "Mount Kenya Summit Trek",
-    location: "Mount Kenya",
-    departureDate: "2026-12-02",
-    returnDate: "2026-12-06",
-    numberOfParticipants: 1,
-    bookingStatus: "confirmed",
-    paymentStatus: "paid",
-    totalAmount: 68000,
-    amountPaid: 68000,
-  },
-  {
-    id: "bk_003",
-    expeditionId: "exp_3",
-    expeditionTitle: "Diani Beach Cultural Escape",
-    location: "Diani",
-    departureDate: "2027-01-10",
-    returnDate: "2027-01-13",
-    numberOfParticipants: 3,
-    bookingStatus: "pending",
-    paymentStatus: "pending", // ← needs payment
-    totalAmount: 32000,
-    amountPaid: 0,
-  },
-  {
-    id: "bk_004",
-    expeditionId: "exp_4",
-    expeditionTitle: "Amboseli Elephant Walk",
-    location: "Amboseli",
-    departureDate: "2026-09-20",
-    returnDate: "2026-09-22",
-    numberOfParticipants: 2,
-    bookingStatus: "confirmed",
-    paymentStatus: "paid",
-    totalAmount: 28000,
-    amountPaid: 28000,
-  },
-];
+import { useFetchUserBookings } from "@/hooks/booking/useFetchUserBookings";
 
 function getPaymentBadge(status: string) {
   switch (status) {
@@ -134,6 +79,12 @@ export default function MyAdventuresPage() {
   const needsPayment = (status: string) =>
     status === "pending" || status === "partially_paid";
 
+  const { data } = useFetchUserBookings();
+
+  const userBookings = data?.userBookings ?? [];
+
+  console.log(data);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -160,7 +111,7 @@ export default function MyAdventuresPage() {
 
       {/* Bookings List */}
       <section className="container mx-auto max-w-5xl px-4 py-10">
-        {mockBookings.length === 0 ? (
+        {userBookings.length === 0 ? (
           <Card className="border-dashed">
             <CardContent className="flex flex-col items-center justify-center py-16 text-center">
               <Package className="mb-4 h-12 w-12 text-muted-foreground/40" />
@@ -175,9 +126,9 @@ export default function MyAdventuresPage() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {mockBookings.map((booking) => (
+            {userBookings.map((booking) => (
               <Card
-                key={booking.id}
+                key={booking.bookingId}
                 className="overflow-hidden transition-shadow hover:shadow-md"
               >
                 <CardContent className="p-0">
@@ -186,7 +137,7 @@ export default function MyAdventuresPage() {
                     <div
                       className={cn(
                         "h-1.5 w-full sm:h-auto sm:w-1.5",
-                        needsPayment(booking.paymentStatus)
+                        needsPayment(booking.paymentStatus!)
                           ? "bg-warning"
                           : "bg-primary",
                       )}
@@ -199,8 +150,8 @@ export default function MyAdventuresPage() {
                           <h3 className="text-lg font-semibold leading-snug">
                             {booking.expeditionTitle}
                           </h3>
-                          {getBookingBadge(booking.bookingStatus)}
-                          {getPaymentBadge(booking.paymentStatus)}
+                          {getBookingBadge(booking.bookingStatus!)}
+                          {getPaymentBadge(booking.paymentStatus!)}
                         </div>
 
                         <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
@@ -252,12 +203,15 @@ export default function MyAdventuresPage() {
 
                       {/* Actions */}
                       <div className="flex flex-col gap-2 sm:items-end">
-                        {needsPayment(booking.paymentStatus) && (
+                        {needsPayment(booking.paymentStatus!) && (
                           <Button
                             size="sm"
                             className="gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
                           >
-                            <Link href={`/bookings/${booking.id}/payment`}>
+                            <Link
+                              href={`/bookings/${booking.bookingId}/payment`}
+                              className="gap-2 flex items-center"
+                            >
                               <CreditCard className="h-4 w-4" />
                               Complete Payment
                             </Link>
@@ -267,7 +221,7 @@ export default function MyAdventuresPage() {
                         <Button variant="outline" size="sm">
                           <Link
                             href={`/expeditions/${booking.expeditionId}`}
-                            className="gap-1.5"
+                            className="gap-2 flex items-center"
                           >
                             View Details
                             <ArrowRight className="h-3.5 w-3.5" />

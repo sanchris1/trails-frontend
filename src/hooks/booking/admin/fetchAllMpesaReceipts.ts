@@ -21,6 +21,7 @@ interface FetchReceiptsResponse {
     paymentDate: string;
     receiptNumber: string;
     bookingId: string;
+    amountPaid: number;
   }[];
 }
 

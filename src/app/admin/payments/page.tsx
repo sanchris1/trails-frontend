@@ -40,6 +40,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUpdatePaymentAndBookingStatus } from "@/hooks/booking/admin/updatePaymentAndBookingStatus";
+import { PartialPaymentDialog } from "../components/PartialPaymentDialog";
 
 export type PaymentStatus =
   | "pending"
@@ -97,7 +98,15 @@ function formatDate(dateString: string) {
   });
 }
 
+const emptyTargetValues = {
+  id: "",
+  status: "",
+};
+
 export default function AdminPaymentsPage() {
+  const [partialPaymentOpen, setPartialPaymentOpen] = useState(false);
+  const [targetItem, setTargetItem] = useState(emptyTargetValues);
+
   const { data, isLoading, isError, error, refetch, isFetching } =
     useFetchAllMpesaReceipts();
 
@@ -111,6 +120,7 @@ export default function AdminPaymentsPage() {
   };
 
   const allReceipts = data?.allReceipts ?? [];
+  const [totalAmount, setTotalAmount] = useState<number>(0);
 
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -155,7 +165,6 @@ export default function AdminPaymentsPage() {
   if (axios.isAxiosError(error)) {
     console.error(error.response);
   }
-  console.log(error);
   return (
     <div className=" py-8 px-6">
       {/* Header */}
@@ -181,7 +190,6 @@ export default function AdminPaymentsPage() {
           Refresh
         </Button>
       </div>
-
       {/* Stats */}
       <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -207,16 +215,14 @@ export default function AdminPaymentsPage() {
           icon={<CreditCard className="h-4 w-4" />}
         />
       </div>
-
       {/* Status summary */}
       <div className="mb-6 flex flex-wrap gap-2 text-xs text-muted-foreground">
         <Badge variant="outline">Confirmed: {paidCount}</Badge>
         <Badge variant="outline">Pending: {pendingCount}</Badge>
-        <Badge variant="outline">Cancelled: {failedCount}</Badge>
-        <Badge variant="outline">Cancelled: {partialPaymentCount}</Badge>
-        <Badge variant="outline">Cancelled: {refundedCount}</Badge>
+        <Badge variant="outline">Failed: {failedCount}</Badge>
+        <Badge variant="outline">Partial Payment: {partialPaymentCount}</Badge>
+        <Badge variant="outline">Refunded: {refundedCount}</Badge>
       </div>
-
       {/* Filters */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative max-w-sm flex-1">
@@ -245,7 +251,6 @@ export default function AdminPaymentsPage() {
           </SelectContent>
         </Select>
       </div>
-
       {/* Table */}
       <div className="overflow-hidden rounded-xl border border-border bg-card">
         {isLoading ? (
@@ -385,41 +390,82 @@ export default function AdminPaymentsPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View details</DropdownMenuItem>
-                          <DropdownMenuItem>View booking</DropdownMenuItem>
+                          {payment.status === "pending" && (
+                            <>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  updateStatus({
+                                    bookingId: payment.bookingId,
+                                    status: "paid",
+                                    amountPaid: "",
+                                  })
+                                }
+                              >
+                                Mark as paid
+                              </DropdownMenuItem>
+
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setTargetItem({
+                                    id: payment.bookingId,
+                                    status: "partially_paid",
+                                  });
+                                  setPartialPaymentOpen(true);
+                                  setTotalAmount(
+                                    payment.amount - payment.amountPaid,
+                                  );
+                                }}
+                              >
+                                Mark as partially paid
+                              </DropdownMenuItem>
+                            </>
+                          )}
+
+                          {payment.status === "partially_paid" && (
+                            <>
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  updateStatus({
+                                    bookingId: payment.bookingId,
+                                    status: "paid",
+                                    amountPaid: "",
+                                  })
+                                }
+                              >
+                                Mark as fully paid
+                              </DropdownMenuItem>
+
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setTargetItem({
+                                    id: payment.bookingId,
+                                    status: "partially_paid",
+                                  });
+                                  setPartialPaymentOpen(true);
+                                  setTotalAmount(
+                                    payment.amount - payment.amountPaid,
+                                  );
+                                }}
+                              >
+                                Record another partial payment
+                              </DropdownMenuItem>
+                            </>
+                          )}
+
                           {payment.status === "paid" && (
                             <DropdownMenuItem
-                              className="text-destructive"
+                              className="text-destructive focus:text-destructive"
                               onClick={() =>
                                 updateStatus({
                                   bookingId: payment.bookingId,
                                   status: "refunded",
+                                  amountPaid: "",
                                 })
                               }
                             >
                               Issue refund
                             </DropdownMenuItem>
                           )}
-                          <DropdownMenuItem
-                            onClick={() =>
-                              updateStatus({
-                                bookingId: payment.bookingId,
-                                status: "paid",
-                              })
-                            }
-                          >
-                            Mark as paid
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              updateStatus({
-                                bookingId: payment.bookingId,
-                                status: "partially_paid",
-                              })
-                            }
-                          >
-                            Mark as paid partially
-                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
@@ -430,10 +476,15 @@ export default function AdminPaymentsPage() {
           </Table>
         )}
       </div>
-
       <p className="mt-3 text-xs text-muted-foreground">
         Showing {filtered.length} of {allReceipts.length} records
       </p>
+      <PartialPaymentDialog
+        targetItem={targetItem}
+        totalAmount={totalAmount}
+        open={partialPaymentOpen}
+        onOpenChange={setPartialPaymentOpen}
+      />
     </div>
   );
 }
