@@ -18,6 +18,6 @@ export const useGetSession = () =>
   useQuery<GetSessionResponse>({
     queryFn: getSession,
     queryKey: ["session"],
-    retry: false,
+    retry: 1,
     staleTime: 1000 * 60 * 5,
   });
