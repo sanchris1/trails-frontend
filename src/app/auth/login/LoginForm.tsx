@@ -12,7 +12,7 @@ import Logo from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { loginUser } from "@/hooks/auth/loginUser";
 import { tokenStore } from "@/lib/tokenStore";
 
@@ -30,8 +30,6 @@ const LoginForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const queryClient = useQueryClient();
-
   const { mutate: login, isPending: loading } = useMutation({
     mutationFn: loginUser,
     onError: (ctx: any) => {
@@ -41,13 +39,10 @@ const LoginForm = () => {
     },
     onSuccess: (data) => {
       tokenStore.set(data.accessToken);
-
-      // If the API returns a refresh token, set the cookie middleware expects
-      if (data.refreshToken) {
-        document.cookie = `refreshToken=${data.refreshToken}; path=/; Max-Age=${60 * 60 * 24 * 7}; SameSite=Lax${
-          process.env.NODE_ENV === "production" ? "; Secure" : ""
-        }`;
-      }
+      setValues({
+        email: "",
+        password: "",
+      });
 
       toast.success(data?.message || "Login success");
 
@@ -56,9 +51,6 @@ const LoginForm = () => {
         raw.startsWith("/") && !raw.startsWith("//") ? raw : "/expeditions";
 
       router.replace(safe);
-
-      // do not await — don't block on a slow/hanging session call
-      void queryClient.invalidateQueries({ queryKey: ["session"] });
     },
   });
 
