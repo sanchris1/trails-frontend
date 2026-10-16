@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface BookedExpeditionProps {
   total: number;
@@ -30,6 +31,7 @@ interface BookedExpeditionProps {
   participantsCount: number;
   setParticipantsCount: (count: number) => void;
   setCurrentStep: (step: number) => void;
+  isPaid: boolean;
 }
 
 const BookedExpedition = ({
@@ -41,7 +43,10 @@ const BookedExpedition = ({
   participantsCount,
   setParticipantsCount,
   setCurrentStep,
+  isPaid,
 }: BookedExpeditionProps) => {
+  const router = useRouter();
+
   const maxParticipants = expedition?.slotsLeft ?? 1;
 
   const increaseParticipants = () => {
@@ -55,6 +60,8 @@ const BookedExpedition = ({
       setParticipantsCount(participantsCount - 1);
     }
   };
+
+  console.log(expedition);
 
   if (isLoading) return <FetchingProductsPage />;
 
@@ -216,7 +223,7 @@ const BookedExpedition = ({
                       variant="outline"
                       size="icon"
                       className="h-8 w-8 rounded-full"
-                      disabled={participantsCount <= 1}
+                      disabled={participantsCount <= 1 || isBooked}
                       onClick={decreaseParticipants}
                     >
                       <Minus className="h-3.5 w-3.5" />
@@ -227,7 +234,9 @@ const BookedExpedition = ({
                       variant="outline"
                       size="icon"
                       className="h-8 w-8 rounded-full"
-                      disabled={participantsCount >= maxParticipants}
+                      disabled={
+                        participantsCount >= maxParticipants || isBooked
+                      }
                       onClick={increaseParticipants}
                     >
                       <Plus className="h-3.5 w-3.5" />
@@ -267,9 +276,20 @@ const BookedExpedition = ({
               <Button
                 className="mt-5 h-11 w-full rounded-lg"
                 size="lg"
-                onClick={isBooked ? () => setCurrentStep(4) : onContinue}
+                onClick={
+                  isPaid
+                    ? () => router.push("/profile")
+                    : isBooked && !isPaid
+                      ? () => setCurrentStep(4)
+                      : onContinue
+                }
               >
-                Continue to {isBooked ? "Payment" : "Participants"}
+                Continue to{" "}
+                {isPaid
+                  ? "Profile"
+                  : isBooked && !isPaid
+                    ? "Payment"
+                    : "Participants"}
                 <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
 

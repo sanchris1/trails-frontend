@@ -29,11 +29,17 @@ const steps = [
 const BookingPage = ({ expeditionId }: { expeditionId: string }) => {
   const { data } = useFetchUserBookings();
 
+  console.log("Fetched data:", data);
+
   const userBookings: any[] = data?.userBookings ?? [];
 
   const isBooked =
     userBookings.some((bookings) => bookings.expeditionId === expeditionId) ??
     false;
+
+  const paidBooking = userBookings.find(
+    (booking) => booking.expeditionId === expeditionId,
+  );
 
   const [currentStep, setCurrentStep] = useState(1);
   const [bookingId, setBookingId] = useState<string | null>(null);
@@ -50,8 +56,9 @@ const BookingPage = ({ expeditionId }: { expeditionId: string }) => {
 
   const expedition = fetchedData?.data;
 
-  const total =
-    expedition?.adventure?.defaultPrice != null
+  const total = isBooked
+    ? paidBooking?.totalAmount
+    : expedition?.adventure?.defaultPrice != null
       ? expedition.adventure.defaultPrice * participants.length
       : 0;
 
@@ -76,12 +83,15 @@ const BookingPage = ({ expeditionId }: { expeditionId: string }) => {
 
       {currentStep === 1 && (
         <BookedExpedition
+          isPaid={paidBooking?.paymentStatus === "paid"}
           isLoading={isLoading}
           expedition={expedition}
           isBooked={isBooked}
           total={total}
           onContinue={nextStep}
-          participantsCount={participants.length}
+          participantsCount={
+            isBooked ? paidBooking?.numberOfParticipants : participants.length
+          }
           setCurrentStep={setCurrentStep}
           setParticipantsCount={updateParticipantsCount}
         />
@@ -109,11 +119,13 @@ const BookingPage = ({ expeditionId }: { expeditionId: string }) => {
 
       {currentStep === 4 && (
         <CompleteYourBookingPage
+          isBooked={isBooked}
           bookingId={bookingId}
           onBack={prevStep}
           participants={participants} // ← you can also pass it here
           total={total}
           expedition={expedition}
+          setCurrentStep={setCurrentStep}
         />
       )}
     </main>

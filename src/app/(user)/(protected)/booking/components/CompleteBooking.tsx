@@ -41,6 +41,8 @@ interface CompleteYourBookingPageProps {
   expedition: any;
   total: number;
   bookingId: string | null;
+  isBooked: boolean;
+  setCurrentStep: (step: number) => void;
 }
 
 export default function CompleteYourBookingPage({
@@ -49,6 +51,8 @@ export default function CompleteYourBookingPage({
   expedition,
   total,
   bookingId,
+  isBooked,
+  setCurrentStep,
 }: CompleteYourBookingPageProps) {
   const [paymentMethod, setPaymentMethod] = useState("mpesa");
   const [receiptNumber, setReceiptNumber] = useState("");
@@ -101,7 +105,7 @@ export default function CompleteYourBookingPage({
           <Button
             variant="ghost"
             size="sm"
-            onClick={onBack}
+            onClick={isBooked ? () => setCurrentStep(1) : onBack}
             className="-ml-2 gap-1.5 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />

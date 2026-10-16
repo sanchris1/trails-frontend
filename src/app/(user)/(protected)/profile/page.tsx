@@ -10,6 +10,7 @@ import {
   MapPin,
   Bell,
   ChevronRight,
+  MessageSquareText,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,8 @@ import Image from "next/image";
 import { useFetchUserFavoriteMerchandise } from "@/hooks/favorites/merchandise/fetchUserFavoriteMerchandise";
 import { useGetSession } from "@/hooks/auth/useGetSession.hook";
 import { formatDate } from "@/utils/dateTimeFormat";
+import { ReviewDrawer, ReviewTarget } from "@/components/common/ReviewSheet";
+import { useState } from "react";
 
 const unreadNotificationsCount = 3; // example – pull from your notifications query
 
@@ -41,6 +44,15 @@ export default function ProfilePage() {
     .join("")
     .toUpperCase()
     .slice(0, 2);
+
+  const [reviewTarget, setReviewTarget] = useState<ReviewTarget | null>(null);
+
+  const [reviewOpen, setReviewOpen] = useState(false);
+
+  function openReview(target: ReviewTarget) {
+    setReviewTarget(target);
+    setReviewOpen(true);
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -208,11 +220,30 @@ export default function ProfilePage() {
                       <span className="capitalize">{exp.difficulty}</span>
                     </div>
 
-                    <Button variant="outline" size="sm" className="w-full">
-                      <Link href={`/expeditions/${exp.expeditionId}`}>
-                        View details
-                      </Link>
-                    </Button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button variant="outline" size="sm">
+                        <Link href={`/expeditions/${exp.expeditionId}`}>
+                          View details
+                        </Link>
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        className="gap-2"
+                        onClick={() =>
+                          openReview({
+                            id: exp.expeditionId,
+                            title: exp.title,
+                            image: exp.image,
+                            type: "expedition",
+                            subtitle: exp.location,
+                          })
+                        }
+                      >
+                        <MessageSquareText className="size-4" />
+                        Review
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -293,9 +324,28 @@ export default function ProfilePage() {
                       </span>
                     </div>
 
-                    <Button variant="outline" size="sm" className="w-full">
-                      <Link href={`/shop/${item.slug}`}>View product</Link>
-                    </Button>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button variant="outline" size="sm">
+                        <Link href={`/shop/${item.slug}`}>View product</Link>
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        className="gap-2"
+                        onClick={() =>
+                          openReview({
+                            id: item.id,
+                            title: item.title,
+                            image: item.images.at(0)?.url ?? null,
+                            type: "product",
+                            subtitle: item.category,
+                          })
+                        }
+                      >
+                        <MessageSquareText className="size-4" />
+                        Review
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -303,6 +353,11 @@ export default function ProfilePage() {
           )}
         </div>
       </section>
+      <ReviewDrawer
+        open={reviewOpen}
+        onOpenChange={setReviewOpen}
+        target={reviewTarget}
+      />
     </div>
   );
 }
