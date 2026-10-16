@@ -25,8 +25,7 @@ import { useGetSession } from "@/hooks/auth/useGetSession.hook";
 import { formatDate } from "@/utils/dateTimeFormat";
 import { ReviewDrawer, ReviewTarget } from "@/components/common/ReviewSheet";
 import { useState } from "react";
-
-const unreadNotificationsCount = 3; // example – pull from your notifications query
+import { useFetchUserNotifications } from "@/hooks/notifications/fetchUserNotifications";
 
 export default function ProfilePage() {
   const {
@@ -37,6 +36,12 @@ export default function ProfilePage() {
   const { data: { allUserFavorites = [] } = {} } = useFetchUserFavorites();
   const { data: { allUserFavoritesMerchandise = [] } = {} } =
     useFetchUserFavoriteMerchandise();
+
+  const { data: notifications = [] } = useFetchUserNotifications();
+
+  const unreadNotificationsCount = notifications.filter(
+    (n) => !n.isRead,
+  )?.length;
 
   const initials = user.name
     .split(" ")

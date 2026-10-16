@@ -17,6 +17,7 @@ export const useMarkAsReadNotification = () => {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: ["notifications"] }),
         queryClient.invalidateQueries({ queryKey: ["admin-stats"] }),
+        queryClient.invalidateQueries({ queryKey: ["user-notification"] }),
       ]),
     onError: (error: any) => {
       if (axios.isAxiosError(error)) {

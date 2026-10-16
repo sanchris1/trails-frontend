@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchUserBooking } from "./fetchUserBookings";
-import { useGetSession } from "../auth/useGetSession.hook";
 
 interface UserBookingsResponseBody {
   expeditionId: string | null;
@@ -28,12 +27,10 @@ interface UserBookingsResponse {
 }
 
 export const useFetchUserBookings = () => {
-  const { data: session } = useGetSession();
-
   return useQuery<UserBookingsResponse>({
     queryKey: ["expeditions"],
     queryFn: fetchUserBooking,
-    enabled: !!session?.user,
+    enabled: true,
     staleTime: 10 * 60 * 1000,
   });
 };

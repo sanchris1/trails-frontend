@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Bell,
   ArrowLeft,
-  CheckCheck,
   Calendar,
   CreditCard,
   Map,
@@ -15,82 +14,49 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
+  Compass,
+  Sparkles,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useFetchUserNotifications } from "@/hooks/notifications/fetchUserNotifications";
+import { useMarkAsReadNotification } from "@/hooks/notifications/markAsReadNotification";
 
-// Mock data based on your notification schema
-const mockNotifications = [
-  {
-    id: "ntf_1",
-    type: "payment_reminder",
-    title: "Payment Reminder",
-    message:
-      "You still have a pending balance of KES 25,000 for Maasai Mara Sunrise Safari. Please complete your payment.",
-    isRead: false,
-    createdAt: new Date("2026-10-06T14:30:00"),
-    bookingId: "bk_001",
-    expeditionId: "exp_1",
-  },
-  {
-    id: "ntf_2",
-    type: "booking_confirmed",
-    title: "Booking Confirmed",
-    message:
-      "Your booking for Mount Kenya Summit Trek has been confirmed. We’re excited to have you on this adventure!",
-    isRead: false,
-    createdAt: new Date("2026-10-05T09:15:00"),
-    bookingId: "bk_002",
-    expeditionId: "exp_2",
-  },
-  {
-    id: "ntf_3",
-    type: "expedition_reminder",
-    title: "Upcoming Expedition",
-    message:
-      "Your Maasai Mara Sunrise Safari departs in 5 days. Meeting point details have been sent to your email.",
-    isRead: false,
-    createdAt: new Date("2026-10-04T11:00:00"),
-    bookingId: "bk_001",
-    expeditionId: "exp_1",
-  },
-  {
-    id: "ntf_4",
-    type: "payment_received",
-    title: "Payment Received",
-    message:
-      "We have received your payment of KES 68,000 for Mount Kenya Summit Trek. Thank you!",
-    isRead: true,
-    createdAt: new Date("2026-09-28T16:45:00"),
-    bookingId: "bk_002",
-    expeditionId: "exp_2",
-  },
-  {
-    id: "ntf_5",
-    type: "expedition_updated",
-    title: "Expedition Update",
-    message:
-      "There has been a slight change in the departure time for Diani Beach Cultural Escape. Please check the updated details.",
-    isRead: true,
-    createdAt: new Date("2026-09-20T10:20:00"),
-    bookingId: "bk_003",
-    expeditionId: "exp_3",
-  },
-  {
-    id: "ntf_6",
-    type: "system",
-    title: "Welcome to the Adventure Community",
-    message:
-      "Thanks for joining us! Explore expeditions, save your favorites, and start planning your next journey.",
-    isRead: true,
-    createdAt: new Date("2024-11-12T08:00:00"),
-    bookingId: null,
-    expeditionId: null,
-  },
-];
+function parseNotificationDate(dateInput: string | Date): Date {
+  if (dateInput instanceof Date) return dateInput;
+
+  // "2026-10-16 08:09:25.655705" → "2026-10-16T08:09:25.655705"
+  const normalized = String(dateInput).trim().replace(" ", "T");
+  const parsed = new Date(normalized);
+
+  // Fallback if parsing still fails
+  if (Number.isNaN(parsed.getTime())) {
+    return new Date(dateInput);
+  }
+  return parsed;
+}
+
+function formatRelativeTime(dateInput: string | Date) {
+  const date = parseNotificationDate(dateInput);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 0) return "Just now"; // future / clock skew
+  if (diffInSeconds < 60) return "Just now";
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  if (diffInSeconds < 604800)
+    return `${Math.floor(diffInSeconds / 86400)}d ago`;
+
+  return date.toLocaleDateString("en-KE", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 function getTypeIcon(type: string) {
   switch (type) {
@@ -135,25 +101,73 @@ function getTypeLabel(type: string) {
   return labels[type] || type;
 }
 
-function formatRelativeTime(date: Date) {
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+function EmptyState({ filter }: { filter: "all" | "unread" }) {
+  const isUnread = filter === "unread";
 
-  if (diffInSeconds < 60) return "Just now";
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-  if (diffInSeconds < 604800)
-    return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  return (
+    <Card className="border-dashed bg-muted/20">
+      <CardContent className="flex flex-col items-center justify-center px-6 py-16 text-center sm:py-20">
+        <div className="relative mb-6">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+            {isUnread ? (
+              <CheckCircle2 className="h-10 w-10 text-primary" />
+            ) : (
+              <Bell className="h-10 w-10 text-muted-foreground/60" />
+            )}
+          </div>
+          {!isUnread && (
+            <span className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-background shadow-sm ring-1 ring-border">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+            </span>
+          )}
+        </div>
 
-  return date.toLocaleDateString("en-KE", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+        <h3 className="text-xl font-semibold tracking-tight">
+          {isUnread ? "You're all caught up!" : "No notifications yet"}
+        </h3>
+
+        <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+          {isUnread
+            ? "You have no unread notifications. Check back later for updates on your bookings and expeditions."
+            : "When you book an expedition, make a payment, or get important updates, they'll show up here."}
+        </p>
+
+        {!isUnread && (
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Button>
+              <Link href="/expeditions" className="gap-2 flex items-center">
+                <Compass className="h-4 w-4" />
+                Explore Expeditions
+              </Link>
+            </Button>
+            <Button variant="outline">
+              <Link href="/profile/adventures">View My Bookings</Link>
+            </Button>
+          </div>
+        )}
+
+        {isUnread && (
+          <Button
+            variant="outline"
+            className="mt-8"
+            onClick={() => {
+              /* parent will handle via filter change if needed */
+            }}
+          >
+            <Link href="#" onClick={(e) => e.preventDefault()}>
+              View all notifications
+            </Link>
+          </Button>
+        )}
+      </CardContent>
+    </Card>
+  );
 }
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState(mockNotifications);
+  const { data: notifications = [] } = useFetchUserNotifications();
+  const { mutate: markAsRead } = useMarkAsReadNotification();
+
   const [filter, setFilter] = useState<"all" | "unread">("all");
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
@@ -162,16 +176,6 @@ export default function NotificationsPage() {
     filter === "unread"
       ? notifications.filter((n) => !n.isRead)
       : notifications;
-
-  const markAsRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
-    );
-  };
-
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -195,25 +199,12 @@ export default function NotificationsPage() {
               </p>
             </div>
 
-            <div className="flex gap-2">
-              {unreadCount > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={markAllAsRead}
-                  className="gap-2"
-                >
-                  <CheckCheck className="h-4 w-4" />
-                  Mark all as read
-                </Button>
-              )}
-              <Button variant="outline" size="sm">
-                <Link href="/profile" className="gap-2">
-                  <ArrowLeft className="h-4 w-4" />
-                  Back
-                </Link>
-              </Button>
-            </div>
+            <Button variant="outline" size="sm">
+              <Link href="/profile" className="gap-2 flex items-center">
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -239,21 +230,7 @@ export default function NotificationsPage() {
         </div>
 
         {filtered.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-              <Bell className="mb-4 h-12 w-12 text-muted-foreground/40" />
-              <h3 className="text-lg font-medium">
-                {filter === "unread"
-                  ? "No unread notifications"
-                  : "No notifications yet"}
-              </h3>
-              <p className="mt-1 text-muted-foreground">
-                {filter === "unread"
-                  ? "You're all caught up!"
-                  : "Updates about your bookings and expeditions will appear here."}
-              </p>
-            </CardContent>
-          </Card>
+          <EmptyState filter={filter} />
         ) : (
           <div className="space-y-3">
             {filtered.map((notification) => (
