@@ -39,18 +39,26 @@ const LoginForm = () => {
         ctx?.response.data.message || "Error logging in, Please try again.",
       );
     },
-    onSuccess: async (data) => {
+    onSuccess: (data) => {
       tokenStore.set(data.accessToken);
+
+      // If the API returns a refresh token, set the cookie middleware expects
+      if (data.refreshToken) {
+        document.cookie = `refreshToken=${data.refreshToken}; path=/; Max-Age=${60 * 60 * 24 * 7}; SameSite=Lax${
+          process.env.NODE_ENV === "production" ? "; Secure" : ""
+        }`;
+      }
+
       toast.success(data?.message || "Login success");
 
-      await queryClient.invalidateQueries({ queryKey: ["session"] });
-
       const raw = searchParams.get("callbackUrl") ?? "/expeditions";
-      const safeCallback =
+      const safe =
         raw.startsWith("/") && !raw.startsWith("//") ? raw : "/expeditions";
 
-      router.replace(safeCallback);
-      router.refresh();
+      router.replace(safe);
+
+      // do not await — don't block on a slow/hanging session call
+      void queryClient.invalidateQueries({ queryKey: ["session"] });
     },
   });
 
