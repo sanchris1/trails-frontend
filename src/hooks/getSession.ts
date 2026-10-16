@@ -3,7 +3,7 @@ import { api } from "@/lib/api";
 
 export async function getSession() {
   try {
-    const { data } = await api.get("/auth/me");
+    const { data } = await api.get("/auth/me", { withCredentials: true });
     return data;
   } catch (error: any) {
     if (error.response?.status === 401) {

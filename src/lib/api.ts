@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// src/lib/api.ts
 import axios from "axios";
 import { tokenStore } from "./tokenStore";
 
@@ -8,7 +7,6 @@ export const api = axios.create({
   withCredentials: true, // needed so the browser sends the httpOnly refresh cookie
 });
 
-// ——— Request interceptor: attach access token ———
 api.interceptors.request.use((config) => {
   const token = tokenStore.get();
   if (token) {
@@ -17,7 +15,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// ——— Response interceptor: handle expired access token ———
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (token: string | null) => void;
@@ -39,51 +36,56 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const status = error.response?.status;
+    const url: string = originalRequest?.url ?? "";
 
-    // Ignore if it's the refresh call itself or already retried
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !originalRequest.url?.includes("/auth/refresh")
-    ) {
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return api(originalRequest);
-          })
-          .catch((err) => Promise.reject(err));
-      }
+    const isAuthEndpoint =
+      url.includes("/auth/login") ||
+      url.includes("/auth/register") ||
+      url.includes("/auth/signup") ||
+      url.includes("/auth/me") ||
+      url.includes("/auth/refresh");
 
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      try {
-        const { data } = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
-          {},
-          { withCredentials: true },
-        );
-
-        const newAccessToken = data.accessToken;
-        tokenStore.set(newAccessToken);
-
-        processQueue(null, newAccessToken);
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
-        return api(originalRequest);
-      } catch (refreshError) {
-        console.error("Refresh failed:", refreshError);
-        processQueue(refreshError, null);
-        tokenStore.clear();
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
-      }
+    // Only refresh for real API 401s — not login/me/refresh
+    if (status !== 401 || originalRequest._retry || isAuthEndpoint) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      })
+        .then((token) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return api(originalRequest);
+        })
+        .catch((err) => Promise.reject(err));
+    }
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    try {
+      const { data } = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+        {},
+        { withCredentials: true },
+      );
+
+      const newAccessToken = data.accessToken;
+      tokenStore.set(newAccessToken);
+
+      processQueue(null, newAccessToken);
+      originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+      return api(originalRequest);
+    } catch (refreshError) {
+      console.error("Refresh failed:", refreshError);
+      processQueue(refreshError, null);
+      tokenStore.clear();
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
   },
 );
