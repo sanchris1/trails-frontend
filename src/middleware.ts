@@ -14,6 +14,8 @@ export function middleware(request: NextRequest) {
 
   const refreshToken = request.cookies.get("refreshToken");
 
+  console.log("Refresh token in prod:", refreshToken);
+
   if (!refreshToken) {
     const loginUrl = new URL("/auth/login", request.url);
     loginUrl.searchParams.set(
