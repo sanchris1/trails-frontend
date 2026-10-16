@@ -123,7 +123,11 @@ const BookingPage = ({ expeditionId }: { expeditionId: string }) => {
           bookingId={bookingId}
           onBack={prevStep}
           participants={participants} // ← you can also pass it here
-          total={total}
+          total={
+            paidBooking?.paymentStatus === "partially_paid"
+              ? total - paidBooking.amountPaid
+              : total
+          }
           expedition={expedition}
           setCurrentStep={setCurrentStep}
         />

@@ -209,7 +209,7 @@ export default function MyAdventuresPage() {
                             className="gap-2 bg-accent text-accent-foreground hover:bg-accent/90"
                           >
                             <Link
-                              href={`/bookings/${booking.bookingId}/payment`}
+                              href={`/booking/${booking.expeditionId}/book`}
                               className="gap-2 flex items-center"
                             >
                               <CreditCard className="h-4 w-4" />
