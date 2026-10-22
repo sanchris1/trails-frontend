@@ -3,7 +3,7 @@ import axios from "axios";
 import { tokenStore } from "./tokenStore";
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "/api",
   withCredentials: true, // needed so the browser sends the httpOnly refresh cookie
 });
 
@@ -43,7 +43,7 @@ api.interceptors.response.use(
       url.includes("/auth/login") ||
       url.includes("/auth/register") ||
       url.includes("/auth/signup") ||
-      url.includes("/auth/me") ||
+      // /auth/me can be refreshed
       url.includes("/auth/refresh");
 
     // Only refresh for real API 401s — not login/me/refresh
@@ -67,7 +67,7 @@ api.interceptors.response.use(
 
     try {
       const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
+        `${process.env.NEXT_PUBLIC_API_URL || "/api"}/auth/refresh`,
         {},
         { withCredentials: true },
       );

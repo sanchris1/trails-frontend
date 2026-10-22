@@ -45,8 +45,14 @@ const SignupForm = () => {
     onSuccess: async (data) => {
       tokenStore.set(data.accessToken);
       toast.success(data?.message || "Login success");
-      router.push(callbackUrl);
+      if (data?.user) {
+        queryClient.setQueryData(["session"], {
+          success: true,
+          user: data.user,
+        });
+      }
       await queryClient.invalidateQueries({ queryKey: ["session"] });
+      router.push(callbackUrl);
     },
   });
 

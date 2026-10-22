@@ -1,5 +1,11 @@
 import type { NextConfig } from "next";
 
+const BACKEND_URL =
+  process.env.BACKEND_URL ||
+  (process.env.NODE_ENV === "production"
+    ? "https://trails-backend-xu2z.onrender.com"
+    : "http://localhost:8000");
+
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
@@ -14,6 +20,15 @@ const nextConfig: NextConfig = {
         pathname: "/pus8bfdp/**",
       },
     ],
+  },
+
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${BACKEND_URL}/api/:path*`,
+      },
+    ];
   },
 };
 

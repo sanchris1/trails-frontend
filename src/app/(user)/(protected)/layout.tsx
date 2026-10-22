@@ -12,6 +12,8 @@ const ProtectedLayout = ({ children }: { children: ReactNode }) => {
 
   const loading = isLoading ?? session === undefined;
 
+  console.log(session);
+
   useEffect(() => {
     if (loading) return;
 

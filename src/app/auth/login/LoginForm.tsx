@@ -12,9 +12,10 @@ import Logo from "@/components/common/Logo";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { loginUser } from "@/hooks/auth/loginUser";
 import { tokenStore } from "@/lib/tokenStore";
+import axios from "axios";
 
 type FormValues = {
   email: string;
@@ -29,10 +30,15 @@ const LoginForm = () => {
 
   const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
 
   const { mutate: login, isPending: loading } = useMutation({
     mutationFn: loginUser,
     onError: (ctx: any) => {
+      if (axios.isAxiosError(ctx) && ctx.response) {
+        console.error("Login error:", ctx.response.data);
+      }
+
       toast.error(
         ctx?.response.data.message || "Error logging in, Please try again.",
       );
@@ -45,6 +51,14 @@ const LoginForm = () => {
       });
 
       toast.success(data?.message || "Login success");
+
+      if (data?.user) {
+        queryClient.setQueryData(["session"], {
+          success: true,
+          user: data.user,
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ["session"] });
 
       const raw = searchParams.get("callbackUrl") ?? "/expeditions";
       const safe =

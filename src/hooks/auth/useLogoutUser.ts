@@ -11,6 +11,7 @@ export const useLogoutUser = () => {
 
     onSuccess: () => {
       tokenStore.clear();
+      queryClient.setQueryData(["session"], null);
       return Promise.all([
         queryClient.invalidateQueries({ queryKey: ["session"] }),
         queryClient.invalidateQueries({ queryKey: ["notifications"] }),

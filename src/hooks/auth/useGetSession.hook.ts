@@ -16,8 +16,9 @@ interface GetSessionResponse {
 
 export const useGetSession = () =>
   useQuery<GetSessionResponse>({
-    queryFn: getSession,
+    queryFn: getSession as any,
     queryKey: ["session"],
-    retry: 1,
+    retry: false,
     staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: true,
   });

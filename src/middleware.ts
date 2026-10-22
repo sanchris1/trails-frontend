@@ -12,7 +12,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const refreshToken = request.cookies.get("refreshToken");
+  const refreshToken = request.cookies.get("refreshToken")?.value;
 
   console.log("Refresh token in prod:", refreshToken);
 
