@@ -32,6 +32,9 @@ import { useDeleteMerchandise } from "@/hooks/merchandise/deleteMerchandise";
 import { useFetchAllMerchandise } from "@/hooks/merchandise/fetchMerchandise";
 import { formatPrice } from "@/app/(user)/shop/components/ProductsGrid";
 import Link from "next/link";
+import { useToggleUserFavoriteMerchandise } from "@/hooks/favorites/merchandise/toggleUserFavoriteMerchandise";
+import { useCartStore } from "@/store/useMerchandiseStore";
+import toast from "react-hot-toast";
 
 type MerchandiseDetailsProps = {
   product: MerchandiseResponseItem;
@@ -67,6 +70,9 @@ export default function MerchandiseDetails({
 
   const isOutOfStock = merchandise.stock <= 0;
 
+  const { mutate: toggleFavorite } = useToggleUserFavoriteMerchandise();
+  const { addToCart, items: cartItems } = useCartStore();
+
   const handlePreviousImage = () => {
     if (!images.length) return;
 
@@ -88,6 +94,8 @@ export default function MerchandiseDetails({
       router.push("/admin/merchandise");
     }
   }, [deleting, isSuccess]);
+
+  const isAddedToCart = cartItems.some((item) => item.id === merchandise.id);
 
   return (
     <main className="min-h-screen bg-background">
@@ -364,12 +372,46 @@ export default function MerchandiseDetails({
             {/* Actions */}
             {!isAdmin && (
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button size="lg" className="flex-1" disabled={isOutOfStock}>
+                <Button
+                  variant={isAddedToCart ? "outline" : "default"}
+                  onClick={() => {
+                    addToCart(
+                      {
+                        id: merchandise.id,
+                        name: merchandise.title,
+                        price: merchandise.price.toString(),
+                        image: merchandise_images?.images[0]?.url ?? "",
+                        category: merchandise.category,
+                        slug: merchandise.slug,
+                      },
+                      1,
+                    );
+
+                    toast.success(
+                      `${merchandise.title} has been added to your cart!`,
+                      {
+                        position: "top-right",
+                      },
+                    );
+                  }}
+                  size="lg"
+                  className="flex-1 py-1"
+                  disabled={isOutOfStock}
+                >
                   <ShoppingBag className="mr-2 h-5 w-5" />
-                  {isOutOfStock ? "Out of stock" : "Add to cart"}
+                  {isOutOfStock
+                    ? "Out of stock"
+                    : isAddedToCart
+                      ? "Added to cart"
+                      : "Add to cart"}
                 </Button>
 
-                <Button size="lg" variant="outline" className="sm:w-14">
+                <Button
+                  onClick={() => toggleFavorite(merchandise.id)}
+                  size="lg"
+                  variant="outline"
+                  className=" flex items-center gap-2"
+                >
                   <Heart className="h-5 w-5" />
                   <span className="sm:hidden">Add to wishlist</span>
                   <span className="sr-only sm:not-sr-only">

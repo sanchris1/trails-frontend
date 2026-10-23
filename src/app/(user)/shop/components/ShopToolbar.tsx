@@ -114,7 +114,6 @@ export default function ShopToolbar({
             </div>
           </div>
 
-          {/* Category pills */}
           <div className="flex gap-2 overflow-x-auto pb-5 hide-scrollbar">
             {categories.map((category) => {
               const isActive = activeCategory === category.value;
