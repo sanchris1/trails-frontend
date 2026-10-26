@@ -1,5 +1,42 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Merchandise checkout API
+
+The merchandise checkout submits `POST /shop/orders` through the configured API
+base URL. The frontend sends:
+
+```json
+{
+  "customer": {
+    "fullName": "Customer Name",
+    "email": "customer@example.com",
+    "phone": "+254700000000"
+  },
+  "delivery": {
+    "county": "Nairobi",
+    "town": "Westlands",
+    "address": "Street address",
+    "notes": "Optional delivery instructions"
+  },
+  "paymentMethod": "mpesa",
+  "mpesaReceiptNumber": "QK12ABC345",
+  "items": [{ "merchandiseId": "merchandise-id", "quantity": 1 }]
+}
+```
+
+`paymentMethod` is `mpesa` or `cod`. The receipt number is included for M-Pesa
+orders only. The backend should validate the request, resolve product prices
+and availability from the merchandise IDs, calculate the final total, and
+verify the M-Pesa receipt; client-provided cart prices are not sent as trusted
+order values. On success, the API may return an order reference:
+
+```json
+{
+  "message": "Order received",
+  "order": { "id": "order-id", "orderNumber": "ORDER-123" }
+}
+```
+
 ## Getting Started
 
 First, run the development server:
