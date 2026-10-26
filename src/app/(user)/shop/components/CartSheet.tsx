@@ -14,6 +14,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useCartStore } from "@/store/useMerchandiseStore";
+import { useRouter } from "next/navigation";
 
 // Supports prices such as "1500", "KES 1,500", and "KES 1,500.00".
 function parsePrice(price: string): number {
@@ -29,6 +30,8 @@ function formatPrice(price: number): string {
 }
 
 export default function CartSheet() {
+  const router = useRouter();
+
   const {
     items,
     increaseQuantity,
@@ -48,10 +51,12 @@ export default function CartSheet() {
 
   const handleContinueShopping = () => {
     setIsCartOpen(false);
+    router.push("/shop");
   };
 
   const onCheckout = () => {
     setIsCartOpen(false);
+    router.replace("/checkout");
   };
 
   return (

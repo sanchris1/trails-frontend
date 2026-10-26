@@ -37,6 +37,33 @@ order values. On success, the API may return an order reference:
 }
 ```
 
+### Order management endpoints
+
+The frontend expects these authenticated endpoints for merchandise orders:
+
+- `GET /shop/orders/fetch-all` — admin-only; returns
+  `{ "orders": [<MerchandiseOrder>] }`.
+- `GET /shop/orders/fetch-user` — returns the signed-in user's orders in the
+  same response shape. The backend must scope results to the authenticated user.
+- `PUT /shop/orders/:orderId/status` — admin-only; request body is
+  `{ "status": "<new status>" }`. The supported lifecycle is `pending` →
+  `processing` → `shipped` → `delivered` → `completed`; `pending` and
+  `processing` orders may also transition to `cancelled`. `completed` and
+  `cancelled` are terminal. The backend must enforce these transitions even
+  when a caller bypasses the UI.
+- `DELETE /shop/orders/:orderId` — deletes an order only when it belongs to the
+  authenticated user. The backend must enforce ownership and decide whether
+  its current order/payment state permits deletion; clients cannot delete
+  another user's or an admin's order.
+
+Each `MerchandiseOrder` contains `id`, optional `orderNumber`, `createdAt`,
+`status`, `paymentStatus`, `paymentMethod`, optional `mpesaReceiptNumber`,
+`subtotal`, `deliveryFee`, `totalAmount`, `customer` (`fullName`, `email`,
+`phone`), `delivery` (`county`, `town`, `address`, optional `notes`), and an
+`items` array of `merchandiseId`, `name`, `quantity`, `unitPrice`, and optional
+`image`. These routes are frontend contracts; the backend must implement them
+before the order management screens can retrieve or delete persisted orders.
+
 ## Getting Started
 
 First, run the development server:
